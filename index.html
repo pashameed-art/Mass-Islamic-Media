@@ -194,6 +194,7 @@ MUS.Storage = (function () {
       shopInfo: { name: "Mass Uniform Store", address: "Indra Nagar, Kadayanallur – 627751", phone: "9042321452" },
       products: defaultProducts(),
       customers: [],
+      lastBackupAt: null,
     };
   }
 
@@ -2057,6 +2058,7 @@ MUS.App = (function () {
   /* ---------------- Shop Settings modal ---------------- */
   function openShopSettings() {
     const s = state.shopInfo;
+    const lastBackup = state.lastBackupAt ? MUS.Utils.fmtDate(state.lastBackupAt) : "Never";
     const html = `
     <div class="modal-overlay" onclick="MUS.App.closeModal()">
       <div class="modal-sheet" onclick="event.stopPropagation()" style="max-height:80vh;">
@@ -2071,6 +2073,14 @@ MUS.App = (function () {
         <label class="field-label">Phone Number</label>
         <input type="text" class="field-input" id="shopPhone" style="margin-bottom:18px;" value="${MUS.Utils.esc(s.phone)}">
         <button class="btn-primary" onclick="MUS.App.saveShopSettings()">Save</button>
+
+        <div class="card" style="margin-top:18px;">
+          <div class="stencil" style="font-size:11px;color:#6b6455;margin-bottom:8px;">Backup & Restore</div>
+          <div style="font-size:12px;color:#8a8270;margin-bottom:10px;">Last backup: <b style="color:var(--navy);">${lastBackup}</b></div>
+          <button class="btn-gold" style="margin-bottom:8px;" onclick="MUS.App.exportBackup()">💾 Backup Data (Download)</button>
+          <input type="file" id="restoreFileInput" accept="application/json" style="display:none;" onchange="MUS.App.importBackup(this.files[0])">
+          <button class="btn-primary" onclick="document.getElementById('restoreFileInput').click()">📂 Restore from Backup</button>
+        </div>
       </div>
     </div>`;
     openModal(html);
@@ -2085,11 +2095,84 @@ MUS.App = (function () {
     closeModal();
   }
 
+  /* ---------------- Backup & Restore ---------------- */
+  function exportBackup() {
+    try {
+      const dataStr = JSON.stringify(state, null, 2);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `mus-backup-${MUS.Utils.todayStr()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+
+      state.lastBackupAt = MUS.Utils.todayStr();
+      saveState();
+      closeModal();
+      alert("Backup downloaded! Keep this file safe (e.g. save it to Google Drive or WhatsApp it to yourself).");
+    } catch (err) {
+      console.error("Backup failed:", err);
+      alert("Backup failed: " + err.message);
+    }
+  }
+
+  function importBackup(file) {
+    if (!file) return;
+    const ok = window.confirm("Restoring will REPLACE all current data (ledger, bills, products, customers) with the backup file. Continue?");
+    if (!ok) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const parsed = JSON.parse(e.target.result);
+        state = Object.assign(MUS.Storage.defaultState(), parsed);
+        saveState();
+        closeModal();
+        switchTab("dashboard");
+        alert("Backup restored successfully!");
+      } catch (err) {
+        console.error("Restore failed:", err);
+        alert("Restore failed — this doesn't look like a valid backup file.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function checkBackupReminder() {
+    const last = state.lastBackupAt;
+    const daysSince = last ? Math.floor((new Date(MUS.Utils.todayStr()) - new Date(last)) / 86400000) : Infinity;
+    if (daysSince < 7) return;
+
+    const banner = document.createElement("div");
+    banner.style.cssText = "position:fixed;top:0;left:0;right:0;background:#B8860B;color:#1C2B3A;padding:10px 14px;font-size:13px;font-weight:700;z-index:100;display:flex;justify-content:space-between;align-items:center;gap:10px;";
+    banner.innerHTML = `<span>⚠️ ${last ? `It's been ${daysSince} days since your last backup.` : "You haven't backed up your data yet."} Back up weekly to avoid losing data.</span>`;
+    const btn = document.createElement("button");
+    btn.textContent = "Backup Now";
+    btn.style.cssText = "background:#1C2B3A;color:#F3EFE3;border:none;border-radius:6px;padding:6px 10px;font-weight:700;font-size:12px;flex-shrink:0;";
+    btn.onclick = () => { banner.remove(); exportBackup(); };
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "✕";
+    closeBtn.style.cssText = "background:none;border:none;color:#1C2B3A;font-size:16px;flex-shrink:0;";
+    closeBtn.onclick = () => banner.remove();
+    banner.appendChild(btn);
+    banner.appendChild(closeBtn);
+    document.body.prepend(banner);
+
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    } else if ("Notification" in window && Notification.permission === "granted") {
+      try { new Notification("Mass Uniform Store", { body: "Weekly backup reminder — please back up your data." }); } catch (e) {}
+    }
+  }
+
   /* ---------------- Boot ---------------- */
   function init() {
     try {
       state = MUS.Storage.load();
       switchTab("dashboard");
+      checkBackupReminder();
     } catch (err) {
       console.error("App failed to start:", err);
       document.body.innerHTML = `
@@ -2104,7 +2187,7 @@ MUS.App = (function () {
   return {
     get state() { return state; },
     addEntry, saveState, openModal, closeModal, switchTab, render,
-    openShopSettings, saveShopSettings, init,
+    openShopSettings, saveShopSettings, exportBackup, importBackup, init,
   };
 })();
 
