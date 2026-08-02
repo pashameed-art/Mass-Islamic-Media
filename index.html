@@ -37,47 +37,95 @@
             --primary-dark: #06B6D4;
             --text-dark: #F1F5F9;
             --text-light: #F1F5F9;
-            --bg-light: #0F172A;
-            --bg-card: #1E293B;
-            --border-light: #334155;
-            --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            --bg-light: #000000;
+            --bg-card: #0A0E27;
+            --border-light: #1E293B;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
             background: var(--bg-light);
             color: var(--text-dark);
             transition: all 0.3s ease;
             overflow-x: hidden;
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(15, 118, 110, 0.03) 35px, rgba(15, 118, 110, 0.03) 70px),
+                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(15, 118, 110, 0.03) 35px, rgba(15, 118, 110, 0.03) 70px);
+            background-attachment: fixed;
+        }
+
+        html.dark body {
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(20, 184, 166, 0.05) 35px, rgba(20, 184, 166, 0.05) 70px),
+                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(20, 184, 166, 0.05) 35px, rgba(20, 184, 166, 0.05) 70px);
         }
 
         .app-container {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            padding-bottom: 70px;
+            padding-bottom: 100px;
         }
 
         /* Header */
         .header {
-            background: rgba(15, 118, 110, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(15, 118, 110, 0.85) 0%, rgba(27, 123, 110, 0.85) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             color: white;
-            padding: 1.5rem 1rem;
+            padding: 1.75rem 1.25rem;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(15, 118, 110, 0.15);
+            box-shadow: 0 8px 32px rgba(15, 118, 110, 0.2);
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
+        html.dark .header {
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.2) 0%, rgba(6, 182, 212, 0.15) 100%);
+            border-bottom-color: rgba(20, 184, 166, 0.2);
+            box-shadow: 0 8px 32px rgba(20, 184, 166, 0.1);
+        }
+
         .header h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 2rem;
+            font-weight: 800;
             margin-bottom: 0.25rem;
+            letter-spacing: -0.8px;
+            line-height: 1.2;
+        }
+
+        .header-tagline {
+            font-size: 1rem;
+            opacity: 0.95;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            line-height: 1.4;
+        }
+
+        .hero-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
             letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .dua-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            line-height: 1.3;
+        }
+
+        .dua-card-desc {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            line-height: 1.6;
+            font-weight: 500;
+            letter-spacing: 0.2px;
         }
 
         .header-icon {
@@ -926,6 +974,66 @@
             to { opacity: 1; }
         }
 
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes floatIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Apply animations to hero */
+        .hero-banner {
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dua-card {
+            animation: floatIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dua-card:nth-child(1) { animation-delay: 0.1s; }
+        .dua-card:nth-child(2) { animation-delay: 0.2s; }
+        .dua-card:nth-child(3) { animation-delay: 0.3s; }
+        .dua-card:nth-child(4) { animation-delay: 0.4s; }
+        .dua-card:nth-child(5) { animation-delay: 0.5s; }
+        .dua-card:nth-child(6) { animation-delay: 0.6s; }
+
         /* Daily Dua Section */
         .daily-section {
             padding: 1rem;
@@ -1145,13 +1253,15 @@
         .modal {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 1000;
             padding: 1rem;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .modal.active {
@@ -1163,11 +1273,21 @@
             width: 100%;
             max-width: 500px;
             aspect-ratio: 9/16;
-            border-radius: 12px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(20, 184, 166, 0.1);
             transform: scale(1);
-            transition: transform 0.3s;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, transparent 100%);
+            pointer-events: none;
+            z-index: 5;
         }
 
         .modal-content.zoomed {
@@ -1178,6 +1298,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
         }
 
         .modal-controls {
@@ -1185,12 +1306,13 @@
             top: 0;
             right: 0;
             left: 0;
-            padding: 1rem;
+            padding: 1.5rem 1rem;
             display: flex;
             justify-content: space-between;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3), transparent);
             color: white;
-            z-index: 2;
+            z-index: 10;
+            backdrop-filter: blur(10px);
         }
 
         .modal-bottom {
@@ -1230,25 +1352,31 @@
         /* Navigation */
         .nav-bottom {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 24px);
+            max-width: 320px;
             height: 72px;
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
             display: flex;
             justify-content: space-around;
             align-items: center;
             z-index: 100;
-            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 32px rgba(15, 118, 110, 0.2);
+            padding: 0 1rem;
         }
 
         html.dark .nav-bottom {
-            background: rgba(55, 65, 81, 0.95);
-            border-top-color: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3);
+            background: rgba(10, 14, 39, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(20, 184, 166, 0.1);
+            box-shadow: 0 8px 32px rgba(20, 184, 166, 0.15);
         }
 
         .nav-btn {
