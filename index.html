@@ -9,7 +9,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="தினசரி துஆ">
     
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='75' font-size='80' text-anchor='middle'>🕌</text></svg>">
     
     <title>Mass Islamic Media — தினசரி துஆ</title>
@@ -1983,22 +1985,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         function initPWA() {
-            // Service Worker
+            // Real same-origin Service Worker — reliable on GitHub Pages.
             if ('serviceWorker' in navigator) {
-                const swCode = `
-                    const cacheName = 'duas-v1';
-                    self.addEventListener('install', () => self.skipWaiting());
-                    self.addEventListener('fetch', (e) => {
-                        e.respondWith(
-                            caches.open(cacheName).then((cache) => {
-                                return cache.match(e.request).catch(() => fetch(e.request));
-                            }).catch(() => caches.match('/index.html'))
-                        );
-                    });
-                `;
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(swUrl).catch(() => {});
+                navigator.serviceWorker.register('./sw.js', { scope: './' })
+                    .then(reg => reg.update().catch(() => {}))
+                    .catch(() => {});
             }
 
             // Install Prompt

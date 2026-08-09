@@ -1,40 +1,60 @@
-// Offline-cache service worker for Mass Uniform Store.
-// NETWORK-FIRST strategy: always tries to fetch the latest version from
-// the server first, and only falls back to the cached copy if there's
-// no internet. This matters a lot for an app that's still being updated
-// often — a cache-first strategy would keep showing old versions forever
-// even after a fresh deploy, since the cache never gets invalidated on
-// its own.
-//
-// CACHE_NAME is bumped on every deploy so the old cache is discarded and
-// replaced during the "activate" step below.
-const CACHE_NAME = "mus-ledger-v2";
-const APP_SHELL = ["./", "./index.html"];
+/* Mass Islamic Media — PWA Service Worker v5.1 */
+const VERSION = "mass-islamic-media-v5.1.0";
+const STATIC_CACHE = `${VERSION}-static`;
+const RUNTIME_CACHE = `${VERSION}-runtime`;
 
-self.addEventListener("install", (event) => {
+const STATIC_ASSETS = [
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png"
+];
+
+self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(STATIC_CACHE)
+      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-self.addEventListener("activate", (event) => {
+self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    caches.keys().then(keys =>
+      Promise.all(
+        keys
+          .filter(key => key !== STATIC_CACHE && key !== RUNTIME_CACHE)
+          .map(key => caches.delete(key))
+      )
+    ).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener("fetch", event => {
+  const request = event.request;
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+
+  event.respondWith(
+    fetch(request).then(response => {
+      if (response && response.ok) {
+        const copy = response.clone();
+        caches.open(RUNTIME_CACHE).then(cache => cache.put(request, copy));
+      }
+      return response;
+    }).catch(() =>
+      caches.match(request).then(cached => {
+        if (cached) return cached;
+        if (request.mode === "navigate") return caches.match("./index.html");
+        return new Response("", {status:504, statusText:"Offline"});
+      })
     )
   );
-  self.clients.claim();
 });
 
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-        return response;
-      })
-      .catch(() => caches.match(event.request))
-  );
+self.addEventListener("message", event => {
+  if (event.data === "SKIP_WAITING") self.skipWaiting();
 });
