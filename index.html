@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="தினசரி துஆ - தினமும் ஒரு துஆ, தினமும் ஒரு நன்மை">
+    <meta name="description" content="Mass Islamic Media — தினசரி துஆ, அறிவு • தஃவா • துஆக்கள்">
     <meta name="theme-color" content="#0F766E">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,7 +12,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='75' font-size='80' text-anchor='middle'>🕌</text></svg>">
     
-    <title>தினசரி துஆ - Daily Duas</title>
+    <title>Mass Islamic Media — தினசரி துஆ</title>
     
     <style>
         * {
@@ -33,166 +33,44 @@
         }
 
         html.dark {
-            --primary-color: #14B8A6;
-            --primary-dark: #06B6D4;
-            --text-dark: #F1F5F9;
-            --text-light: #F1F5F9;
-            --bg-light: #000000;
-            --bg-card: #0A0E27;
-            --border-light: #1E293B;
-            --shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+            --primary-color: #0F766E;
+            --primary-dark: #134E4A;
+            --text-dark: #F3F4F6;
+            --text-light: #F3F4F6;
+            --bg-light: #1F2937;
+            --bg-card: #374151;
+            --border-light: #4B5563;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg-light);
             color: var(--text-dark);
             transition: all 0.3s ease;
             overflow-x: hidden;
-            background-image: 
-                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(15, 118, 110, 0.03) 35px, rgba(15, 118, 110, 0.03) 70px),
-                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(15, 118, 110, 0.03) 35px, rgba(15, 118, 110, 0.03) 70px);
-            background-attachment: fixed;
-        }
-
-        html.dark body {
-            background-image: 
-                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(20, 184, 166, 0.05) 35px, rgba(20, 184, 166, 0.05) 70px),
-                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(20, 184, 166, 0.05) 35px, rgba(20, 184, 166, 0.05) 70px);
         }
 
         .app-container {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            padding-bottom: 100px;
+            padding-bottom: 70px;
         }
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, rgba(15, 118, 110, 0.85) 0%, rgba(27, 123, 110, 0.85) 100%);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 1.75rem 1.25rem;
+            padding: 1.5rem 1rem;
             text-align: center;
-            box-shadow: 0 8px 32px rgba(15, 118, 110, 0.2);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        html.dark .header {
-            background: linear-gradient(135deg, rgba(20, 184, 166, 0.2) 0%, rgba(6, 182, 212, 0.15) 100%);
-            border-bottom-color: rgba(20, 184, 166, 0.2);
-            box-shadow: 0 8px 32px rgba(20, 184, 166, 0.1);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
         }
 
         .header h1 {
-            font-size: 2rem;
-            font-weight: 800;
+            font-size: 1.8rem;
+            font-weight: 700;
             margin-bottom: 0.25rem;
-            letter-spacing: -0.8px;
-            line-height: 1.2;
-        }
-
-        .header-tagline {
-            font-size: 1rem;
-            opacity: 0.95;
-            font-weight: 600;
-            letter-spacing: 0.8px;
-            line-height: 1.4;
-        }
-
-        .hero-title {
-            font-size: 1.75rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.5px;
-            line-height: 1.2;
-        }
-
-        .dua-card-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-            line-height: 1.3;
-        }
-
-        .dua-card-desc {
-            font-size: 0.95rem;
-            opacity: 0.8;
-            line-height: 1.6;
-            font-weight: 500;
-            letter-spacing: 0.2px;
-        }
-
-        .header-icon {
-            font-size: 2rem;
-            margin-right: 0.5rem;
-        }
-
-        .header-tagline {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-
-        /* Hero Banner */
-        .hero-banner {
-            background: linear-gradient(135deg, #0F766E 0%, #1B7B6E 50%, #0A5C54 100%);
-            color: white;
-            padding: 2rem 1rem;
-            margin: 1rem;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(15, 118, 110, 0.25);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .hero-banner::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translate(0, 0); }
-            50% { transform: translate(10px, 10px); }
-            100% { transform: translate(0, 0); }
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-label {
-            font-size: 0.85rem;
-            opacity: 0.9;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
-        }
-
-        .hero-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .hero-description {
-            font-size: 0.95rem;
-            opacity: 0.95;
-            line-height: 1.4;
         }
 
         /* Advanced Search */
@@ -974,66 +852,6 @@
             to { opacity: 1; }
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes scaleIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes floatIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Apply animations to hero */
-        .hero-banner {
-            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .dua-card {
-            animation: floatIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .dua-card:nth-child(1) { animation-delay: 0.1s; }
-        .dua-card:nth-child(2) { animation-delay: 0.2s; }
-        .dua-card:nth-child(3) { animation-delay: 0.3s; }
-        .dua-card:nth-child(4) { animation-delay: 0.4s; }
-        .dua-card:nth-child(5) { animation-delay: 0.5s; }
-        .dua-card:nth-child(6) { animation-delay: 0.6s; }
-
         /* Daily Dua Section */
         .daily-section {
             padding: 1rem;
@@ -1081,26 +899,19 @@
 
         /* Search */
         .search-container {
-            padding: 1.25rem 1rem 0.75rem 1rem;
-            background: transparent;
+            padding: 1rem;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-light);
         }
 
         .search-box {
             display: flex;
             align-items: center;
-            background: var(--bg-card);
-            border: 1.5px solid rgba(15, 118, 110, 0.2);
-            border-radius: 12px;
-            padding: 0.875rem 1.25rem;
-            gap: 0.75rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .search-box:focus-within {
-            border-color: var(--primary-color);
-            box-shadow: 0 4px 16px rgba(15, 118, 110, 0.15);
-            transform: translateY(-2px);
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            gap: 0.5rem;
         }
 
         .search-box input {
@@ -1110,13 +921,10 @@
             outline: none;
             color: var(--text-dark);
             font-size: 1rem;
-            font-weight: 500;
-            letter-spacing: -0.2px;
         }
 
         .search-box input::placeholder {
-            color: #A1A5AB;
-            font-weight: 500;
+            color: #9CA3AF;
         }
 
         /* Categories */
@@ -1166,76 +974,53 @@
 
         .dua-card {
             background: var(--bg-card);
-            border-radius: 16px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            box-shadow: var(--shadow);
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            position: relative;
-        }
-
-        .dua-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(15, 118, 110, 0.08);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            border-radius: 16px;
+            transition: all 0.3s;
+            border: 1px solid var(--border-light);
         }
 
         .dua-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 8px 24px rgba(15, 118, 110, 0.25);
-        }
-
-        .dua-card:hover::after {
-            opacity: 1;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(15, 118, 110, 0.2);
         }
 
         .dua-card-header {
-            background: linear-gradient(135deg, #0F766E 0%, #1B7B6E 50%, #0A5C54 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 1.25rem 1rem;
+            padding: 1rem;
             text-align: center;
-            min-height: 100px;
+            min-height: 80px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 0.75rem;
-            position: relative;
+            gap: 0.5rem;
         }
 
         .dua-card-icon {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 1.5rem;
         }
 
         .dua-card-title {
-            font-size: 1.05rem;
-            font-weight: 700;
-            letter-spacing: -0.3px;
+            font-size: 1rem;
+            font-weight: 600;
         }
 
         .dua-card-body {
-            padding: 1.25rem;
+            padding: 1rem;
             text-align: center;
-            min-height: 70px;
+            min-height: 60px;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(180deg, transparent 0%, rgba(15, 118, 110, 0.02) 100%);
         }
 
         .dua-card-desc {
-            font-size: 0.9rem;
-            opacity: 0.75;
-            line-height: 1.5;
-            font-weight: 500;
+            font-size: 0.85rem;
+            opacity: 0.7;
+            line-height: 1.4;
         }
 
         .empty-state {
@@ -1253,15 +1038,13 @@
         .modal {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.92);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.8);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 1000;
             padding: 1rem;
-            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeIn 0.3s ease;
         }
 
         .modal.active {
@@ -1273,21 +1056,11 @@
             width: 100%;
             max-width: 500px;
             aspect-ratio: 9/16;
-            border-radius: 20px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(20, 184, 166, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             transform: scale(1);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .modal-content::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, transparent 100%);
-            pointer-events: none;
-            z-index: 5;
+            transition: transform 0.3s;
         }
 
         .modal-content.zoomed {
@@ -1298,7 +1071,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            display: block;
         }
 
         .modal-controls {
@@ -1306,13 +1078,12 @@
             top: 0;
             right: 0;
             left: 0;
-            padding: 1.5rem 1rem;
+            padding: 1rem;
             display: flex;
             justify-content: space-between;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3), transparent);
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
             color: white;
-            z-index: 10;
-            backdrop-filter: blur(10px);
+            z-index: 2;
         }
 
         .modal-bottom {
@@ -1352,31 +1123,16 @@
         /* Navigation */
         .nav-bottom {
             position: fixed;
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 24px);
-            max-width: 320px;
-            height: 72px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 20px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-light);
             display: flex;
             justify-content: space-around;
             align-items: center;
             z-index: 100;
-            box-shadow: 0 8px 32px rgba(15, 118, 110, 0.2);
-            padding: 0 1rem;
-        }
-
-        html.dark .nav-bottom {
-            background: rgba(10, 14, 39, 0.98);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(20, 184, 166, 0.1);
-            box-shadow: 0 8px 32px rgba(20, 184, 166, 0.15);
         }
 
         .nav-btn {
@@ -1386,51 +1142,20 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 0.35rem;
+            gap: 0.25rem;
             font-size: 0.75rem;
-            font-weight: 600;
             color: #6B7280;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s;
             padding: 0.5rem 1rem;
-            position: relative;
-            min-width: 60px;
-            letter-spacing: 0.3px;
-        }
-
-        .nav-btn::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(15, 118, 110, 0.08);
-            border-radius: 12px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .nav-btn:hover::before {
-            opacity: 1;
         }
 
         .nav-btn.active {
             color: var(--primary-color);
-        }
-
-        .nav-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 24px;
-            height: 3px;
-            background: var(--primary-color);
-            border-radius: 2px 2px 0 0;
+            font-weight: 600;
         }
 
         .nav-btn span:first-child {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.3rem;
         }
 
         /* Responsive */
@@ -1449,6 +1174,252 @@
             }
         }
     </style>
+
+<style id="mass-islamic-media-premium-v5">
+/* =========================================================
+   MASS ISLAMIC MEDIA — PREMIUM UI v5.0
+   UI-only enhancement layer; existing application logic preserved.
+   ========================================================= */
+:root{
+  --premium-emerald:#0b6f64;
+  --premium-emerald-2:#084f49;
+  --premium-gold:#d4af37;
+  --premium-gold-soft:#f0d98a;
+  --premium-bg:#f5f8f7;
+  --premium-card:rgba(255,255,255,.86);
+  --premium-border:rgba(15,118,110,.14);
+  --premium-shadow:0 14px 40px rgba(6,61,57,.10);
+}
+html,body{scroll-behavior:smooth}
+body{
+  font-family:"Noto Sans Tamil","Noto Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 10% 0%,rgba(212,175,55,.10),transparent 24rem),
+    radial-gradient(circle at 100% 15%,rgba(15,118,110,.10),transparent 28rem),
+    var(--premium-bg);
+}
+html.dark body{
+  background:
+    radial-gradient(circle at 10% 0%,rgba(212,175,55,.08),transparent 24rem),
+    radial-gradient(circle at 100% 15%,rgba(20,184,166,.08),transparent 28rem),
+    #070d12;
+}
+
+/* Header */
+.header{
+  padding:1.15rem 1rem 1.35rem!important;
+  border-bottom:1px solid rgba(255,255,255,.18)!important;
+  box-shadow:0 12px 38px rgba(7,79,73,.20)!important;
+}
+.header h1{
+  font-size:clamp(1.45rem,5vw,2rem)!important;
+  letter-spacing:-.5px!important;
+}
+.header-icon{filter:drop-shadow(0 4px 8px rgba(212,175,55,.28));}
+.header-tagline{opacity:.88!important}
+
+/* Main content width */
+.app-container{
+  width:min(100%,920px);
+  margin:0 auto;
+}
+
+/* Hero */
+.hero-banner{
+  margin:1rem!important;
+  border:1px solid rgba(212,175,55,.30)!important;
+  border-radius:24px!important;
+  padding:1.45rem 1.25rem!important;
+  box-shadow:0 18px 45px rgba(7,79,73,.18)!important;
+}
+.hero-banner::after{
+  content:"☾  ✦  ۞  ✦  ☽";
+  position:absolute;
+  right:1rem;
+  bottom:.6rem;
+  color:rgba(240,217,138,.42);
+  font-size:1.1rem;
+  letter-spacing:.45rem;
+  pointer-events:none;
+}
+
+/* Today's dua */
+.today-dua-section{padding:.75rem 1rem 1rem!important}
+.today-dua-card{
+  position:relative;
+  border:1px solid rgba(212,175,55,.38)!important;
+  border-radius:24px!important;
+  padding:1.45rem!important;
+  box-shadow:var(--premium-shadow)!important;
+  overflow:hidden;
+}
+.today-dua-card::before{
+  content:"";
+  position:absolute;inset:0;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.13),transparent 42%),
+    radial-gradient(circle at 90% 15%,rgba(212,175,55,.20),transparent 9rem);
+  pointer-events:none;
+}
+.today-dua-card>*{position:relative;z-index:1}
+
+/* Search */
+.search-container,.search-section{
+  margin:0 1rem 1rem!important;
+}
+.search-box,.search-container{
+  border-radius:18px!important;
+}
+.search-box{
+  box-shadow:0 8px 24px rgba(15,118,110,.08)!important;
+  border:1px solid var(--premium-border)!important;
+}
+.search-box input{font-size:1rem!important}
+
+/* Categories */
+.categories{
+  gap:.6rem!important;
+  padding:.2rem 1rem 1rem!important;
+}
+.category-btn{
+  border-radius:999px!important;
+  padding:.62rem .95rem!important;
+  border:1px solid var(--premium-border)!important;
+  box-shadow:0 4px 12px rgba(0,0,0,.04);
+}
+.category-btn.active{
+  box-shadow:0 7px 18px rgba(15,118,110,.20)!important;
+}
+
+/* Dua cards */
+.dua-grid,.favorites-grid{
+  padding:0 1rem 1.25rem!important;
+  gap:.9rem!important;
+}
+.dua-card{
+  border-radius:22px!important;
+  border:1px solid var(--premium-border)!important;
+  background:var(--premium-card)!important;
+  box-shadow:0 10px 28px rgba(6,61,57,.08)!important;
+  overflow:hidden;
+  transform:translateZ(0);
+}
+.dua-card:hover{
+  transform:translateY(-4px)!important;
+  box-shadow:0 18px 38px rgba(6,61,57,.15)!important;
+}
+.dua-card-header{
+  min-height:92px!important;
+  padding:1rem!important;
+  background:linear-gradient(145deg,var(--premium-emerald),var(--premium-emerald-2))!important;
+  position:relative;
+}
+.dua-card-header::after{
+  content:"✦";
+  position:absolute;
+  right:.8rem;top:.65rem;
+  color:rgba(240,217,138,.55);
+}
+.dua-card-body{padding:.9rem 1rem 1.05rem!important}
+
+/* General cards / admin */
+.settings-item,.admin-form,.stat-card,.backup-section,.search-advanced{
+  border-radius:20px!important;
+  border:1px solid var(--premium-border)!important;
+  box-shadow:0 8px 26px rgba(6,61,57,.06)!important;
+}
+.form-group input,.form-group textarea,.form-group select,.github-config-input{
+  border-radius:14px!important;
+  min-height:48px;
+}
+.image-upload-area{
+  border-radius:20px!important;
+  padding:2.2rem 1rem!important;
+}
+.btn-save,.btn-cancel,.btn-small,.btn-github{
+  border-radius:14px!important;
+  min-height:46px;
+}
+
+/* Admin stats */
+.stat-card{
+  padding:1.15rem!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(242,249,247,.88))!important;
+}
+html.dark .stat-card{
+  background:linear-gradient(145deg,#0e1a20,#0b1519)!important;
+}
+.stat-value{color:var(--premium-emerald)!important}
+html.dark .stat-value{color:#38d5c2!important}
+
+/* Bottom navigation */
+.bottom-nav,.nav-tabs{
+  backdrop-filter:blur(22px)!important;
+  -webkit-backdrop-filter:blur(22px)!important;
+  border-top:1px solid rgba(15,118,110,.12)!important;
+  box-shadow:0 -10px 30px rgba(0,0,0,.08)!important;
+}
+
+/* Modal */
+.modal,.image-modal{
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.modal-content,.modal-container{
+  border-radius:24px!important;
+  box-shadow:0 28px 90px rgba(0,0,0,.42)!important;
+  overflow:hidden;
+}
+.icon-btn,.zoom-btn,.swipe-arrow{
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+}
+
+/* GitHub panel */
+.github-sync-section{
+  border-radius:20px!important;
+  box-shadow:0 12px 30px rgba(0,0,0,.18)!important;
+}
+
+/* PIN */
+.pin-container{
+  border:1px solid rgba(212,175,55,.30)!important;
+  border-radius:24px!important;
+}
+.pin-key{border-radius:14px!important}
+
+/* Gold accent for important headings */
+.today-label::first-letter,
+.settings-group h3::first-letter{color:var(--premium-gold)}
+
+/* Accessibility + touch */
+button,input,select,textarea{touch-action:manipulation}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:3px solid rgba(212,175,55,.55);
+  outline-offset:2px;
+}
+@media (max-width:600px){
+  .dua-grid,.favorites-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media (max-width:390px){
+  .dua-grid,.favorites-grid{grid-template-columns:1fr 1fr!important;gap:.65rem!important}
+  .dua-card-title{font-size:.95rem!important}
+}
+@media (min-width:760px){
+  .dua-grid,.favorites-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    scroll-behavior:auto!important;
+    transition-duration:.001ms!important;
+  }
+}
+</style>
+
 </head>
 <body>
     <div class="app-container">
