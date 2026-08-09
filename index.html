@@ -9,9 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="தினசரி துஆ">
     
-    <link rel="manifest" href="./manifest.json">
-    <link rel="apple-touch-icon" href="./icons/icon-192.png">
-    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='75' font-size='80' text-anchor='middle'>🕌</text></svg>">
     
     <title>Mass Islamic Media — தினசரி துஆ</title>
@@ -1422,6 +1420,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 }
 </style>
 
+<style id="final-v5-2-fixes">
+.header-actions{gap:.5rem}
+.pin-input{letter-spacing:.65rem!important}
+#pinSetup input,#pinVerify input{letter-spacing:.45rem}
+</style>
 </head>
 <body>
     <div class="app-container">
@@ -1436,10 +1439,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 <button class="btn-header" id="installBtn" style="display:none;">
                     <span>📱</span>
                     <span>Install App</span>
-                </button>
-                <button class="btn-header" id="darkModeBtn">
-                    <span id="darkIcon">🌙</span>
-                    <span id="darkText">Dark</span>
                 </button>
             </div>
         </div>
@@ -1670,7 +1669,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 3.0</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 5.2</p>
                             </div>
                         </div>
                     </div>
@@ -1683,10 +1682,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     <div class="pin-modal" id="pinModal">
         <div class="pin-container">
             <div class="pin-title">🔐 Admin PIN</div>
-            <p id="pinModalMessage" style="margin-bottom: 1rem; font-size: 0.9rem;">Enter your 6-digit PIN</p>
+            <p id="pinModalMessage" style="margin-bottom: 1rem; font-size: 0.9rem;">Enter your 4-digit PIN</p>
             
             <div class="pin-input-group">
-                <input type="text" id="pinInput" class="pin-input" maxlength="6" placeholder="••••••" readonly>
+                <input type="text" id="pinInput" class="pin-input" maxlength="4" placeholder="••••••" readonly>
             </div>
 
             <div class="pin-keypad">
@@ -1737,14 +1736,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             <h2 style="margin-bottom: 1.5rem; text-align: center;">🔐 Admin PIN</h2>
             
             <div id="pinSetup" style="display: none;">
-                <p style="margin-bottom: 1rem; opacity: 0.9;">முதல் முறை - 6 இலக்க PIN அமைக்கவும்:</p>
-                <input type="password" id="setPinInput" placeholder="6 digit PIN" maxlength="6" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
+                <p style="margin-bottom: 1rem; opacity: 0.9;">முதல் முறை - 4 இலக்க PIN அமைக்கவும்:</p>
+                <input type="password" id="setPinInput" placeholder="4 digit PIN" maxlength="4" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
                 <button class="btn-save" onclick="savePIN()" style="width: 100%;">✅ Set PIN</button>
             </div>
 
             <div id="pinVerify" style="display: none;">
                 <p style="margin-bottom: 1rem; opacity: 0.9;">உங்க் PIN உள்ளிடவும்:</p>
-                <input type="password" id="verifyPinInput" placeholder="6 digit PIN" maxlength="6" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
+                <input type="password" id="verifyPinInput" placeholder="4 digit PIN" maxlength="4" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
                 <button class="btn-save" onclick="verifyPIN()" style="width: 100%; margin-bottom: 0.5rem;">✅ Verify</button>
                 <button class="btn-cancel" onclick="closePINModal()" style="width: 100%;">Cancel</button>
             </div>
@@ -1866,10 +1865,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             modal.classList.add('show');
             
             if (mode === 'setup') {
-                message.textContent = 'Set your 6-digit Admin PIN';
+                message.textContent = 'Set your 4-digit Admin PIN';
                 info.textContent = 'You can change this later in settings';
             } else {
-                message.textContent = 'Enter your 6-digit PIN to access Admin Panel';
+                message.textContent = 'Enter your 4-digit PIN to access Admin Panel';
                 info.textContent = '';
             }
             
@@ -1879,12 +1878,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         function pinKeypress(digit) {
-            if (window.pinValue.length < 6) {
+            if (window.pinValue.length < 4) {
                 window.pinValue += digit;
                 updatePINDisplay();
                 
                 // Auto-submit when 6 digits entered
-                if (window.pinValue.length === 6) {
+                if (window.pinValue.length === 4) {
                     setTimeout(pinSubmit, 300);
                 }
             }
@@ -1905,8 +1904,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         function pinSubmit() {
             const error = document.getElementById('pinError');
             
-            if (window.pinValue.length !== 6) {
-                error.textContent = 'PIN must be 6 digits';
+            if (window.pinValue.length !== 4) {
+                error.textContent = 'PIN must be 4 digits';
                 return;
             }
 
@@ -1985,11 +1984,22 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         function initPWA() {
-            // Real same-origin Service Worker — reliable on GitHub Pages.
+            // Service Worker
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js', { scope: './' })
-                    .then(reg => reg.update().catch(() => {}))
-                    .catch(() => {});
+                const swCode = `
+                    const cacheName = 'duas-v1';
+                    self.addEventListener('install', () => self.skipWaiting());
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            caches.open(cacheName).then((cache) => {
+                                return cache.match(e.request).catch(() => fetch(e.request));
+                            }).catch(() => caches.match('/index.html'))
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(() => {});
             }
 
             // Install Prompt
@@ -2025,9 +2035,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 };
                 filtersContainer.appendChild(btn);
             });
-
-            // Dark Mode
-            document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
 
             // Install
             document.getElementById('installBtn').addEventListener('click', handleInstall);
@@ -2644,8 +2651,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             const pin = document.getElementById('setPinInput').value;
             const errorDiv = document.getElementById('pinError');
 
-            if (pin.length !== 6 || isNaN(pin)) {
-                errorDiv.textContent = '❌ 6 digit PIN enter செய்யவும்';
+            if (pin.length !== 4 || isNaN(pin)) {
+                errorDiv.textContent = '❌ 4 digit PIN enter செய்யவும்';
                 errorDiv.style.display = 'block';
                 return;
             }
