@@ -1670,7 +1670,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 5.2</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 5.2.1</p>
                             </div>
                         </div>
                     </div>
@@ -1730,33 +1730,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             </div>
         </div>
     </div>
-
-    <!-- PIN Verification Modal -->
-    <div class="modal" id="pinModal" style="background: rgba(0,0,0,.7);">
-        <div class="modal-content" style="width:90%;max-width:400px;aspect-ratio:auto;padding:2rem;">
-            <h2 style="margin-bottom:1.2rem;text-align:center;">🔐 Admin PIN</h2>
-
-            <div id="pinSetup" style="display:none;">
-                <p style="margin-bottom:1rem;opacity:.9;">முதல் முறை — 4 இலக்க PIN அமைக்கவும்:</p>
-                <input type="password" id="setPinInput" inputmode="numeric" pattern="[0-9]*"
-                       maxlength="4" autocomplete="new-password"
-                       placeholder="4 digit PIN"
-                       style="width:100%;padding:1rem;margin-bottom:1rem;border:2px solid var(--primary-color);border-radius:8px;font-size:1.5rem;text-align:center;letter-spacing:.5rem;">
-                <button class="btn-save" id="setPinButton" style="width:100%;">✅ Set PIN</button>
-            </div>
-
-            <div id="pinVerify" style="display:none;">
-                <p style="margin-bottom:1rem;opacity:.9;">உங்கள் 4 இலக்க PIN உள்ளிடவும்:</p>
-                <input type="password" id="verifyPinInput" inputmode="numeric" pattern="[0-9]*"
-                       maxlength="4" autocomplete="current-password"
-                       placeholder="4 digit PIN"
-                       style="width:100%;padding:1rem;margin-bottom:1rem;border:2px solid var(--primary-color);border-radius:8px;font-size:1.5rem;text-align:center;letter-spacing:.5rem;">
-                <button class="btn-save" id="verifyPinButton" style="width:100%;margin-bottom:.5rem;">✅ Verify</button>
-                <button class="btn-cancel" id="cancelPinButton" style="width:100%;">Cancel</button>
-            </div>
-
-            <div id="pinError" style="display:none;background:rgba(239,68,68,.2);color:#ef4444;padding:1rem;border-radius:6px;margin-top:1rem;text-align:center;"></div>
-        </div>
     </div>
 
     <!-- Navigation -->
@@ -1863,6 +1836,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         function setupAdminPIN() {
+            // One and only one Admin PIN flow.
+            if (adminPIN && !/^\d{4}$/.test(adminPIN)) {
+                localStorage.removeItem('adminPIN');
+                adminPIN = null;
+            }
             pinMode = adminPIN ? 'verify' : 'setup';
             openPINModal(pinMode);
         }
