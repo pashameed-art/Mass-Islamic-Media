@@ -1773,7 +1773,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
     <script>
         // ============= DATA =============
-        const duasData = [
+        let duasData = [
             {
                 id: 1,
                 title: 'காலை துஆ',
@@ -2100,20 +2100,31 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         function renderDuas() {
             const filtered = duasData.filter(dua => {
                 const categoryMatch = selectedCategory === 'all' || dua.category === selectedCategory;
-                const searchMatch = dua.title.toLowerCase().includes(searchTerm) || 
+                const searchMatch = dua.title.toLowerCase().includes(searchTerm) ||
                                    dua.description.toLowerCase().includes(searchTerm);
                 return categoryMatch && searchMatch;
             });
-            
-            filteredDuas = filtered;  // Store for swipe navigation
 
+            // Prevent duplicate cards from saved/custom Dua data.
+            const unique = [];
+            const seen = new Set();
+            filtered.forEach(dua => {
+                const key = String(dua.id ?? `${dua.category}|${dua.title}`);
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    unique.push(dua);
+                }
+            });
+
+            filteredDuas = unique;
             const grid = document.getElementById('duaGrid');
-            if (filtered.length === 0) {
-                grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-icon">🔍</div><p>துஆ கிடைக்கவில்லை</p></div>';
+
+            if (unique.length === 0) {
+                grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-icon">🔍</div><p>துஆ கிடைக்கவில்லை</p></div>';
                 return;
             }
 
-            grid.innerHTML = filtered.map(dua => `
+            grid.innerHTML = unique.map(dua => `
                 <div class="dua-card" onclick="openModal(${dua.id})">
                     <div class="dua-card-header">
                         <div class="dua-card-icon">${getCategoryIcon(dua.category)}</div>
@@ -2135,11 +2146,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         function renderFavorites() {
-            const favoriteDuas = duasData.filter(d => favorites.includes(d.id));
+            const seen = new Set();
+            const favoriteDuas = duasData.filter(d => {
+                if (!favorites.includes(d.id)) return false;
+                const key = String(d.id ?? `${d.category}|${d.title}`);
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+
             const grid = document.getElementById('favoritesGrid');
-            
+
             if (favoriteDuas.length === 0) {
-                grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-icon">⭐</div><p>பிடித்த துஆவை சேர்க்கவும்</p></div>';
+                grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-icon">⭐</div><p>பிடித்த துஆவை சேர்க்கவும்</p></div>';
                 return;
             }
 
