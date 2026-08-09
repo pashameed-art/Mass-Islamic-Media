@@ -2647,34 +2647,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 });
             });
         }
-        function openPINModal() {
-            // Use the working keypad PIN modal only.
-            showPINModal(adminPIN ? 'verify' : 'setup');
-        }
-
-        function closePINModal() {
-            document.getElementById('pinModal').style.display = 'none';
-            document.getElementById('pinError').style.display = 'none';
-            document.getElementById('setPinInput').value = '';
-            document.getElementById('verifyPinInput').value = '';
-        }
-
-        function savePIN() {
-            // Legacy button compatibility: use the same 4-digit keypad flow.
-            if (window.pinValue && window.pinValue.length === 4) {
-                window.pinMode = 'setup';
-                pinSubmit();
-            }
-        }
-
-        function verifyPIN() {
-            // Legacy button compatibility: use the same 4-digit keypad flow.
-            if (window.pinValue && window.pinValue.length === 4) {
-                window.pinMode = 'verify';
-                pinSubmit();
-            }
-        }
-
         function checkAdminAccess() {
             if (adminPIN && !adminAuthenticated) {
                 openPINModal();
