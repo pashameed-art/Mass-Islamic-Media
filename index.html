@@ -1643,7 +1643,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                     </div>
 
                     <!-- Display -->
-                    <div class="settings-group">
+                    <div class="settings-group" id="displaySettingsGroup">
                         <h3>🎨 Display</h3>
                         <div class="settings-item">
                             <span>Dark Mode</span>
@@ -1882,7 +1882,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 window.pinValue += digit;
                 updatePINDisplay();
                 
-                // Auto-submit when 6 digits entered
+                // Auto-submit when 4 digits entered
                 if (window.pinValue.length === 4) {
                     setTimeout(pinSubmit, 300);
                 }
