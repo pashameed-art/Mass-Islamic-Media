@@ -1425,6 +1425,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .pin-input{letter-spacing:.65rem!important}
 #pinSetup input,#pinVerify input{letter-spacing:.45rem}
 </style>
+<style id="admin-pin-final-fix">
+#setPinInput,#verifyPinInput,#pinSetup,#pinVerify{display:none!important}
+#pinModal .pin-container{z-index:10001}
+</style>
 </head>
 <body>
     <div class="app-container">
@@ -1840,7 +1844,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         let notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
         let notificationTime = localStorage.getItem('notificationTime') || '08:00';
         let zoomLevel = 1;
-        let isAdmin = false;  // Changed to false by default
+        let isAdmin = false; // PIN-controlled only
         let selectedImageFile = null;
         let adminPIN = localStorage.getItem('adminPIN') || null;
         let adminAuthenticated = false;
@@ -2044,7 +2048,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             document.getElementById('homeNav').addEventListener('click', () => goToPage('home'));
             document.getElementById('favoritesNav').addEventListener('click', () => goToPage('favorites'));
             document.getElementById('settingsNav').addEventListener('click', () => goToPage('settings'));
-            document.getElementById('adminNav').addEventListener('click', () => goToPage('admin'));
+            document.getElementById('adminNav').addEventListener('click', () => {
+                if (!adminPIN) {
+                    setupAdminPIN();
+                } else if (!adminAuthenticated) {
+                    setupAdminPIN();
+                } else {
+                    goToPage('admin');
+                }
+            });
 
             // Settings
             document.getElementById('notificationToggle').addEventListener('click', toggleNotifications);
@@ -2626,18 +2638,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             });
         }
         function openPINModal() {
-            const pinModal = document.getElementById('pinModal');
-            pinModal.style.display = 'flex';
-
-            if (!adminPIN) {
-                // First time setup
-                document.getElementById('pinSetup').style.display = 'block';
-                document.getElementById('pinVerify').style.display = 'none';
-            } else {
-                // Existing PIN verification
-                document.getElementById('pinSetup').style.display = 'none';
-                document.getElementById('pinVerify').style.display = 'block';
-            }
+            // Use the working keypad PIN modal only.
+            showPINModal(adminPIN ? 'verify' : 'setup');
         }
 
         function closePINModal() {
@@ -2648,40 +2650,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         function savePIN() {
-            const pin = document.getElementById('setPinInput').value;
-            const errorDiv = document.getElementById('pinError');
-
-            if (pin.length !== 4 || isNaN(pin)) {
-                errorDiv.textContent = '❌ 4 digit PIN enter செய்யவும்';
-                errorDiv.style.display = 'block';
-                return;
+            // Legacy button compatibility: use the same 4-digit keypad flow.
+            if (window.pinValue && window.pinValue.length === 4) {
+                window.pinMode = 'setup';
+                pinSubmit();
             }
-
-            adminPIN = pin;
-            localStorage.setItem('adminPIN', pin);
-            adminAuthenticated = true;
-            isAdmin = true;
-
-            showAdminAlert('addAlert', '✅ PIN set successfully! Admin access enabled.', 'success');
-            closePINModal();
-            document.getElementById('adminNav').style.display = 'flex';
         }
 
         function verifyPIN() {
-            const pin = document.getElementById('verifyPinInput').value;
-            const errorDiv = document.getElementById('pinError');
-
-            if (pin !== adminPIN) {
-                errorDiv.textContent = '❌ PIN incorrect!';
-                errorDiv.style.display = 'block';
-                return;
+            // Legacy button compatibility: use the same 4-digit keypad flow.
+            if (window.pinValue && window.pinValue.length === 4) {
+                window.pinMode = 'verify';
+                pinSubmit();
             }
-
-            adminAuthenticated = true;
-            isAdmin = true;
-            closePINModal();
-            document.getElementById('adminNav').style.display = 'flex';
-            showAdminAlert('addAlert', '✅ Admin access granted!', 'success');
         }
 
         function checkAdminAccess() {
@@ -2893,6 +2874,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 document.getElementById('settingsNav').classList.add('active');
                 updateSettingsUI();
             } else if (page === 'admin') {
+                if (!adminPIN || !adminAuthenticated) {
+                    setupAdminPIN();
+                    return;
+                }
                 document.getElementById('adminPage').classList.add('active');
                 document.getElementById('adminNav').classList.add('active');
                 updateAdminStats();
@@ -2907,18 +2892,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         function toggleAdminMode() {
-            isAdmin = !isAdmin;
-            localStorage.setItem('adminMode', isAdmin);
-            updateAdminToggle();
-            
-            if (isAdmin) {
-                document.getElementById('adminNav').style.display = 'flex';
-                showAdminAlert('addAlert', '✅ Admin mode enabled!', 'success');
-            } else {
-                document.getElementById('adminNav').style.display = 'none';
-                goToPage('home');
-                showAdminAlert('addAlert', '❌ Admin mode disabled', 'info');
-            }
+            // Admin access is always protected by the 4-digit PIN.
+            setupAdminPIN();
         }
 
         function updateAdminToggle() {
