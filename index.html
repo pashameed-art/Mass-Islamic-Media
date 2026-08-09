@@ -1426,6 +1426,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #pinSetup input,#pinVerify input{letter-spacing:.45rem}
 </style>
 
+<style id="admin-toggle-fix">
+#adminToggle{cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+#adminToggle:focus-visible{outline:3px solid rgba(212,175,55,.7);outline-offset:3px}
+</style>
 </head>
 <body>
     <div class="app-container">
@@ -1656,8 +1660,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                     <div class="settings-group">
                         <h3>👨‍💼 Admin Mode</h3>
                         <div class="settings-item">
-                            <span>Enable Admin Panel</span>
-                            <div class="toggle-switch" id="adminToggle"></div>
+                            <span id="adminToggleLabel">Admin Panel</span>
+                            <div class="toggle-switch" id="adminToggle" role="switch" tabindex="0"
+                                 aria-label="Admin Panel Enable or Disable"
+                                 onclick="toggleAdminMode()"
+                                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAdminMode();}"></div>
                         </div>
                         <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.75rem;">
                             Add duas, upload images, manage content
@@ -1824,6 +1831,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         let selectedImageFile = null;
         let adminPIN = localStorage.getItem('adminPIN') || null;
         let adminAuthenticated = false;
+        let adminPanelEnabled = localStorage.getItem('adminPanelEnabled') === 'true';
         let githubRepo = localStorage.getItem('githubRepo') || '';
 
         // ============= PIN PROTECTION FUNCTIONS =============
@@ -1910,6 +1918,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 localStorage.setItem('adminPIN', adminPIN);
                 adminAuthenticated = true;
                 isAdmin = true;
+                adminPanelEnabled = true;
+                localStorage.setItem('adminPanelEnabled', 'true');
+                updateAdminToggle();
                 closePINModal();
                 const nav = document.getElementById('adminNav');
                 if (nav) nav.style.display = 'flex';
@@ -1926,6 +1937,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
             adminAuthenticated = true;
             isAdmin = true;
+            adminPanelEnabled = true;
+            localStorage.setItem('adminPanelEnabled', 'true');
+            updateAdminToggle();
             closePINModal();
             const nav = document.getElementById('adminNav');
             if (nav) nav.style.display = 'flex';
@@ -1946,10 +1960,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             attachEventListeners();
             initAdminPanel();
             
-            // Initialize admin panel
-            if (isAdmin) {
-                document.getElementById('adminNav').style.display = 'flex';
+            // Initialize Admin Panel enabled/disabled state.
+            const adminNav = document.getElementById('adminNav');
+            if (adminNav) {
+                adminNav.style.display = adminPanelEnabled ? 'flex' : 'none';
             }
+            updateAdminToggle();
             
             // Load GitHub config if exists
             const savedRepo = localStorage.getItem('githubRepo');
@@ -2047,9 +2063,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             document.getElementById('favoritesNav').addEventListener('click', () => goToPage('favorites'));
             document.getElementById('settingsNav').addEventListener('click', () => goToPage('settings'));
             document.getElementById('adminNav').addEventListener('click', () => {
-                if (!adminPIN) {
-                    setupAdminPIN();
-                } else if (!adminAuthenticated) {
+                if (!adminPanelEnabled) return;
+
+                if (!adminPIN || !adminAuthenticated) {
                     setupAdminPIN();
                 } else {
                     goToPage('admin');
@@ -2059,7 +2075,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             // Settings
             document.getElementById('notificationToggle').addEventListener('click', toggleNotifications);
             document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
-            document.getElementById('adminToggle').addEventListener('click', toggleAdminMode);
+            
             document.getElementById('notificationTime').addEventListener('change', (e) => {
                 notificationTime = e.target.value;
                 localStorage.setItem('notificationTime', notificationTime);
@@ -2844,6 +2860,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 document.getElementById('settingsNav').classList.add('active');
                 updateSettingsUI();
             } else if (page === 'admin') {
+                if (!adminPanelEnabled) {
+                    goToPage('settings');
+                    return;
+                }
                 if (!adminPIN || !adminAuthenticated) {
                     setupAdminPIN();
                     return;
@@ -2862,14 +2882,47 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         function toggleAdminMode() {
-            // Admin access is always protected by the 4-digit PIN.
+            const nav = document.getElementById('adminNav');
+
+            // Enabled -> disable immediately. No PIN is required to disable.
+            if (adminPanelEnabled === true) {
+                adminPanelEnabled = false;
+                adminAuthenticated = false;
+                isAdmin = false;
+                localStorage.setItem('adminPanelEnabled', 'false');
+
+                if (nav) {
+                    nav.style.display = 'none';
+                    nav.classList.remove('active');
+                }
+
+                updateAdminToggle();
+
+                if (currentPage === 'admin' ||
+                    document.getElementById('adminPage')?.classList.contains('active')) {
+                    goToPage('settings');
+                }
+                return;
+            }
+
+            // Disabled -> enable only after the 4-digit PIN.
             setupAdminPIN();
         }
 
         function updateAdminToggle() {
             const toggle = document.getElementById('adminToggle');
-            if (toggle) {
-                toggle.classList.toggle('active', isAdmin);
+            const nav = document.getElementById('adminNav');
+            if (!toggle) return;
+
+            toggle.classList.toggle('active', adminPanelEnabled === true);
+            toggle.setAttribute('aria-checked', adminPanelEnabled === true ? 'true' : 'false');
+            toggle.dataset.state = adminPanelEnabled === true ? 'enabled' : 'disabled';
+            toggle.title = adminPanelEnabled === true
+                ? 'Admin Panel Enabled — tap to Disable'
+                : 'Admin Panel Disabled — tap to Enable';
+
+            if (nav) {
+                nav.style.display = adminPanelEnabled === true ? 'flex' : 'none';
             }
         }
 
