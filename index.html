@@ -1425,10 +1425,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .pin-input{letter-spacing:.65rem!important}
 #pinSetup input,#pinVerify input{letter-spacing:.45rem}
 </style>
-<style id="admin-pin-final-fix">
-#setPinInput,#verifyPinInput,#pinSetup,#pinVerify{display:none!important}
-#pinModal .pin-container{z-index:10001}
-</style>
+
 </head>
 <body>
     <div class="app-container">
@@ -1735,24 +1732,30 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     </div>
 
     <!-- PIN Verification Modal -->
-    <div class="modal" id="pinModal" style="background: rgba(0, 0, 0, 0.7);">
-        <div class="modal-content" style="width: 90%; max-width: 400px; aspect-ratio: auto; padding: 2rem;">
-            <h2 style="margin-bottom: 1.5rem; text-align: center;">🔐 Admin PIN</h2>
-            
-            <div id="pinSetup" style="display: none;">
-                <p style="margin-bottom: 1rem; opacity: 0.9;">முதல் முறை - 4 இலக்க PIN அமைக்கவும்:</p>
-                <input type="password" id="setPinInput" placeholder="4 digit PIN" maxlength="4" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
-                <button class="btn-save" onclick="savePIN()" style="width: 100%;">✅ Set PIN</button>
+    <div class="modal" id="pinModal" style="background: rgba(0,0,0,.7);">
+        <div class="modal-content" style="width:90%;max-width:400px;aspect-ratio:auto;padding:2rem;">
+            <h2 style="margin-bottom:1.2rem;text-align:center;">🔐 Admin PIN</h2>
+
+            <div id="pinSetup" style="display:none;">
+                <p style="margin-bottom:1rem;opacity:.9;">முதல் முறை — 4 இலக்க PIN அமைக்கவும்:</p>
+                <input type="password" id="setPinInput" inputmode="numeric" pattern="[0-9]*"
+                       maxlength="4" autocomplete="new-password"
+                       placeholder="4 digit PIN"
+                       style="width:100%;padding:1rem;margin-bottom:1rem;border:2px solid var(--primary-color);border-radius:8px;font-size:1.5rem;text-align:center;letter-spacing:.5rem;">
+                <button class="btn-save" id="setPinButton" style="width:100%;">✅ Set PIN</button>
             </div>
 
-            <div id="pinVerify" style="display: none;">
-                <p style="margin-bottom: 1rem; opacity: 0.9;">உங்க் PIN உள்ளிடவும்:</p>
-                <input type="password" id="verifyPinInput" placeholder="4 digit PIN" maxlength="4" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
-                <button class="btn-save" onclick="verifyPIN()" style="width: 100%; margin-bottom: 0.5rem;">✅ Verify</button>
-                <button class="btn-cancel" onclick="closePINModal()" style="width: 100%;">Cancel</button>
+            <div id="pinVerify" style="display:none;">
+                <p style="margin-bottom:1rem;opacity:.9;">உங்கள் 4 இலக்க PIN உள்ளிடவும்:</p>
+                <input type="password" id="verifyPinInput" inputmode="numeric" pattern="[0-9]*"
+                       maxlength="4" autocomplete="current-password"
+                       placeholder="4 digit PIN"
+                       style="width:100%;padding:1rem;margin-bottom:1rem;border:2px solid var(--primary-color);border-radius:8px;font-size:1.5rem;text-align:center;letter-spacing:.5rem;">
+                <button class="btn-save" id="verifyPinButton" style="width:100%;margin-bottom:.5rem;">✅ Verify</button>
+                <button class="btn-cancel" id="cancelPinButton" style="width:100%;">Cancel</button>
             </div>
 
-            <div id="pinError" style="display: none; background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 1rem; border-radius: 6px; margin-top: 1rem; text-align: center;"></div>
+            <div id="pinError" style="display:none;background:rgba(239,68,68,.2);color:#ef4444;padding:1rem;border-radius:6px;margin-top:1rem;text-align:center;"></div>
         </div>
     </div>
 
@@ -1851,90 +1854,99 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         let githubRepo = localStorage.getItem('githubRepo') || '';
 
         // ============= PIN PROTECTION FUNCTIONS =============
+        let adminPIN = localStorage.getItem('adminPIN') || null;
+        let adminAuthenticated = false;
+
+        // Old 6-digit PINs from previous versions are invalidated once.
+        if (adminPIN && !/^\d{4}$/.test(adminPIN)) {
+            localStorage.removeItem('adminPIN');
+            adminPIN = null;
+        }
+
         function setupAdminPIN() {
-            if (!adminPIN) {
-                // First time setup - create PIN
-                showPINModal('setup');
-            } else {
-                // Verify PIN
-                showPINModal('verify');
-            }
+            showPINModal(adminPIN ? 'verify' : 'setup');
         }
 
         function showPINModal(mode) {
             const modal = document.getElementById('pinModal');
-            const message = document.getElementById('pinModalMessage');
-            const info = document.getElementById('pinInfo');
-            
-            modal.classList.add('show');
-            
-            if (mode === 'setup') {
-                message.textContent = 'Set your 4-digit Admin PIN';
-                info.textContent = 'You can change this later in settings';
-            } else {
-                message.textContent = 'Enter your 4-digit PIN to access Admin Panel';
-                info.textContent = '';
-            }
-            
-            window.pinMode = mode;
-            window.pinValue = '';
-            updatePINDisplay();
-        }
-
-        function pinKeypress(digit) {
-            if (window.pinValue.length < 4) {
-                window.pinValue += digit;
-                updatePINDisplay();
-                
-                // Auto-submit when 4 digits entered
-                if (window.pinValue.length === 4) {
-                    setTimeout(pinSubmit, 300);
-                }
-            }
-        }
-
-        function pinDelete() {
-            if (window.pinValue.length > 0) {
-                window.pinValue = window.pinValue.slice(0, -1);
-                updatePINDisplay();
-            }
-        }
-
-        function updatePINDisplay() {
-            const input = document.getElementById('pinInput');
-            input.value = '•'.repeat(window.pinValue.length);
-        }
-
-        function pinSubmit() {
+            const setup = document.getElementById('pinSetup');
+            const verify = document.getElementById('pinVerify');
             const error = document.getElementById('pinError');
-            
-            if (window.pinValue.length !== 4) {
-                error.textContent = 'PIN must be 4 digits';
+
+            if (!modal || !setup || !verify) return;
+
+            modal.style.display = 'flex';
+            modal.classList.add('show');
+            setup.style.display = mode === 'setup' ? 'block' : 'none';
+            verify.style.display = mode === 'verify' ? 'block' : 'none';
+            error.style.display = 'none';
+            error.textContent = '';
+
+            const input = mode === 'setup'
+                ? document.getElementById('setPinInput')
+                : document.getElementById('verifyPinInput');
+
+            input.value = '';
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function closePINModal() {
+            const modal = document.getElementById('pinModal');
+            if (modal) {
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+            }
+        }
+
+        function getFourDigitPIN(inputId) {
+            const value = document.getElementById(inputId).value.trim();
+            return /^\d{4}$/.test(value) ? value : null;
+        }
+
+        function savePIN() {
+            const pin = getFourDigitPIN('setPinInput');
+            const error = document.getElementById('pinError');
+
+            if (!pin) {
+                error.textContent = '❌ 4 இலக்க எண்களை மட்டும் உள்ளிடவும்';
+                error.style.display = 'block';
                 return;
             }
 
-            if (window.pinMode === 'setup') {
-                // Save new PIN
-                adminPIN = window.pinValue;
-                localStorage.setItem('adminPIN', adminPIN);
-                adminAuthenticated = true;
-                error.textContent = '';
-                document.getElementById('pinModal').classList.remove('show');
-                showAdminAlert('addAlert', '✅ Admin PIN set successfully!', 'success');
-                goToPage('admin');
-            } else {
-                // Verify PIN
-                if (window.pinValue === adminPIN) {
-                    adminAuthenticated = true;
-                    error.textContent = '';
-                    document.getElementById('pinModal').classList.remove('show');
-                    goToPage('admin');
-                } else {
-                    error.textContent = '❌ Wrong PIN. Try again.';
-                    window.pinValue = '';
-                    updatePINDisplay();
-                }
+            adminPIN = pin;
+            localStorage.setItem('adminPIN', pin);
+            adminAuthenticated = true;
+            isAdmin = true;
+
+            error.style.display = 'none';
+            closePINModal();
+            document.getElementById('adminNav').style.display = 'flex';
+            goToPage('admin');
+        }
+
+        function verifyPIN() {
+            const pin = getFourDigitPIN('verifyPinInput');
+            const error = document.getElementById('pinError');
+
+            if (!pin) {
+                error.textContent = '❌ 4 இலக்க PIN உள்ளிடவும்';
+                error.style.display = 'block';
+                return;
             }
+
+            if (pin !== adminPIN) {
+                error.textContent = '❌ PIN தவறாக உள்ளது';
+                error.style.display = 'block';
+                document.getElementById('verifyPinInput').value = '';
+                return;
+            }
+
+            adminAuthenticated = true;
+            isAdmin = true;
+            error.style.display = 'none';
+            closePINModal();
+            document.getElementById('adminNav').style.display = 'flex';
+            goToPage('admin');
         }
 
         // ============= INITIALIZATION =============
@@ -2918,6 +2930,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', init);
+
+        // Reliable 4-digit Admin PIN button bindings
+        document.getElementById('setPinButton')?.addEventListener('click', savePIN);
+        document.getElementById('verifyPinButton')?.addEventListener('click', verifyPIN);
+        document.getElementById('cancelPinButton')?.addEventListener('click', closePINModal);
+        document.getElementById('setPinInput')?.addEventListener('input', e => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+        });
+        document.getElementById('verifyPinInput')?.addEventListener('input', e => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+        });
+
     </script>
 </body>
 </html>
