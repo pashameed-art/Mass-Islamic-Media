@@ -1854,8 +1854,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         let githubRepo = localStorage.getItem('githubRepo') || '';
 
         // ============= PIN PROTECTION FUNCTIONS =============
-        let adminPIN = localStorage.getItem('adminPIN') || null;
-        let adminAuthenticated = false;
 
         // Old 6-digit PINs from previous versions are invalidated once.
         if (adminPIN && !/^\d{4}$/.test(adminPIN)) {
