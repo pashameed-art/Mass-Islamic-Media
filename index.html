@@ -1430,6 +1430,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #adminToggle{cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
 #adminToggle:focus-visible{outline:3px solid rgba(212,175,55,.7);outline-offset:3px}
 </style>
+<style id="admin-enable-disable-final">
+#adminToggle{cursor:pointer!important;touch-action:manipulation}
+#adminDisableBtn{cursor:pointer!important;touch-action:manipulation}
+</style>
 </head>
 <body>
     <div class="app-container">
@@ -1665,6 +1669,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                                  aria-label="Admin Panel Enable or Disable"
                                  onclick="toggleAdminMode()"
                                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAdminMode();}"></div>
+                            <button type="button" id="adminDisableBtn"
+                                    onclick="disableAdminPanel()"
+                                    style="margin-left:8px;padding:8px 12px;border:0;border-radius:10px;background:#ef4444;color:#fff;font-weight:700;">
+                                Disable
+                            </button>
                         </div>
                         <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.75rem;">
                             Add duas, upload images, manage content
@@ -2881,6 +2890,31 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             document.getElementById('notificationTime').value = notificationTime;
         }
 
+        function disableAdminPanel() {
+            // Explicit hard-disable: no PIN, no toggle state dependency.
+            adminPanelEnabled = false;
+            adminAuthenticated = false;
+            isAdmin = false;
+
+            localStorage.setItem('adminPanelEnabled', 'false');
+            localStorage.removeItem('adminMode');
+
+            const nav = document.getElementById('adminNav');
+            if (nav) {
+                nav.style.display = 'none';
+                nav.classList.remove('active');
+            }
+
+            const adminPage = document.getElementById('adminPage');
+            if (adminPage) adminPage.classList.remove('active');
+
+            updateAdminToggle();
+
+            if (typeof currentPage !== 'undefined' && currentPage === 'admin') {
+                goToPage('settings');
+            }
+        }
+
         function toggleAdminMode() {
             const nav = document.getElementById('adminNav');
 
@@ -2923,6 +2957,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
             if (nav) {
                 nav.style.display = adminPanelEnabled === true ? 'flex' : 'none';
+            }
+
+            const disableBtn = document.getElementById('adminDisableBtn');
+            if (disableBtn) {
+                disableBtn.style.display = adminPanelEnabled === true ? 'inline-block' : 'none';
             }
         }
 
