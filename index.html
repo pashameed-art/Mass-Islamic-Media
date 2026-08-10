@@ -1475,6 +1475,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .premium-search-empty h3,.premium-empty-state h3{margin:.35rem 0}
 .premium-search-empty p,.premium-empty-state p{opacity:.65;font-size:.9rem}
 </style>
+<style id="image-render-fix-v11">
+.dua-card-image-wrap{min-height:170px;overflow:hidden;background:linear-gradient(135deg,#0f766e,#134e4a);border-radius:18px 18px 0 0}
+.dua-card-image{display:block;width:100%;height:100%;min-height:170px;object-fit:cover}
+.dua-card-image-wrap.image-fallback{display:flex;align-items:center;justify-content:center}
+.dua-card-image-wrap.image-fallback::after{content:'🕌';font-size:3rem;opacity:.8}
+</style>
 </head>
 <body>
     <div class="app-container">
@@ -1616,7 +1622,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 10.0</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 11.0</p>
                             </div>
                         </div>
                     </div>
@@ -2446,26 +2452,66 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         function createDuaCard(dua) {
-            const card=document.createElement('div');
-            card.className='dua-card';
-            const isFav=favorites.includes(dua.id);
+            // Build the card with DOM APIs instead of injecting the image URL into
+            // innerHTML. The built-in SVG data URLs contain quotes, which can
+            // otherwise break the <img> attribute and expose raw HTML on screen.
+            const card = document.createElement('div');
+            card.className = 'dua-card';
 
-            card.innerHTML=`
-                <div class="dua-card-image-wrap">
-                    <img class="dua-card-image" src="${dua.image || ''}" alt="${escapeHtml(dua.title)}" loading="lazy">
-                    <button type="button" class="dua-favorite-btn ${isFav?'active':''}"
-                            aria-label="${isFav?'Remove from favorites':'Add to favorites'}"
-                            onclick="event.stopPropagation();toggleFavoriteById(${dua.id})">
-                        ${isFav?'❤️':'♡'}
-                    </button>
-                </div>
-                <div class="dua-card-body">
-                    <div class="dua-card-category">${escapeHtml(dua.category || '')}</div>
-                    <h3 class="dua-card-title">${escapeHtml(dua.title || '')}</h3>
-                    <p class="dua-card-description">${escapeHtml(dua.description || '')}</p>
-                </div>`;
+            const isFav = favorites.includes(dua.id);
 
-            card.addEventListener('click',()=>openDua(dua.id));
+            const imageWrap = document.createElement('div');
+            imageWrap.className = 'dua-card-image-wrap';
+
+            const img = document.createElement('img');
+            img.className = 'dua-card-image';
+            img.alt = dua.title || 'Dua';
+            img.loading = 'lazy';
+            img.src = dua.image || '';
+            img.onerror = function () {
+                this.style.display = 'none';
+                imageWrap.classList.add('image-fallback');
+            };
+
+            const favBtn = document.createElement('button');
+            favBtn.type = 'button';
+            favBtn.className = `dua-favorite-btn ${isFav ? 'active' : ''}`;
+            favBtn.setAttribute('aria-label', isFav ? 'Remove from favorites' : 'Add to favorites');
+            favBtn.textContent = isFav ? '❤️' : '♡';
+            favBtn.addEventListener('click', function (event) {
+                event.stopPropagation();
+                toggleFavoriteById(dua.id);
+            });
+
+            imageWrap.appendChild(img);
+            imageWrap.appendChild(favBtn);
+
+            const body = document.createElement('div');
+            body.className = 'dua-card-body';
+
+            const category = document.createElement('div');
+            category.className = 'dua-card-category';
+            category.textContent = dua.category || '';
+
+            const title = document.createElement('h3');
+            title.className = 'dua-card-title';
+            title.textContent = dua.title || '';
+
+            const description = document.createElement('p');
+            description.className = 'dua-card-description';
+            description.textContent = dua.description || '';
+
+            body.appendChild(category);
+            body.appendChild(title);
+            body.appendChild(description);
+
+            card.appendChild(imageWrap);
+            card.appendChild(body);
+
+            card.addEventListener('click', function () {
+                openDua(dua.id);
+            });
+
             return card;
         }
 
