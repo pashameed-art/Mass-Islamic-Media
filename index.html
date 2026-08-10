@@ -1560,6 +1560,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .categories>*{flex:0 0 auto!important;white-space:nowrap!important}
 #premiumCategoryChips{display:none!important}
 </style>
+<style id="category-row-selection-fix-v15">
+#categoriesContainer{position:relative;z-index:5;touch-action:pan-x;pointer-events:auto}
+#categoriesContainer .category-btn{pointer-events:auto;cursor:pointer}
+#categoriesContainer .category-btn.active{font-weight:800;transform:translateY(-1px)}
+</style>
 </head>
 <body>
     <div class="app-container">
@@ -1726,7 +1731,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 14.0</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 15.0</p>
                             </div>
                         </div>
                     </div>
@@ -2465,7 +2470,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         function renderCategories() {
             const container = document.getElementById('categoriesContainer');
             container.innerHTML = categories.map(cat => `
-                <button class="category-btn ${cat.id === 'all' ? 'active' : ''}" 
+                <button type="button" class="category-btn ${cat.id === 'all' ? 'active' : ''}"
+                    data-category="${cat.id}"
                     onclick="selectCategory('${cat.id}')">
                     <span>${cat.icon}</span>
                     <span>${cat.name}</span>
@@ -2495,7 +2501,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             if (!grid) return;
 
             const query = String(searchTerm || '').trim().toLowerCase();
-            const activeCategory = window.activeDuaCategory || 'all';
+            const activeCategory = selectedCategory || 'all';
 
             const filtered = duasData.filter(dua => {
                 const matchesQuery = !query ||
@@ -2544,6 +2550,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         function clearPremiumSearch() {
             searchTerm='';
             window.activeDuaCategory='all';
+            selectedCategory='all';
             const input=document.getElementById('searchInput');
             if(input) input.value='';
             renderDuas();
@@ -2698,9 +2705,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         // ============= INTERACTIONS =============
         function selectCategory(catId) {
             selectedCategory = catId;
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.textContent.includes(categories.find(c => c.id === catId).name));
+            window.activeDuaCategory = catId;
+
+            document.querySelectorAll('#categoriesContainer .category-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.category === catId);
             });
+
             renderDuas();
         }
 
