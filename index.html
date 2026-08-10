@@ -1422,7 +1422,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 17.0</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 3.0</p>
                             </div>
                         </div>
                     </div>
@@ -1435,10 +1435,10 @@
     <div class="pin-modal" id="pinModal">
         <div class="pin-container">
             <div class="pin-title">🔐 Admin PIN</div>
-            <p id="pinModalMessage" style="margin-bottom: 1rem; font-size: 0.9rem;">Enter your 6-digit PIN</p>
+            <p id="pinModalMessage" style="margin-bottom: 1rem; font-size: 0.9rem;">Enter your 4-digit PIN</p>
             
             <div class="pin-input-group">
-                <input type="text" id="pinInput" class="pin-input" maxlength="6" placeholder="••••••" readonly>
+                <input type="text" id="pinInput" class="pin-input" maxlength="4" placeholder="••••••" readonly>
             </div>
 
             <div class="pin-keypad">
@@ -1490,13 +1490,13 @@
             
             <div id="pinSetup" style="display: none;">
                 <p style="margin-bottom: 1rem; opacity: 0.9;">முதல் முறை - 6 இலக்க PIN அமைக்கவும்:</p>
-                <input type="password" id="setPinInput" placeholder="6 digit PIN" maxlength="6" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
+                <input type="password" id="setPinInput" placeholder="4 digit PIN" maxlength="4" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
                 <button class="btn-save" onclick="savePIN()" style="width: 100%;">✅ Set PIN</button>
             </div>
 
             <div id="pinVerify" style="display: none;">
                 <p style="margin-bottom: 1rem; opacity: 0.9;">உங்க் PIN உள்ளிடவும்:</p>
-                <input type="password" id="verifyPinInput" placeholder="6 digit PIN" maxlength="6" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
+                <input type="password" id="verifyPinInput" placeholder="4 digit PIN" maxlength="4" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
                 <button class="btn-save" onclick="verifyPIN()" style="width: 100%; margin-bottom: 0.5rem;">✅ Verify</button>
                 <button class="btn-cancel" onclick="closePINModal()" style="width: 100%;">Cancel</button>
             </div>
@@ -1621,7 +1621,7 @@
                 message.textContent = 'Set your 6-digit Admin PIN';
                 info.textContent = 'You can change this later in settings';
             } else {
-                message.textContent = 'Enter your 6-digit PIN to access Admin Panel';
+                message.textContent = 'Enter your 4-digit PIN to access Admin Panel';
                 info.textContent = '';
             }
             
@@ -1631,12 +1631,12 @@
         }
 
         function pinKeypress(digit) {
-            if (window.pinValue.length < 6) {
+            if (window.pinValue.length < 4) {
                 window.pinValue += digit;
                 updatePINDisplay();
                 
                 // Auto-submit when 6 digits entered
-                if (window.pinValue.length === 6) {
+                if (window.pinValue.length === 4) {
                     setTimeout(pinSubmit, 300);
                 }
             }
@@ -1657,8 +1657,8 @@
         function pinSubmit() {
             const error = document.getElementById('pinError');
             
-            if (window.pinValue.length !== 6) {
-                error.textContent = 'PIN must be 6 digits';
+            if (window.pinValue.length !== 4) {
+                error.textContent = 'PIN must be 4 digits';
                 return;
             }
 
@@ -1704,10 +1704,10 @@
             
             // Load GitHub config if exists
             const savedRepo = localStorage.getItem('githubRepo');
-            const savedToken = localStorage.getItem('githubToken');
             if (savedRepo) {
                 document.getElementById('githubRepoInput').value = savedRepo;
             }
+            const savedToken = localStorage.getItem('githubToken');
             if (savedToken) {
                 document.getElementById('githubTokenInput').value = savedToken;
             }
@@ -2067,7 +2067,7 @@
             });
             document.getElementById('exportCsvBtn').addEventListener('click', exportAsCSV);
             document.getElementById('syncGithubBtn').addEventListener('click', syncToGitHub);
-            document.getElementById('saveGithubBtn').addEventListener('click', saveGitHubSettings);
+            document.getElementById('saveGithubBtn').addEventListener('click', setupGitHubSync);
             document.getElementById('clearGithubBtn').addEventListener('click', clearGitHubSettings);
 
 
@@ -2277,107 +2277,98 @@
         }
 
         // GitHub Sync Function
-        function getGitHubCredentials() {
-            const repoEl = document.getElementById('githubRepoInput');
-            const tokenEl = document.getElementById('githubTokenInput');
-            return {
-                repo: (repoEl?.value || localStorage.getItem('githubRepo') || '').trim(),
-                token: (tokenEl?.value || localStorage.getItem('githubToken') || '').trim()
-            };
-        }
+        function syncToGitHub() {
+            const repo = document.getElementById('githubRepoInput').value.trim();
+            const token = document.getElementById('githubTokenInput').value.trim();
 
-        function saveGitHubSettings() {
-            const repo = (document.getElementById('githubRepoInput')?.value || '').trim();
-            const token = (document.getElementById('githubTokenInput')?.value || '').trim();
-
-            if (!/^[^/]+\/[^/]+$/.test(repo)) {
-                showAdminAlert('backupAlert', '❌ Repository: username/repository', 'error');
-                return false;
-            }
-            if (!token) {
-                showAdminAlert('backupAlert', '❌ GitHub Personal Access Token paste செய்யவும்', 'error');
-                return false;
-            }
-
-            localStorage.setItem('githubRepo', repo);
-            localStorage.setItem('githubToken', token);
-            showAdminAlert('backupAlert', '✅ GitHub Settings saved', 'success');
-            return true;
-        }
-
-        async function syncToGitHub() {
-            const { repo, token } = getGitHubCredentials();
-
-            if (!/^[^/]+\/[^/]+$/.test(repo)) {
-                showAdminAlert('backupAlert', '❌ Repository: username/repository', 'error');
-                return;
-            }
-            if (!token) {
-                showAdminAlert('backupAlert', '❌ GitHub Personal Access Token paste செய்யவும்', 'error');
+            if (!repo || !token) {
+                showAdminAlert('backupAlert', '❌ Please enter repo and token', 'error');
                 return;
             }
 
+            if (!repo.includes('/')) {
+                showAdminAlert('backupAlert', '❌ Repo format: username/repo', 'error');
+                return;
+            }
+
+            // Save credentials
             localStorage.setItem('githubRepo', repo);
             localStorage.setItem('githubToken', token);
-            showAdminAlert('backupAlert', '⏳ GitHub backup நடைபெறுகிறது...', 'info');
 
+            showAdminAlert('backupAlert', '⏳ Syncing to GitHub...', 'info');
+
+            // Prepare data
             const backup = {
-                version: '17.0',
+                version: '2.5',
                 timestamp: new Date().toISOString(),
                 duas: duasData,
                 favorites: JSON.parse(localStorage.getItem('favorites') || '[]')
             };
 
-            try {
-                await syncDataToGitHub(repo, token, backup);
-                showAdminAlert('backupAlert', '✅ GitHub Backup successful!', 'success');
-            } catch (error) {
-                showAdminAlert('backupAlert', '❌ GitHub Backup failed: ' + (error.message || error), 'error');
-            }
-        }
+            const content = JSON.stringify(backup, null, 2);
+            const base64 = btoa(unescape(encodeURIComponent(content)));
 
-        async function syncDataToGitHub(repo, token, backupObject) {
-            const [owner, repoName] = repo.split('/');
-            if (!owner || !repoName) throw new Error('Repository format must be username/repository');
-
-            const filename = `duas-backup-${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.json`;
-            const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/contents/${encodeURIComponent(filename)}`;
-            const content = JSON.stringify(backupObject, null, 2);
-            const base64Content = btoa(unescape(encodeURIComponent(content)));
-
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/vnd.github+json',
-                    'Content-Type': 'application/json',
-                    'X-GitHub-Api-Version': '2022-11-28'
-                },
-                body: JSON.stringify({
-                    message: `Dua backup ${new Date().toISOString()}`,
-                    content: base64Content
+            // GitHub API call
+            syncDataToGitHub(repo, token, base64)
+                .then(() => {
+                    showAdminAlert('backupAlert', '✅ Synced to GitHub successfully!', 'success');
                 })
+                .catch(error => {
+                    showAdminAlert('backupAlert', '❌ Sync failed: ' + error.message, 'error');
+                });
+        }
+
+        function syncDataToGitHub(repo, token, base64Content) {
+            return new Promise((resolve, reject) => {
+                const [owner, repoName] = repo.split('/');
+                const filename = `duas-backup-${new Date().toISOString().slice(0, 10)}.json`;
+                const url = `https://api.github.com/repos/${owner}/${repoName}/contents/${filename}`;
+
+                // Check if file exists
+                fetch(url, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(response => {
+                    let sha = null;
+                    if (response.ok) {
+                        return response.json().then(data => ({ data, exists: true }));
+                    }
+                    return { data: null, exists: false };
+                })
+                .then(({ data, exists }) => {
+                    const sha = exists ? data.sha : undefined;
+                    
+                    const options = {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: `Backup duas - ${new Date().toISOString().slice(0, 10)}`,
+                            content: base64Content,
+                            ...(sha ? { sha } : {})
+                        })
+                    };
+
+                    return fetch(url, options);
+                })
+                .then(response => {
+                    if (response.ok) {
+                        resolve();
+                    } else {
+                        throw new Error('GitHub API error: ' + response.statusText);
+                    }
+                })
+                .catch(error => {
+                    reject(error);
+                });
             });
-
-            let data = {};
-            try { data = await response.json(); } catch (_) {}
-
-            if (!response.ok) {
-                throw new Error(data.message ? `${data.message} (HTTP ${response.status})` : `HTTP ${response.status}`);
-            }
-            return data;
         }
-
-        function clearGitHubSettings() {
-            localStorage.removeItem('githubRepo');
-            localStorage.removeItem('githubToken');
-            const repoEl = document.getElementById('githubRepoInput');
-            const tokenEl = document.getElementById('githubTokenInput');
-            if (repoEl) repoEl.value = '';
-            if (tokenEl) tokenEl.value = '';
-            showAdminAlert('backupAlert', '🗑️ GitHub settings cleared', 'success');
-        }
-
         function openPINModal() {
             const pinModal = document.getElementById('pinModal');
             pinModal.style.display = 'flex';
@@ -2404,8 +2395,8 @@
             const pin = document.getElementById('setPinInput').value;
             const errorDiv = document.getElementById('pinError');
 
-            if (pin.length !== 6 || isNaN(pin)) {
-                errorDiv.textContent = '❌ 6 digit PIN enter செய்யவும்';
+            if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+                errorDiv.textContent = '❌ 4 digit PIN enter செய்யவும்';
                 errorDiv.style.display = 'block';
                 return;
             }
@@ -2446,176 +2437,103 @@
         }
 
         // GitHub Sync Functions
-        function setupGitHubSync() {
-            const repo = document.getElementById('githubRepoInput').value;
-            const token = document.getElementById('githubTokenInput').value;
+        function getGitHubCredentials() {
+            const repoEl = document.getElementById('githubRepoInput');
+            const tokenEl = document.getElementById('githubTokenInput');
+            return {
+                repo: (repoEl?.value || localStorage.getItem('githubRepo') || '').trim(),
+                token: (tokenEl?.value || localStorage.getItem('githubToken') || '').trim()
+            };
+        }
 
-            if (!repo || !token) {
-                showAdminAlert('backupAlert', '❌ GitHub credentials needed', 'error');
+        function setupGitHubSync() {
+            const repo = (document.getElementById('githubRepoInput')?.value || '').trim();
+            const token = (document.getElementById('githubTokenInput')?.value || '').trim();
+
+            if (!/^[^/]+\/[^/]+$/.test(repo)) {
+                showAdminAlert('backupAlert', '❌ Repository: username/repository', 'error');
+                return false;
+            }
+            if (!token) {
+                showAdminAlert('backupAlert', '❌ GitHub Personal Access Token paste செய்யவும்', 'error');
+                return false;
+            }
+
+            localStorage.setItem('githubRepo', repo);
+            localStorage.setItem('githubToken', token);
+            showAdminAlert('backupAlert', '✅ GitHub Settings saved', 'success');
+            return true;
+        }
+
+        async function syncToGitHub() {
+            if (!checkAdminAccess()) return;
+
+            const { repo, token } = getGitHubCredentials();
+            if (!/^[^/]+\/[^/]+$/.test(repo)) {
+                showAdminAlert('backupAlert', '❌ Repository: username/repository', 'error');
+                return;
+            }
+            if (!token) {
+                showAdminAlert('backupAlert', '❌ GitHub Personal Access Token paste செய்யவும்', 'error');
                 return;
             }
 
             localStorage.setItem('githubRepo', repo);
             localStorage.setItem('githubToken', token);
-            showAdminAlert('backupAlert', '✅ GitHub credentials saved', 'success');
-        }
+            showAdminAlert('backupAlert', '⏳ GitHub backup நடைபெறுகிறது...', 'info');
 
-        function syncToGitHub() {
-            if (!checkAdminAccess()) return;
-
-            const repo = localStorage.getItem('githubRepo');
-            const token = localStorage.getItem('githubToken');
-
-            if (!repo || !token) {
-                showAdminAlert('backupAlert', '❌ Setup GitHub credentials first', 'error');
-                return;
-            }
-
-            // Create backup JSON
             const backup = {
-                version: '2.5',
+                version: '17.0',
                 timestamp: new Date().toISOString(),
                 duas: duasData,
                 favorites: JSON.parse(localStorage.getItem('favorites') || '[]')
             };
 
-            const fileName = `duas-${new Date().toISOString().slice(0, 10)}.json`;
-            const content = JSON.stringify(backup, null, 2);
+            try {
+                await syncDataToGitHub(repo, token, backup);
+                showAdminAlert('backupAlert', '✅ GitHub Backup successful!', 'success');
+            } catch (error) {
+                showAdminAlert('backupAlert', '❌ GitHub Backup failed: ' + (error.message || error), 'error');
+            }
+        }
 
-            // GitHub API call
+        async function syncDataToGitHub(repo, token, backupObject) {
             const [owner, repoName] = repo.split('/');
-            const url = `https://api.github.com/repos/${owner}/${repoName}/contents/${fileName}`;
+            const filename = `duas-backup-${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.json`;
+            const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/contents/${encodeURIComponent(filename)}`;
+            const content = JSON.stringify(backupObject, null, 2);
+            const base64Content = btoa(unescape(encodeURIComponent(content)));
 
-            fetch(url, {
+            const response = await fetch(url, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `token ${token}`,
-                    'Content-Type': 'application/json'
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github+json',
+                    'Content-Type': 'application/json',
+                    'X-GitHub-Api-Version': '2022-11-28'
                 },
                 body: JSON.stringify({
-                    message: `Update duas - ${new Date().toLocaleString()}`,
-                    content: btoa(content)
+                    message: `Dua backup ${new Date().toISOString()}`,
+                    content: base64Content
                 })
-            })
-            .then(response => {
-                if (response.ok) {
-                    showAdminAlert('backupAlert', '✅ Synced to GitHub successfully!', 'success');
-                } else {
-                    showAdminAlert('backupAlert', '❌ GitHub sync failed', 'error');
-                }
-            })
-            .catch(error => {
-                showAdminAlert('backupAlert', '❌ Network error: ' + error.message, 'error');
             });
-        }
 
-        function scheduleNotification() {
-            if ('Notification' in window && Notification.permission === 'granted' && notificationsEnabled) {
-                const [hours, minutes] = notificationTime.split(':');
-                const now = new Date();
-                const notifTime = new Date();
-                notifTime.setHours(parseInt(hours), parseInt(minutes), 0);
-                
-                if (notifTime <= now) {
-                    notifTime.setDate(notifTime.getDate() + 1);
-                }
-                
-                const timeout = notifTime - now;
-                setTimeout(() => {
-                    const today = duasData[new Date().getDate() % duasData.length];
-                    new Notification('Daily Dua 🕌', {
-                        body: today.title + ' - ' + today.description,
-                        icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="75" font-size="80" text-anchor="middle">🕌</text></svg>'
-                    });
-                    if (notificationsEnabled) scheduleNotification();
-                }, timeout);
+            let data = {};
+            try { data = await response.json(); } catch (_) {}
+            if (!response.ok) {
+                throw new Error(data.message ? `${data.message} (HTTP ${response.status})` : `HTTP ${response.status}`);
             }
+            return data;
         }
 
-        // Zoom
-        function zoomImageIn() {
-            zoomLevel = Math.min(zoomLevel + 0.5, 3);
-            updateZoom();
-        }
-
-        function zoomImageOut() {
-            zoomLevel = Math.max(zoomLevel - 0.5, 1);
-            updateZoom();
-        }
-
-        function updateZoom() {
-            const content = document.getElementById('modalContent');
-            content.style.transform = `scale(${zoomLevel})`;
-        }
-
-        // Swipe Navigation
-        let filteredDuas = [];
-
-        function showNextDua() {
-            if (!selectedDua || filteredDuas.length === 0) return;
-            const currentIndex = filteredDuas.findIndex(d => d.id === selectedDua.id);
-            const nextIndex = (currentIndex + 1) % filteredDuas.length;
-            openModal(filteredDuas[nextIndex].id);
-            zoomLevel = 1;
-            updateZoom();
-        }
-
-        function showPreviousDua() {
-            if (!selectedDua || filteredDuas.length === 0) return;
-            const currentIndex = filteredDuas.findIndex(d => d.id === selectedDua.id);
-            const nextIndex = (currentIndex - 1 + filteredDuas.length) % filteredDuas.length;
-            openModal(filteredDuas[nextIndex].id);
-            zoomLevel = 1;
-            updateZoom();
-        }
-
-        function updateDarkModeButton() {
-            const icon = document.getElementById('darkIcon');
-            const text = document.getElementById('darkText');
-            if (darkMode) {
-                icon.textContent = '☀️';
-                text.textContent = 'Light';
-            } else {
-                icon.textContent = '🌙';
-                text.textContent = 'Dark';
-            }
-        }
-
-        function openModal(duaId) {
-            selectedDua = duasData.find(d => d.id === duaId);
-            if (!selectedDua) return;
-
-            document.getElementById('modalImage').src = selectedDua.image;
-            document.getElementById('modal').classList.add('active');
-            
-            // Update favorite button
-            updateFavoriteButton();
-        }
-
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-            selectedDua = null;
-        }
-
-        function toggleFavorite() {
-            if (!selectedDua) return;
-            const index = favorites.indexOf(selectedDua.id);
-            if (index === -1) {
-                favorites.push(selectedDua.id);
-            } else {
-                favorites.splice(index, 1);
-            }
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-            updateFavoriteButton();
-        }
-
-        function updateFavoriteButton() {
-            const btn = document.getElementById('favoriteBtn');
-            if (selectedDua && favorites.includes(selectedDua.id)) {
-                btn.textContent = '❤️';
-            } else {
-                btn.textContent = '🤍';
-            }
+        function clearGitHubSettings() {
+            localStorage.removeItem('githubRepo');
+            localStorage.removeItem('githubToken');
+            const repoEl = document.getElementById('githubRepoInput');
+            const tokenEl = document.getElementById('githubTokenInput');
+            if (repoEl) repoEl.value = '';
+            if (tokenEl) tokenEl.value = '';
+            showAdminAlert('backupAlert', '🗑️ GitHub settings cleared', 'success');
         }
 
         function shareDua() {
