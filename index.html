@@ -1514,7 +1514,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
                     <div class="admin-tabs">
                         <button class="admin-tab-btn active" id="addDuaTab">➕ புதிய துஆ</button>
-                        <button class="admin-tab-btn" id="manageDuasTab">📋 Manage</button>
+                        <button class="admin-tab-btn" id="manageDuasTab">📋 Manage Duas</button>
                         <button class="admin-tab-btn" id="backupTab">💾 Backup</button>
                     </div>
 
@@ -1686,7 +1686,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 5.2.1</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 6.0.1</p>
                             </div>
                         </div>
                     </div>
@@ -1814,6 +1814,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 description: 'தர்மம் மற்றும் அறிவைக் கேட்கல்'
             }
         ];
+
+        const builtInDuaIds = new Set(duasData.map(d => d.id));
 
         const categories = [
             { id: 'all', name: 'அனைத்து', icon: '📱' },
@@ -1986,13 +1988,20 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         // Load custom duas from localStorage
         function loadCustomDuas() {
             const saved = localStorage.getItem('customDuas');
-            if (saved) {
-                try {
-                    const customDuas = JSON.parse(saved);
-                    duasData = [...duasData, ...customDuas];
-                } catch (e) {
-                    console.error('Error loading custom duas:', e);
-                }
+            if (!saved) return;
+
+            try {
+                const customDuas = JSON.parse(saved);
+                if (!Array.isArray(customDuas)) return;
+
+                const cleanCustom = customDuas.filter(d =>
+                    d && !builtInDuaIds.has(d.id) && d.title && d.category
+                );
+
+                duasData = [...duasData, ...cleanCustom];
+                localStorage.setItem('customDuas', JSON.stringify(cleanCustom));
+            } catch (e) {
+                console.error('Error loading custom duas:', e);
             }
         }
 
@@ -2399,24 +2408,34 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 return;
             }
 
+            const custom = JSON.parse(localStorage.getItem('customDuas') || '[]');
+            const maxId = Math.max(
+                ...duasData.map(d => Number(d.id) || 0),
+                ...custom.map(d => Number(d.id) || 0),
+                6
+            );
+
             const newDua = {
-                id: Math.max(...duasData.map(d => d.id), 0) + 1,
-                title: title,
-                category: category,
-                description: description,
+                id: maxId + 1,
+                title,
+                category,
+                description,
                 image: selectedImageFile
             };
 
+            custom.push(newDua);
+            localStorage.setItem('customDuas', JSON.stringify(custom));
             duasData.push(newDua);
-            localStorage.setItem('customDuas', JSON.stringify(duasData));
 
             showAdminAlert('addAlert', '✅ Dua added successfully!', 'success');
             document.getElementById('addDuaForm').reset();
             document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imageInfo').textContent = '';
             selectedImageFile = null;
 
             updateAdminStats();
             renderDuas();
+            renderDaily();
         }
 
         function switchAdminTab(tab) {
@@ -2440,35 +2459,111 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
         function renderManageDuas() {
             const container = document.getElementById('duasListAdmin');
+            if (!container) return;
             container.innerHTML = '';
 
+            const customIds = new Set(
+                JSON.parse(localStorage.getItem('customDuas') || '[]').map(d => d.id)
+            );
+
             duasData.forEach(dua => {
+                const isCustom = customIds.has(dua.id);
                 const div = document.createElement('div');
                 div.className = 'dua-card';
                 div.style.marginBottom = '1rem';
+
+                const image = dua.image ? `<img src="${dua.image}" alt="" style="width:64px;height:88px;object-fit:cover;border-radius:10px;margin-right:12px;">` : '';
+
                 div.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div style="flex: 1;">
-                            <h3 style="margin: 0 0 0.5rem 0;">${dua.title}</h3>
-                            <p style="margin: 0 0 0.5rem 0; opacity: 0.7; font-size: 0.9rem;">${dua.description}</p>
-                            <p style="margin: 0; font-size: 0.85rem; opacity: 0.6;">Category: ${dua.category}</p>
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        ${image}
+                        <div style="flex:1;min-width:0;">
+                            <h3 style="margin:0 0 .35rem 0;">${escapeHtml(dua.title)}</h3>
+                            <p style="margin:0 0 .35rem 0;opacity:.7;font-size:.9rem;">${escapeHtml(dua.description)}</p>
+                            <p style="margin:0;font-size:.8rem;opacity:.6;">${escapeHtml(dua.category)} ${isCustom ? '• Custom' : '• Built-in'}</p>
                         </div>
-                        <button class="btn-small" onclick="deleteDua(${dua.id})" style="background: #ef4444;">🗑️ Delete</button>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+                            ${isCustom
+                                ? `<button class="btn-small" onclick="editDua(${dua.id})">✏️ Edit</button>
+                                   <button class="btn-small" onclick="deleteDua(${dua.id})" style="background:#ef4444;">🗑️ Delete</button>`
+                                : `<span style="font-size:.75rem;opacity:.6;">Built-in</span>`
+                            }
+                        </div>
                     </div>
                 `;
                 container.appendChild(div);
             });
         }
 
-        function deleteDua(id) {
-            if (confirm('Delete this dua?')) {
-                duasData = duasData.filter(d => d.id !== id);
-                localStorage.setItem('customDuas', JSON.stringify(duasData));
-                showAdminAlert('manageAlert', '✅ Dua deleted', 'success');
-                renderManageDuas();
-                updateAdminStats();
-                renderDuas();
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({
+                '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+            }[ch]));
+        }
+
+        function editDua(id) {
+            const custom = JSON.parse(localStorage.getItem('customDuas') || '[]');
+            const dua = custom.find(d => d.id === id);
+            if (!dua) {
+                showAdminAlert('manageAlert', '❌ Built-in Dua cannot be edited', 'error');
+                return;
             }
+
+            const title = prompt('Dua Title:', dua.title);
+            if (title === null) return;
+
+            const description = prompt('Dua Description:', dua.description);
+            if (description === null) return;
+
+            const category = prompt(
+                'Category: morning / forgiveness / travel / sleep / food / knowledge',
+                dua.category
+            );
+            if (category === null) return;
+
+            const allowed = ['morning','forgiveness','travel','sleep','food','knowledge'];
+            if (!allowed.includes(category.trim())) {
+                showAdminAlert('manageAlert', '❌ Invalid category', 'error');
+                return;
+            }
+
+            dua.title = title.trim();
+            dua.description = description.trim();
+            dua.category = category.trim();
+
+            localStorage.setItem('customDuas', JSON.stringify(custom));
+
+            const index = duasData.findIndex(d => d.id === id);
+            if (index !== -1) duasData[index] = { ...duasData[index], ...dua };
+
+            renderManageDuas();
+            renderDuas();
+            renderDaily();
+            showAdminAlert('manageAlert', '✅ Dua updated', 'success');
+        }
+
+        function deleteDua(id) {
+            if (builtInDuaIds.has(id)) {
+                showAdminAlert('manageAlert', '❌ Built-in Dua cannot be deleted', 'error');
+                return;
+            }
+
+            if (!confirm('இந்த துஆவை Delete செய்யவா?')) return;
+
+            const custom = JSON.parse(localStorage.getItem('customDuas') || '[]')
+                .filter(d => d.id !== id);
+
+            localStorage.setItem('customDuas', JSON.stringify(custom));
+            duasData = duasData.filter(d => d.id !== id);
+
+            favorites = favorites.filter(f => f !== id);
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+
+            showAdminAlert('manageAlert', '✅ Dua deleted', 'success');
+            renderManageDuas();
+            updateAdminStats();
+            renderDuas();
+            renderDaily();
         }
 
         function updateAdminStats() {
