@@ -1481,6 +1481,53 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .dua-card-image-wrap.image-fallback{display:flex;align-items:center;justify-content:center}
 .dua-card-image-wrap.image-fallback::after{content:'🕌';font-size:3rem;opacity:.8}
 </style>
+<style id="dua-card-layout-final-fix">
+.dua-card{min-width:0;width:100%;box-sizing:border-box}
+.dua-card-body{
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  align-items:stretch!important;
+  gap:.35rem!important;
+  overflow:hidden!important;
+  text-align:center!important;
+}
+.dua-card-category,.dua-card-title,.dua-card-description{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+  overflow-wrap:anywhere!important;
+  word-break:break-word!important;
+  white-space:normal!important;
+}
+.dua-card-category{
+  font-size:.72rem!important;
+  opacity:.65;
+  text-transform:none!important;
+}
+.dua-card-title{
+  font-size:1rem!important;
+  line-height:1.35!important;
+  font-weight:700!important;
+}
+.dua-card-description{
+  font-size:.82rem!important;
+  line-height:1.45!important;
+  opacity:.78;
+}
+@media(max-width:420px){
+  .dua-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:.65rem!important;padding:.65rem!important}
+  .dua-card-body{padding:.75rem .6rem .85rem!important}
+  .dua-card-title{font-size:.9rem!important}
+  .dua-card-description{font-size:.76rem!important}
+}
+</style>
 </head>
 <body>
     <div class="app-container">
@@ -1622,7 +1669,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 11.0</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 12.0</p>
                             </div>
                         </div>
                     </div>
@@ -2451,6 +2498,20 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             renderDuas();
         }
 
+
+        function getCategoryLabel(category) {
+            const labels = {
+                all: 'அனைத்தும்',
+                morning: 'காலை',
+                forgiveness: 'மன்னிப்பு',
+                travel: 'பயணம்',
+                sleep: 'நித்திரை',
+                food: 'உணவு',
+                knowledge: 'ஞானம்'
+            };
+            return labels[String(category || '').toLowerCase()] || String(category || '');
+        }
+
         function createDuaCard(dua) {
             // Build the card with DOM APIs instead of injecting the image URL into
             // innerHTML. The built-in SVG data URLs contain quotes, which can
@@ -2491,7 +2552,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
             const category = document.createElement('div');
             category.className = 'dua-card-category';
-            category.textContent = dua.category || '';
+            category.textContent = getCategoryLabel(dua.category);
 
             const title = document.createElement('h3');
             title.className = 'dua-card-title';
