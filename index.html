@@ -1582,7 +1582,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 8.0</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 9.0</p>
                             </div>
                         </div>
                     </div>
@@ -2200,6 +2200,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             // Schedule notification if enabled
             if (notificationsEnabled) {
                 scheduleNotification();
+                showNotificationStatus(`🔔 Daily Dua: ${notificationTime}`);
             }
         }
 
@@ -2281,6 +2282,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             document.getElementById('notificationTime').addEventListener('change', (e) => {
                 notificationTime = e.target.value;
                 localStorage.setItem('notificationTime', notificationTime);
+                if (notificationsEnabled) scheduleNotification();
+                showNotificationStatus(`⏰ Daily Dua: ${notificationTime}`);
             });
 
             // Zoom
@@ -2451,11 +2454,98 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             }
         }
 
-        function requestNotificationPermission() {
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission();
+        let notificationTimer = null;
+
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                notificationsEnabled = false;
+                localStorage.setItem('notificationsEnabled', 'false');
+                updateNotificationToggle();
+                showNotificationStatus('இந்த browser Notifications-ஐ support செய்யவில்லை.');
+                return false;
+            }
+
+            if (Notification.permission === 'denied') {
+                notificationsEnabled = false;
+                localStorage.setItem('notificationsEnabled', 'false');
+                updateNotificationToggle();
+                showNotificationStatus('🔕 Notifications browser settings-ல் Block செய்யப்பட்டுள்ளன.');
+                return false;
+            }
+
+            if (Notification.permission === 'default') {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    notificationsEnabled = false;
+                    localStorage.setItem('notificationsEnabled', 'false');
+                    updateNotificationToggle();
+                    showNotificationStatus('🔕 Notification permission வழங்கப்படவில்லை.');
+                    return false;
+                }
+            }
+
+            showNotificationStatus('🔔 Daily Dua notification ON');
+            return true;
+        }
+
+        function showNotificationStatus(message) {
+            let box = document.getElementById('notificationStatus');
+            if (!box) {
+                box = document.createElement('div');
+                box.id = 'notificationStatus';
+                box.style.cssText = 'margin-top:.6rem;padding:.7rem;border-radius:10px;font-size:.82rem;background:var(--bg-card);border:1px solid var(--border-light);';
+                const group = document.getElementById('notificationToggle')?.closest('.settings-group');
+                group?.appendChild(box);
+            }
+            box.textContent = message;
+        }
+
+        function clearNotificationTimer() {
+            if (notificationTimer) {
+                clearTimeout(notificationTimer);
+                notificationTimer = null;
             }
         }
+
+        function scheduleNotification() {
+            clearNotificationTimer();
+
+            if (!notificationsEnabled || !('Notification' in window) ||
+                Notification.permission !== 'granted') {
+                return;
+            }
+
+            const parts = String(notificationTime || '08:00').split(':');
+            const hours = Math.min(23, Math.max(0, parseInt(parts[0], 10) || 8));
+            const minutes = Math.min(59, Math.max(0, parseInt(parts[1], 10) || 0));
+
+            const now = new Date();
+            const next = new Date(now);
+            next.setHours(hours, minutes, 0, 0);
+            if (next <= now) next.setDate(next.getDate() + 1);
+
+            const delay = Math.max(1000, next.getTime() - now.getTime());
+
+            notificationTimer = setTimeout(() => {
+                if (!notificationsEnabled || Notification.permission !== 'granted') return;
+
+                const index = new Date().getDate() % Math.max(duasData.length, 1);
+                const dua = duasData[index] || duasData[0];
+
+                try {
+                    new Notification('Daily Dua 🕌', {
+                        body: dua ? `${dua.title} — ${dua.description}` : 'இன்றைய துஆவை படிக்கவும்',
+                        tag: 'mass-islamic-media-daily-dua',
+                        renotify: true
+                    });
+                } catch (e) {
+                    console.error('Notification error:', e);
+                }
+
+                scheduleNotification();
+            }, delay);
+        }
+
 
         // Image Compression
         function compressImage(file, callback, maxSize = 2 * 1024 * 1024) {
