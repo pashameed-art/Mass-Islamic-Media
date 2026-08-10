@@ -1457,6 +1457,24 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #settingsPage .settings-container{display:block!important;visibility:visible!important}
 #settingsPage .settings-group{display:block!important;visibility:visible!important}
 </style>
+<style id="premium-search-favorites-v10">
+.premium-results-toolbar{align-items:center;justify-content:space-between;gap:.8rem;margin:.8rem 0;padding:.8rem 1rem;border:1px solid var(--border-light);border-radius:16px;background:var(--bg-card);box-shadow:0 8px 24px rgba(0,0,0,.05)}
+.premium-results-toolbar>div{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}
+.premium-results-toolbar strong{font-size:.9rem}
+.premium-results-toolbar span{font-size:.78rem;opacity:.65}
+.premium-results-toolbar button,.premium-search-empty button,.premium-empty-state button{border:0;border-radius:999px;padding:.55rem .9rem;background:var(--primary);color:#fff;font-weight:700;cursor:pointer}
+.premium-category-chips{display:flex;gap:.5rem;overflow-x:auto;padding:.35rem 0 .8rem;scrollbar-width:none}
+.premium-category-chips::-webkit-scrollbar{display:none}
+.premium-chip{white-space:nowrap;border:1px solid var(--border-light);background:var(--bg-card);color:var(--text-dark);border-radius:999px;padding:.55rem .8rem;font-size:.8rem;cursor:pointer}
+.premium-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.dua-card-image-wrap{position:relative}
+.dua-favorite-btn{position:absolute;top:8px;right:8px;width:38px;height:38px;border:0;border-radius:50%;background:rgba(255,255,255,.92);font-size:1.2rem;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.dua-favorite-btn.active{background:#fff0f1}
+.premium-search-empty,.premium-empty-state{text-align:center;padding:2.5rem 1rem;margin:1rem 0;border:1px dashed var(--border-light);border-radius:20px;background:var(--bg-card)}
+.premium-search-empty>div,.premium-empty-state .empty-icon{font-size:3rem;margin-bottom:.5rem}
+.premium-search-empty h3,.premium-empty-state h3{margin:.35rem 0}
+.premium-search-empty p,.premium-empty-state p{opacity:.65;font-size:.9rem}
+</style>
 </head>
 <body>
     <div class="app-container">
@@ -1517,8 +1535,17 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
                 <!-- Categories -->
                 <div class="categories" id="categoriesContainer"></div>
+                <div id="premiumCategoryChips" class="premium-category-chips"></div>
+
 
                 <!-- Dua Grid -->
+                <div id="premiumResultsToolbar" class="premium-results-toolbar" style="display:none;">
+                    <div>
+                        <strong id="resultCountText">0 Duas</strong>
+                        <span id="favoriteCountText">0 Favorites</span>
+                    </div>
+                    <button type="button" id="clearSearchBtn">✕ Clear</button>
+                </div>
                 <div class="dua-grid" id="duaGrid"></div>
             </div>
 
@@ -1528,6 +1555,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                     <h2 style="margin-bottom: 1rem;">⭐ பிடித்த துஆ</h2>
                 </div>
                 <div class="dua-grid" id="favoritesGrid"></div>
+                <div id="favoritesEmpty" class="premium-empty-state" style="display:none;">
+                    <div class="empty-icon">♡</div>
+                    <h3>இன்னும் Favorites இல்லை</h3>
+                    <p>பிடித்த துஆவின் ❤️-ஐ அழுத்தி Favorites-ல் சேமிக்கவும்.</p>
+                    <button type="button" onclick="goToPage('home')">🕌 துஆ பார்க்க</button>
+                </div>
+
             </div>
 
             <div class="page" id="settingsPage">
@@ -1582,7 +1616,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 9.0</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 10.0</p>
                             </div>
                         </div>
                     </div>
@@ -2239,6 +2273,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 renderDuas();
             });
 
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+            if (clearSearchBtn) clearSearchBtn.addEventListener('click', clearPremiumSearch);
+
             // Advanced Search
             document.getElementById('advancedSearchBtn').addEventListener('click', () => {
                 const advanced = document.getElementById('advancedSearch');
@@ -2327,44 +2364,126 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         function renderDuas() {
-            const filtered = duasData.filter(dua => {
-                const categoryMatch = selectedCategory === 'all' || dua.category === selectedCategory;
-                const searchMatch = dua.title.toLowerCase().includes(searchTerm) ||
-                                   dua.description.toLowerCase().includes(searchTerm);
-                return categoryMatch && searchMatch;
-            });
-
-            // Prevent duplicate cards from saved/custom Dua data.
-            const unique = [];
-            const seen = new Set();
-            filtered.forEach(dua => {
-                const key = String(dua.id ?? `${dua.category}|${dua.title}`);
-                if (!seen.has(key)) {
-                    seen.add(key);
-                    unique.push(dua);
-                }
-            });
-
-            filteredDuas = unique;
             const grid = document.getElementById('duaGrid');
+            if (!grid) return;
 
-            if (unique.length === 0) {
-                grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-icon">🔍</div><p>துஆ கிடைக்கவில்லை</p></div>';
-                return;
+            const query = String(searchTerm || '').trim().toLowerCase();
+            const activeCategory = window.activeDuaCategory || 'all';
+
+            const filtered = duasData.filter(dua => {
+                const matchesQuery = !query ||
+                    String(dua.title || '').toLowerCase().includes(query) ||
+                    String(dua.description || '').toLowerCase().includes(query);
+
+                const matchesCategory = activeCategory === 'all' ||
+                    String(dua.category || '').toLowerCase() === activeCategory;
+
+                return matchesQuery && matchesCategory;
+            });
+
+            grid.innerHTML = '';
+
+            if (!filtered.length) {
+                grid.innerHTML = `
+                    <div class="premium-search-empty">
+                        <div>🔎</div>
+                        <h3>துஆ கிடைக்கவில்லை</h3>
+                        <p>வேறு வார்த்தை அல்லது category முயற்சி செய்யுங்கள்.</p>
+                        <button type="button" onclick="clearPremiumSearch()">Reset</button>
+                    </div>`;
+            } else {
+                filtered.forEach(dua => grid.appendChild(createDuaCard(dua)));
             }
 
-            grid.innerHTML = unique.map(dua => `
-                <div class="dua-card" onclick="openModal(${dua.id})">
-                    <div class="dua-card-header">
-                        <div class="dua-card-icon">${getCategoryIcon(dua.category)}</div>
-                        <div class="dua-card-title">${dua.title}</div>
-                    </div>
-                    <div class="dua-card-body">
-                        <div class="dua-card-desc">${dua.description}</div>
-                    </div>
-                </div>
-            `).join('');
+            updatePremiumResultsToolbar(filtered.length, query, activeCategory);
+            renderPremiumCategoryChips();
         }
+
+        function updatePremiumResultsToolbar(count, query, category) {
+            const bar=document.getElementById('premiumResultsToolbar');
+            const countEl=document.getElementById('resultCountText');
+            const favEl=document.getElementById('favoriteCountText');
+            const clear=document.getElementById('clearSearchBtn');
+            if(!bar) return;
+
+            const filteredActive=Boolean(query || category !== 'all');
+            bar.style.display = filteredActive ? 'flex' : 'none';
+
+            if(countEl) countEl.textContent = `${count} ${count === 1 ? 'Dua' : 'Duas'}`;
+            if(favEl) favEl.textContent = `${favorites.length} Favorites`;
+            if(clear) clear.style.display = filteredActive ? 'inline-flex' : 'none';
+        }
+
+        function clearPremiumSearch() {
+            searchTerm='';
+            window.activeDuaCategory='all';
+            const input=document.getElementById('searchInput');
+            if(input) input.value='';
+            renderDuas();
+        }
+
+        function renderPremiumCategoryChips() {
+            const box=document.getElementById('premiumCategoryChips');
+            if(!box) return;
+
+            const current=window.activeDuaCategory || 'all';
+            const cats=[{id:'all',name:'அனைத்தும்',icon:'✨'}, ...categories.slice(1).map(c=>({
+                id:String(c.id || c.name || '').toLowerCase(),
+                name:c.name,
+                icon:c.icon
+            }))];
+
+            box.innerHTML=cats.map(c=>`
+                <button type="button" class="premium-chip ${current===c.id?'active':''}"
+                        onclick="setPremiumCategory('${String(c.id).replace(/'/g,"\\'")}')">
+                    ${c.icon} ${escapeHtml(c.name)}
+                </button>`).join('');
+        }
+
+        function setPremiumCategory(category) {
+            window.activeDuaCategory=category;
+            renderDuas();
+        }
+
+        function createDuaCard(dua) {
+            const card=document.createElement('div');
+            card.className='dua-card';
+            const isFav=favorites.includes(dua.id);
+
+            card.innerHTML=`
+                <div class="dua-card-image-wrap">
+                    <img class="dua-card-image" src="${dua.image || ''}" alt="${escapeHtml(dua.title)}" loading="lazy">
+                    <button type="button" class="dua-favorite-btn ${isFav?'active':''}"
+                            aria-label="${isFav?'Remove from favorites':'Add to favorites'}"
+                            onclick="event.stopPropagation();toggleFavoriteById(${dua.id})">
+                        ${isFav?'❤️':'♡'}
+                    </button>
+                </div>
+                <div class="dua-card-body">
+                    <div class="dua-card-category">${escapeHtml(dua.category || '')}</div>
+                    <h3 class="dua-card-title">${escapeHtml(dua.title || '')}</h3>
+                    <p class="dua-card-description">${escapeHtml(dua.description || '')}</p>
+                </div>`;
+
+            card.addEventListener('click',()=>openDua(dua.id));
+            return card;
+        }
+
+        function toggleFavoriteById(id) {
+            const index=favorites.indexOf(id);
+            if(index>=0) favorites.splice(index,1);
+            else favorites.push(id);
+
+            localStorage.setItem('favorites',JSON.stringify(favorites));
+            renderDuas();
+            renderFavorites();
+            updatePremiumResultsToolbar(
+                document.querySelectorAll('#duaGrid .dua-card').length,
+                searchTerm,
+                window.activeDuaCategory || 'all'
+            );
+        }
+
 
         function renderDaily() {
             const today = new Date().getDate();
@@ -2375,34 +2494,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         function renderFavorites() {
-            const seen = new Set();
-            const favoriteDuas = duasData.filter(d => {
-                if (!favorites.includes(d.id)) return false;
-                const key = String(d.id ?? `${d.category}|${d.title}`);
-                if (seen.has(key)) return false;
-                seen.add(key);
-                return true;
-            });
+            const grid=document.getElementById('favoritesGrid');
+            const empty=document.getElementById('favoritesEmpty');
+            if(!grid) return;
 
-            const grid = document.getElementById('favoritesGrid');
+            const favDuas=duasData.filter(d=>favorites.includes(d.id));
+            grid.innerHTML='';
 
-            if (favoriteDuas.length === 0) {
-                grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-icon">⭐</div><p>பிடித்த துஆவை சேர்க்கவும்</p></div>';
-                return;
-            }
+            favDuas.forEach(dua=>grid.appendChild(createDuaCard(dua)));
 
-            grid.innerHTML = favoriteDuas.map(dua => `
-                <div class="dua-card" onclick="openModal(${dua.id})">
-                    <div class="dua-card-header">
-                        <div class="dua-card-icon">${getCategoryIcon(dua.category)}</div>
-                        <div class="dua-card-title">${dua.title}</div>
-                    </div>
-                    <div class="dua-card-body">
-                        <div class="dua-card-desc">${dua.description}</div>
-                    </div>
-                </div>
-            `).join('');
+            if(empty) empty.style.display=favDuas.length ? 'none' : 'block';
+            grid.style.display=favDuas.length ? 'grid' : 'none';
         }
+
 
         function getCategoryIcon(category) {
             const cat = categories.find(c => c.id === category);
