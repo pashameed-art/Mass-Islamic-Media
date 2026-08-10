@@ -1586,54 +1586,44 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                     </div>
 
                     <!-- Backup Tab -->
-                    <div class="admin-tab-content" id="backupContent" style="display: none;">
+                    <div class="admin-tab-content" id="backupContent" style="display:none;">
                         <div class="alert" id="backupAlert"></div>
-
                         <div class="backup-section">
-                            <h3 style="margin-top: 0;">💾 Backup & Restore</h3>
-
-                            <div style="margin-top: 1.5rem;">
-                                <h4 style="margin-bottom: 1rem;">📤 Backup (Local Storage)</h4>
-                                <p style="opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem;">
-                                    Download all your duas and favorites as JSON file
-                                </p>
+                            <h3 style="margin-top:0;">💾 Backup & Restore</h3>
+                            <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem;">
                                 <button class="btn-small" id="backupBtn">📥 Download Backup</button>
+                                <button class="btn-small secondary" id="restoreBtn">📤 Restore Backup</button>
+                                <input type="file" id="restoreInput" accept=".json" style="display:none;">
                             </div>
 
-                            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
-                                <h4 style="margin-bottom: 1rem;">📤 Restore (Upload JSON)</h4>
-                                <p style="opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem;">
-                                    Upload previously backed up JSON file
-                                </p>
-                                <input type="file" id="restoreInput" accept=".json" style="display: none;">
-                                <button class="btn-small secondary" id="restoreBtn">📤 Upload Backup</button>
+                            <div style="margin-top:1.5rem;border-top:1px solid var(--border-light);padding-top:1rem;">
+                                <h4>🕒 Backup History</h4>
+                                <div id="backupHistoryList" style="margin-top:.8rem;"></div>
                             </div>
 
-                            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
-                                <h4 style="margin-bottom: 1rem;">⚙️ Export All Duas (CSV)</h4>
-                                <p style="opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem;">
-                                    Export all duas as CSV for spreadsheet editing
-                                </p>
-                                <button class="btn-small secondary" id="exportCsvBtn">📊 Export as CSV</button>
-                            </div>
-
-                            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
-                                <h4 style="margin-bottom: 1rem;">☁️ GitHub Sync</h4>
-                                <p style="opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem;">
-                                    உங்க் GitHub repository-ல் direct upload செய்யவும்
-                                </p>
+                            <div style="margin-top:1.5rem;border-top:1px solid var(--border-light);padding-top:1rem;">
+                                <h4>☁️ GitHub Cloud Backup</h4>
+                                <p style="opacity:.7;font-size:.9rem;">Dua data-வை GitHub repository-ல் JSON backup ஆக சேமிக்கலாம்.</p>
                                 <div class="form-group">
-                                    <input type="text" id="githubRepoInput" placeholder="username/repo" style="width: 100%; padding: 0.75rem; margin-bottom: 0.5rem; border: 1px solid var(--border-light); border-radius: 6px;">
-                                    <input type="password" id="githubTokenInput" placeholder="GitHub Personal Token" style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 1px solid var(--border-light); border-radius: 6px;">
+                                    <input type="text" id="githubRepoInput" placeholder="username/repository">
+                                    <input type="password" id="githubTokenInput" placeholder="GitHub Personal Access Token">
                                 </div>
-                                <button class="btn-small" id="syncGithubBtn">📤 Sync to GitHub</button>
+                                <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                                    <button class="btn-small secondary" id="saveGithubBtn">💾 Save Settings</button>
+                                    <button class="btn-small" id="syncGithubBtn">☁️ Backup to GitHub</button>
+                                    <button class="btn-small secondary" id="clearGithubBtn">🗑️ Clear Token</button>
+                                </div>
+                                <p style="font-size:.75rem;opacity:.6;margin-top:.7rem;">⚠️ GitHub token browser storage-ல் சேமிக்கப்படும். Shared device-ல் பயன்படுத்த வேண்டாம்.</p>
+                            </div>
+
+                            <div style="margin-top:1.5rem;border-top:1px solid var(--border-light);padding-top:1rem;">
+                                <h4>📊 Export</h4>
+                                <button class="btn-small secondary" id="exportCsvBtn">📊 Export CSV</button>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Settings Page -->
+                    <!-- Settings Page -->
             <div class="page" id="settingsPage">
                 <div class="settings-container">
                     <h2 style="margin-bottom: 2rem;">⚙️ Settings</h2>
@@ -1961,6 +1951,175 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         function verifyPIN() { pinSubmit(); }
 
         // ============= INITIALIZATION =============
+        function makeBackupObject() {
+            return {
+                app: 'Mass Islamic Media',
+                version: '7.0',
+                timestamp: new Date().toISOString(),
+                duas: duasData,
+                favorites: JSON.parse(localStorage.getItem('favorites') || '[]'),
+                settings: { darkMode, notificationsEnabled, notificationTime }
+            };
+        }
+
+        function renderBackupHistory() {
+            const box = document.getElementById('backupHistoryList');
+            if (!box) return;
+            const history = JSON.parse(localStorage.getItem('backupHistory') || '[]');
+
+            if (!history.length) {
+                box.innerHTML = '<div style="opacity:.6;padding:.6rem 0;">No backup history yet.</div>';
+                return;
+            }
+
+            box.innerHTML = history.map((item, i) => `
+                <div style="display:flex;justify-content:space-between;gap:.5rem;align-items:center;padding:.7rem 0;border-bottom:1px solid var(--border-light);">
+                    <div><strong>${new Date(item.timestamp).toLocaleString()}</strong>
+                    <div style="font-size:.75rem;opacity:.6;">${(item.size/1024).toFixed(1)} KB</div></div>
+                    <button class="btn-small secondary" onclick="restoreBackupHistory(${i})">Restore</button>
+                </div>
+            `).join('');
+        }
+
+        function createLocalBackup() {
+            if (!checkAdminAccess()) return;
+            const backup = makeBackupObject();
+            const json = JSON.stringify(backup, null, 2);
+
+            const history = JSON.parse(localStorage.getItem('backupHistory') || '[]');
+            history.unshift({
+                timestamp: backup.timestamp,
+                size: new Blob([json]).size,
+                data: backup
+            });
+            localStorage.setItem('backupHistory', JSON.stringify(history.slice(0,10)));
+
+            const blob = new Blob([json], {type:'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href=url;
+            a.download=`mass-islamic-media-backup-${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            renderBackupHistory();
+            showAdminAlert('backupAlert','✅ Backup downloaded','success');
+        }
+
+        function restoreBackupObject(backup) {
+            if (!backup || !Array.isArray(backup.duas)) {
+                showAdminAlert('backupAlert','❌ Invalid backup','error');
+                return;
+            }
+            if (!confirm('இந்த backup-ஐ restore செய்யவா?')) return;
+
+            const builtIns = duasData.filter(d => builtInDuaIds.has(d.id));
+            const custom = backup.duas.filter(d => !builtInDuaIds.has(d.id));
+            duasData = [...builtIns, ...custom];
+            localStorage.setItem('customDuas', JSON.stringify(custom));
+
+            if (Array.isArray(backup.favorites)) {
+                favorites = backup.favorites;
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+            }
+
+            renderDuas();
+            renderDaily();
+            renderManageDuas();
+            updateAdminStats();
+            showAdminAlert('backupAlert','✅ Backup restored','success');
+        }
+
+        function restoreBackupHistory(index) {
+            const history = JSON.parse(localStorage.getItem('backupHistory') || '[]');
+            if (history[index]?.data) restoreBackupObject(history[index].data);
+        }
+
+        function restoreData(file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                try { restoreBackupObject(JSON.parse(e.target.result)); }
+                catch { showAdminAlert('backupAlert','❌ Invalid backup file','error'); }
+            };
+            reader.readAsText(file);
+        }
+
+        function saveGithubSettings() {
+            const repo=document.getElementById('githubRepoInput').value.trim();
+            const token=document.getElementById('githubTokenInput').value.trim();
+
+            if (!/^[^/]+\/[^/]+$/.test(repo)) {
+                showAdminAlert('backupAlert','❌ Repo format: username/repository','error'); return;
+            }
+            if (!token) {
+                showAdminAlert('backupAlert','❌ GitHub token required','error'); return;
+            }
+
+            localStorage.setItem('githubRepo',repo);
+            localStorage.setItem('githubToken',token);
+            showAdminAlert('backupAlert','✅ GitHub settings saved','success');
+        }
+
+        async function syncToGitHub() {
+            if (!checkAdminAccess()) return;
+
+            const repo=document.getElementById('githubRepoInput').value.trim() || localStorage.getItem('githubRepo');
+            const token=document.getElementById('githubTokenInput').value.trim() || localStorage.getItem('githubToken');
+
+            if (!repo || !token) {
+                showAdminAlert('backupAlert','❌ GitHub settings first save செய்யவும்','error'); return;
+            }
+
+            const parts=repo.split('/');
+            if (parts.length!==2) {
+                showAdminAlert('backupAlert','❌ Repo format: username/repository','error'); return;
+            }
+
+            const content=JSON.stringify(makeBackupObject(),null,2);
+            const bytes=new TextEncoder().encode(content);
+            let binary='';
+            bytes.forEach(b=>binary+=String.fromCharCode(b));
+            const base64=btoa(binary);
+
+            const filename=`backups/mass-islamic-media-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
+            const url=`https://api.github.com/repos/${encodeURIComponent(parts[0])}/${encodeURIComponent(parts[1])}/contents/${filename}`;
+
+            showAdminAlert('backupAlert','⏳ Uploading to GitHub...','info');
+
+            try {
+                const response=await fetch(url,{
+                    method:'PUT',
+                    headers:{
+                        'Authorization':`Bearer ${token}`,
+                        'Accept':'application/vnd.github+json',
+                        'Content-Type':'application/json'
+                    },
+                    body:JSON.stringify({
+                        message:`Mass Islamic Media backup ${new Date().toISOString()}`,
+                        content:base64
+                    })
+                });
+
+                if(!response.ok){
+                    const detail=await response.json().catch(()=>({}));
+                    throw new Error(detail.message || `GitHub API ${response.status}`);
+                }
+
+                localStorage.setItem('githubRepo',repo);
+                localStorage.setItem('githubToken',token);
+                showAdminAlert('backupAlert','✅ GitHub backup completed','success');
+            } catch(error) {
+                showAdminAlert('backupAlert','❌ GitHub sync failed: '+error.message,'error');
+            }
+        }
+
+        function loadBackupSettings() {
+            const repo=localStorage.getItem('githubRepo') || '';
+            const input=document.getElementById('githubRepoInput');
+            if(input) input.value=repo;
+            renderBackupHistory();
+        }
+
         function init() {
             initDarkMode();
             initPWA();
@@ -2325,6 +2484,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
         // Admin Panel Functions
         function initAdminPanel() {
+            loadBackupSettings();
             // Tab switching
             document.getElementById('addDuaTab').addEventListener('click', () => switchAdminTab('addDua'));
             document.getElementById('manageDuasTab').addEventListener('click', () => switchAdminTab('manageDuas'));
@@ -2361,7 +2521,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             });
 
             // Backup buttons
-            document.getElementById('backupBtn').addEventListener('click', backupData);
+            document.getElementById('backupBtn').addEventListener('click', createLocalBackup);
             document.getElementById('restoreBtn').addEventListener('click', () => document.getElementById('restoreInput').click());
             document.getElementById('restoreInput').addEventListener('change', (e) => {
                 if (e.target.files.length > 0) {
@@ -2370,6 +2530,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             });
             document.getElementById('exportCsvBtn').addEventListener('click', exportAsCSV);
             document.getElementById('syncGithubBtn').addEventListener('click', syncToGitHub);
+            document.getElementById('saveGithubBtn').addEventListener('click', saveGithubSettings);
+            document.getElementById('clearGithubBtn').addEventListener('click', () => { localStorage.removeItem('githubToken'); document.getElementById('githubTokenInput').value=''; showAdminAlert('backupAlert','✅ Token cleared','success'); });
 
             updateAdminStats();
         }
@@ -2662,121 +2824,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             setTimeout(() => alert.classList.remove('show'), 4000);
         }
 
-        // GitHub Sync Function
-        function syncToGitHub() {
-            const repo = document.getElementById('githubRepoInput').value.trim();
-            const token = document.getElementById('githubTokenInput').value.trim();
-
-            if (!repo || !token) {
-                showAdminAlert('backupAlert', '❌ Please enter repo and token', 'error');
-                return;
-            }
-
-            if (!repo.includes('/')) {
-                showAdminAlert('backupAlert', '❌ Repo format: username/repo', 'error');
-                return;
-            }
-
-            // Save credentials
-            localStorage.setItem('githubRepo', repo);
-            localStorage.setItem('githubToken', token);
-
-            showAdminAlert('backupAlert', '⏳ Syncing to GitHub...', 'info');
-
-            // Prepare data
-            const backup = {
-                version: '2.5',
-                timestamp: new Date().toISOString(),
-                duas: duasData,
-                favorites: JSON.parse(localStorage.getItem('favorites') || '[]')
-            };
-
-            const content = JSON.stringify(backup, null, 2);
-            const base64 = btoa(unescape(encodeURIComponent(content)));
-
-            // GitHub API call
-            syncDataToGitHub(repo, token, base64)
-                .then(() => {
-                    showAdminAlert('backupAlert', '✅ Synced to GitHub successfully!', 'success');
-                })
-                .catch(error => {
-                    showAdminAlert('backupAlert', '❌ Sync failed: ' + error.message, 'error');
-                });
-        }
-
-        function syncDataToGitHub(repo, token, base64Content) {
-            return new Promise((resolve, reject) => {
-                const [owner, repoName] = repo.split('/');
-                const filename = `duas-backup-${new Date().toISOString().slice(0, 10)}.json`;
-                const url = `https://api.github.com/repos/${owner}/${repoName}/contents/${filename}`;
-
-                // Check if file exists
-                fetch(url, {
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                })
-                .then(response => {
-                    let sha = null;
-                    if (response.ok) {
-                        return response.json().then(data => ({ data, exists: true }));
-                    }
-                    return { data: null, exists: false };
-                })
-                .then(({ data, exists }) => {
-                    const sha = exists ? data.sha : undefined;
-                    
-                    const options = {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `token ${token}`,
-                            'Accept': 'application/vnd.github.v3+json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            message: `Backup duas - ${new Date().toISOString().slice(0, 10)}`,
-                            content: base64Content,
-                            ...(sha ? { sha } : {})
-                        })
-                    };
-
-                    return fetch(url, options);
-                })
-                .then(response => {
-                    if (response.ok) {
-                        resolve();
-                    } else {
-                        throw new Error('GitHub API error: ' + response.statusText);
-                    }
-                })
-                .catch(error => {
-                    reject(error);
-                });
-            });
-        }
         function checkAdminAccess() {
-            if (adminPIN && !adminAuthenticated) {
-                openPINModal();
+            if (!adminPanelEnabled || !adminAuthenticated) {
+                setupAdminPIN();
                 return false;
             }
             return true;
         }
 
         // GitHub Sync Functions
-        function setupGitHubSync() {
-            const repo = document.getElementById('githubRepoInput').value;
-            const token = document.getElementById('githubTokenInput').value;
-
-            if (!repo || !token) {
-                showAdminAlert('backupAlert', '❌ GitHub credentials needed', 'error');
-                return;
-            }
-
-            localStorage.setItem('githubRepo', repo);
-            localStorage.setItem('githubToken', token);
-            showAdminAlert('backupAlert', '✅ GitHub credentials saved', 'success');
-        }
 
         function syncToGitHub() {
             if (!checkAdminAccess()) return;
