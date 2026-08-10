@@ -1434,6 +1434,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #adminToggle{cursor:pointer!important;touch-action:manipulation}
 #adminDisableBtn{cursor:pointer!important;touch-action:manipulation}
 </style>
+<style id="settings-final-fix">
+#settingsPage.active{display:block!important;visibility:visible!important;opacity:1!important}
+#settingsPage .settings-container{display:block!important;visibility:visible!important}
+#settingsPage .settings-group{display:block!important;visibility:visible!important}
+</style>
 </head>
 <body>
     <div class="app-container">
@@ -1505,6 +1510,65 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                     <h2 style="margin-bottom: 1rem;">⭐ பிடித்த துஆ</h2>
                 </div>
                 <div class="dua-grid" id="favoritesGrid"></div>
+            </div>
+
+            <div class="page" id="settingsPage">
+                <div class="settings-container">
+                    <h2 style="margin-bottom: 2rem;">⚙️ Settings</h2>
+
+                    <!-- Notifications -->
+                    <div class="settings-group">
+                        <h3>🔔 Notifications</h3>
+                        <div class="settings-item">
+                            <span>Daily Dua Notification</span>
+                            <div class="toggle-switch" id="notificationToggle"></div>
+                        </div>
+                        <div class="settings-item">
+                            <span>Notification Time</span>
+                            <input type="time" id="notificationTime" value="08:00" style="border: none; background: none; color: var(--text-dark);">
+                        </div>
+                    </div>
+
+                    <!-- Display -->
+                    <div class="settings-group" id="displaySettingsGroup">
+                        <h3>🎨 Display</h3>
+                        <div class="settings-item">
+                            <span>Dark Mode</span>
+                            <div class="toggle-switch" id="darkModeToggle"></div>
+                        </div>
+                    </div>
+
+                    <!-- Admin -->
+                    <div class="settings-group">
+                        <h3>👨‍💼 Admin Mode</h3>
+                        <div class="settings-item">
+                            <span id="adminToggleLabel">Admin Panel</span>
+                            <div class="toggle-switch" id="adminToggle" role="switch" tabindex="0"
+                                 aria-label="Admin Panel Enable or Disable"
+                                 onclick="toggleAdminMode()"
+                                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAdminMode();}"></div>
+                            <button type="button" id="adminDisableBtn"
+                                    onclick="disableAdminPanel()"
+                                    style="margin-left:8px;padding:8px 12px;border:0;border-radius:10px;background:#ef4444;color:#fff;font-weight:700;">
+                                Disable
+                            </button>
+                        </div>
+                        <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.75rem;">
+                            Add duas, upload images, manage content
+                        </p>
+                    </div>
+
+                    <!-- About -->
+                    <div class="settings-group">
+                        <h3>ℹ️ About</h3>
+                        <div class="settings-item">
+                            <div>
+                                <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 6.0.1</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Admin Panel Page -->
@@ -1624,64 +1688,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                     </div>
 
                     <!-- Settings Page -->
-            <div class="page" id="settingsPage">
-                <div class="settings-container">
-                    <h2 style="margin-bottom: 2rem;">⚙️ Settings</h2>
-
-                    <!-- Notifications -->
-                    <div class="settings-group">
-                        <h3>🔔 Notifications</h3>
-                        <div class="settings-item">
-                            <span>Daily Dua Notification</span>
-                            <div class="toggle-switch" id="notificationToggle"></div>
-                        </div>
-                        <div class="settings-item">
-                            <span>Notification Time</span>
-                            <input type="time" id="notificationTime" value="08:00" style="border: none; background: none; color: var(--text-dark);">
-                        </div>
-                    </div>
-
-                    <!-- Display -->
-                    <div class="settings-group" id="displaySettingsGroup">
-                        <h3>🎨 Display</h3>
-                        <div class="settings-item">
-                            <span>Dark Mode</span>
-                            <div class="toggle-switch" id="darkModeToggle"></div>
-                        </div>
-                    </div>
-
-                    <!-- Admin -->
-                    <div class="settings-group">
-                        <h3>👨‍💼 Admin Mode</h3>
-                        <div class="settings-item">
-                            <span id="adminToggleLabel">Admin Panel</span>
-                            <div class="toggle-switch" id="adminToggle" role="switch" tabindex="0"
-                                 aria-label="Admin Panel Enable or Disable"
-                                 onclick="toggleAdminMode()"
-                                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAdminMode();}"></div>
-                            <button type="button" id="adminDisableBtn"
-                                    onclick="disableAdminPanel()"
-                                    style="margin-left:8px;padding:8px 12px;border:0;border-radius:10px;background:#ef4444;color:#fff;font-weight:700;">
-                                Disable
-                            </button>
-                        </div>
-                        <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.75rem;">
-                            Add duas, upload images, manage content
-                        </p>
-                    </div>
-
-                    <!-- About -->
-                    <div class="settings-group">
-                        <h3>ℹ️ About</h3>
-                        <div class="settings-item">
-                            <div>
-                                <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 6.0.1</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
         </div>
     </div>
 
