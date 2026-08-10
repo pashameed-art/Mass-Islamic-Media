@@ -1,6 +1,24 @@
 <!DOCTYPE html>
 <html lang="ta">
 <head>
+<script id="startup-cache-recovery">
+(function(){
+  try {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(regs){
+        return Promise.all(regs.map(function(r){ return r.unregister(); }));
+      }).then(function(){
+        if (window.caches) {
+          return caches.keys().then(function(keys){
+            return Promise.all(keys.map(function(k){ return caches.delete(k); }));
+          });
+        }
+      }).catch(function(){});
+    }
+  } catch(e) {}
+})();
+</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Mass Islamic Media — தினசரி துஆ, அறிவு • தஃவா • துஆக்கள்">
@@ -1564,7 +1582,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 6.0.1</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 8.0</p>
                             </div>
                         </div>
                     </div>
@@ -2419,12 +2437,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
         function updateNotificationToggle() {
             const toggle = document.getElementById('notificationToggle');
-            toggle.classList.toggle('active', notificationsEnabled);
+            if (toggle) {
+                toggle.classList.toggle('active', notificationsEnabled);
+                toggle.setAttribute('aria-checked', notificationsEnabled ? 'true' : 'false');
+            }
         }
 
         function updateSettingsToggle() {
             const darkToggle = document.getElementById('darkModeToggle');
-            darkToggle.classList.toggle('active', darkMode);
+            if (darkToggle) {
+                darkToggle.classList.toggle('active', darkMode);
+                darkToggle.setAttribute('aria-checked', darkMode ? 'true' : 'false');
+            }
         }
 
         function requestNotificationPermission() {
@@ -2951,15 +2975,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         function updateDarkModeButton() {
+            // Legacy header dark-mode elements may not exist in the current UI.
+            // Never allow a missing optional element to stop app initialization.
             const icon = document.getElementById('darkIcon');
             const text = document.getElementById('darkText');
-            if (darkMode) {
-                icon.textContent = '☀️';
-                text.textContent = 'Light';
-            } else {
-                icon.textContent = '🌙';
-                text.textContent = 'Dark';
-            }
+
+            if (icon) icon.textContent = darkMode ? '☀️' : '🌙';
+            if (text) text.textContent = darkMode ? 'Light' : 'Dark';
         }
 
         function openModal(duaId) {
@@ -3045,7 +3067,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             updateNotificationToggle();
             updateSettingsToggle();
             updateAdminToggle();
-            document.getElementById('notificationTime').value = notificationTime;
+            const timeInput = document.getElementById('notificationTime');
+            if (timeInput) timeInput.value = notificationTime;
         }
 
         function disableAdminPanel() {
