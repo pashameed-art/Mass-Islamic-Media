@@ -1,27 +1,9 @@
 <!DOCTYPE html>
 <html lang="ta">
 <head>
-<script id="startup-cache-recovery">
-(function(){
-  try {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(regs){
-        return Promise.all(regs.map(function(r){ return r.unregister(); }));
-      }).then(function(){
-        if (window.caches) {
-          return caches.keys().then(function(keys){
-            return Promise.all(keys.map(function(k){ return caches.delete(k); }));
-          });
-        }
-      }).catch(function(){});
-    }
-  } catch(e) {}
-})();
-</script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Mass Islamic Media — தினசரி துஆ, அறிவு • தஃவா • துஆக்கள்">
+    <meta name="description" content="தினசரி துஆ - தினமும் ஒரு துஆ, தினமும் ஒரு நன்மை">
     <meta name="theme-color" content="#0F766E">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -30,7 +12,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='75' font-size='80' text-anchor='middle'>🕌</text></svg>">
     
-    <title>Mass Islamic Media — தினசரி துஆ</title>
+    <title>தினசரி துஆ - Daily Duas</title>
     
     <style>
         * {
@@ -1192,384 +1174,7 @@
             }
         }
     </style>
-
-<style id="mass-islamic-media-premium-v5">
-/* =========================================================
-   MASS ISLAMIC MEDIA — PREMIUM UI v5.0
-   UI-only enhancement layer; existing application logic preserved.
-   ========================================================= */
-:root{
-  --premium-emerald:#0b6f64;
-  --premium-emerald-2:#084f49;
-  --premium-gold:#d4af37;
-  --premium-gold-soft:#f0d98a;
-  --premium-bg:#f5f8f7;
-  --premium-card:rgba(255,255,255,.86);
-  --premium-border:rgba(15,118,110,.14);
-  --premium-shadow:0 14px 40px rgba(6,61,57,.10);
-}
-html,body{scroll-behavior:smooth}
-body{
-  font-family:"Noto Sans Tamil","Noto Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  background:
-    radial-gradient(circle at 10% 0%,rgba(212,175,55,.10),transparent 24rem),
-    radial-gradient(circle at 100% 15%,rgba(15,118,110,.10),transparent 28rem),
-    var(--premium-bg);
-}
-html.dark body{
-  background:
-    radial-gradient(circle at 10% 0%,rgba(212,175,55,.08),transparent 24rem),
-    radial-gradient(circle at 100% 15%,rgba(20,184,166,.08),transparent 28rem),
-    #070d12;
-}
-
-/* Header */
-.header{
-  padding:1.15rem 1rem 1.35rem!important;
-  border-bottom:1px solid rgba(255,255,255,.18)!important;
-  box-shadow:0 12px 38px rgba(7,79,73,.20)!important;
-}
-.header h1{
-  font-size:clamp(1.45rem,5vw,2rem)!important;
-  letter-spacing:-.5px!important;
-}
-.header-icon{filter:drop-shadow(0 4px 8px rgba(212,175,55,.28));}
-.header-tagline{opacity:.88!important}
-
-/* Main content width */
-.app-container{
-  width:min(100%,920px);
-  margin:0 auto;
-}
-
-/* Hero */
-.hero-banner{
-  margin:1rem!important;
-  border:1px solid rgba(212,175,55,.30)!important;
-  border-radius:24px!important;
-  padding:1.45rem 1.25rem!important;
-  box-shadow:0 18px 45px rgba(7,79,73,.18)!important;
-}
-.hero-banner::after{
-  content:"☾  ✦  ۞  ✦  ☽";
-  position:absolute;
-  right:1rem;
-  bottom:.6rem;
-  color:rgba(240,217,138,.42);
-  font-size:1.1rem;
-  letter-spacing:.45rem;
-  pointer-events:none;
-}
-
-/* Today's dua */
-.today-dua-section{padding:.75rem 1rem 1rem!important}
-.today-dua-card{
-  position:relative;
-  border:1px solid rgba(212,175,55,.38)!important;
-  border-radius:24px!important;
-  padding:1.45rem!important;
-  box-shadow:var(--premium-shadow)!important;
-  overflow:hidden;
-}
-.today-dua-card::before{
-  content:"";
-  position:absolute;inset:0;
-  background:
-    linear-gradient(135deg,rgba(255,255,255,.13),transparent 42%),
-    radial-gradient(circle at 90% 15%,rgba(212,175,55,.20),transparent 9rem);
-  pointer-events:none;
-}
-.today-dua-card>*{position:relative;z-index:1}
-
-/* Search */
-.search-container,.search-section{
-  margin:0 1rem 1rem!important;
-}
-.search-box,.search-container{
-  border-radius:18px!important;
-}
-.search-box{
-  box-shadow:0 8px 24px rgba(15,118,110,.08)!important;
-  border:1px solid var(--premium-border)!important;
-}
-.search-box input{font-size:1rem!important}
-
-/* Categories */
-.categories{
-  gap:.6rem!important;
-  padding:.2rem 1rem 1rem!important;
-}
-.category-btn{
-  border-radius:999px!important;
-  padding:.62rem .95rem!important;
-  border:1px solid var(--premium-border)!important;
-  box-shadow:0 4px 12px rgba(0,0,0,.04);
-}
-.category-btn.active{
-  box-shadow:0 7px 18px rgba(15,118,110,.20)!important;
-}
-
-/* Dua cards */
-.dua-grid,.favorites-grid{
-  padding:0 1rem 1.25rem!important;
-  gap:.9rem!important;
-}
-.dua-card{
-  border-radius:22px!important;
-  border:1px solid var(--premium-border)!important;
-  background:var(--premium-card)!important;
-  box-shadow:0 10px 28px rgba(6,61,57,.08)!important;
-  overflow:hidden;
-  transform:translateZ(0);
-}
-.dua-card:hover{
-  transform:translateY(-4px)!important;
-  box-shadow:0 18px 38px rgba(6,61,57,.15)!important;
-}
-.dua-card-header{
-  min-height:92px!important;
-  padding:1rem!important;
-  background:linear-gradient(145deg,var(--premium-emerald),var(--premium-emerald-2))!important;
-  position:relative;
-}
-.dua-card-header::after{
-  content:"✦";
-  position:absolute;
-  right:.8rem;top:.65rem;
-  color:rgba(240,217,138,.55);
-}
-.dua-card-body{padding:.9rem 1rem 1.05rem!important}
-
-/* General cards / admin */
-.settings-item,.admin-form,.stat-card,.backup-section,.search-advanced{
-  border-radius:20px!important;
-  border:1px solid var(--premium-border)!important;
-  box-shadow:0 8px 26px rgba(6,61,57,.06)!important;
-}
-.form-group input,.form-group textarea,.form-group select,.github-config-input{
-  border-radius:14px!important;
-  min-height:48px;
-}
-.image-upload-area{
-  border-radius:20px!important;
-  padding:2.2rem 1rem!important;
-}
-.btn-save,.btn-cancel,.btn-small,.btn-github{
-  border-radius:14px!important;
-  min-height:46px;
-}
-
-/* Admin stats */
-.stat-card{
-  padding:1.15rem!important;
-  background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(242,249,247,.88))!important;
-}
-html.dark .stat-card{
-  background:linear-gradient(145deg,#0e1a20,#0b1519)!important;
-}
-.stat-value{color:var(--premium-emerald)!important}
-html.dark .stat-value{color:#38d5c2!important}
-
-/* Bottom navigation */
-.bottom-nav,.nav-tabs{
-  backdrop-filter:blur(22px)!important;
-  -webkit-backdrop-filter:blur(22px)!important;
-  border-top:1px solid rgba(15,118,110,.12)!important;
-  box-shadow:0 -10px 30px rgba(0,0,0,.08)!important;
-}
-
-/* Modal */
-.modal,.image-modal{
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-}
-.modal-content,.modal-container{
-  border-radius:24px!important;
-  box-shadow:0 28px 90px rgba(0,0,0,.42)!important;
-  overflow:hidden;
-}
-.icon-btn,.zoom-btn,.swipe-arrow{
-  backdrop-filter:blur(12px)!important;
-  -webkit-backdrop-filter:blur(12px)!important;
-}
-
-/* GitHub panel */
-.github-sync-section{
-  border-radius:20px!important;
-  box-shadow:0 12px 30px rgba(0,0,0,.18)!important;
-}
-
-/* PIN */
-.pin-container{
-  border:1px solid rgba(212,175,55,.30)!important;
-  border-radius:24px!important;
-}
-.pin-key{border-radius:14px!important}
-
-/* Gold accent for important headings */
-.today-label::first-letter,
-.settings-group h3::first-letter{color:var(--premium-gold)}
-
-/* Accessibility + touch */
-button,input,select,textarea{touch-action:manipulation}
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
-  outline:3px solid rgba(212,175,55,.55);
-  outline-offset:2px;
-}
-@media (max-width:600px){
-  .dua-grid,.favorites-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  }
-}
-@media (max-width:390px){
-  .dua-grid,.favorites-grid{grid-template-columns:1fr 1fr!important;gap:.65rem!important}
-  .dua-card-title{font-size:.95rem!important}
-}
-@media (min-width:760px){
-  .dua-grid,.favorites-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-}
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{
-    animation-duration:.001ms!important;
-    animation-iteration-count:1!important;
-    scroll-behavior:auto!important;
-    transition-duration:.001ms!important;
-  }
-}
-</style>
-
-<style id="final-v5-2-fixes">
-.header-actions{gap:.5rem}
-.pin-input{letter-spacing:.65rem!important}
-#pinSetup input,#pinVerify input{letter-spacing:.45rem}
-</style>
-
-<style id="admin-toggle-fix">
-#adminToggle{cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
-#adminToggle:focus-visible{outline:3px solid rgba(212,175,55,.7);outline-offset:3px}
-</style>
-<style id="admin-enable-disable-final">
-#adminToggle{cursor:pointer!important;touch-action:manipulation}
-#adminDisableBtn{cursor:pointer!important;touch-action:manipulation}
-</style>
-<style id="settings-final-fix">
-#settingsPage.active{display:block!important;visibility:visible!important;opacity:1!important}
-#settingsPage .settings-container{display:block!important;visibility:visible!important}
-#settingsPage .settings-group{display:block!important;visibility:visible!important}
-</style>
-<style id="premium-search-favorites-v10">
-.premium-results-toolbar{align-items:center;justify-content:space-between;gap:.8rem;margin:.8rem 0;padding:.8rem 1rem;border:1px solid var(--border-light);border-radius:16px;background:var(--bg-card);box-shadow:0 8px 24px rgba(0,0,0,.05)}
-.premium-results-toolbar>div{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}
-.premium-results-toolbar strong{font-size:.9rem}
-.premium-results-toolbar span{font-size:.78rem;opacity:.65}
-.premium-results-toolbar button,.premium-search-empty button,.premium-empty-state button{border:0;border-radius:999px;padding:.55rem .9rem;background:var(--primary);color:#fff;font-weight:700;cursor:pointer}
-.premium-category-chips{display:flex;gap:.5rem;overflow-x:auto;padding:.35rem 0 .8rem;scrollbar-width:none}
-.premium-category-chips::-webkit-scrollbar{display:none}
-.premium-chip{white-space:nowrap;border:1px solid var(--border-light);background:var(--bg-card);color:var(--text-dark);border-radius:999px;padding:.55rem .8rem;font-size:.8rem;cursor:pointer}
-.premium-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-.dua-card-image-wrap{position:relative}
-.dua-favorite-btn{position:absolute;top:8px;right:8px;width:38px;height:38px;border:0;border-radius:50%;background:rgba(255,255,255,.92);font-size:1.2rem;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.12)}
-.dua-favorite-btn.active{background:#fff0f1}
-.premium-search-empty,.premium-empty-state{text-align:center;padding:2.5rem 1rem;margin:1rem 0;border:1px dashed var(--border-light);border-radius:20px;background:var(--bg-card)}
-.premium-search-empty>div,.premium-empty-state .empty-icon{font-size:3rem;margin-bottom:.5rem}
-.premium-search-empty h3,.premium-empty-state h3{margin:.35rem 0}
-.premium-search-empty p,.premium-empty-state p{opacity:.65;font-size:.9rem}
-</style>
-<style id="image-render-fix-v11">
-.dua-card-image-wrap{min-height:170px;overflow:hidden;background:linear-gradient(135deg,#0f766e,#134e4a);border-radius:18px 18px 0 0}
-.dua-card-image{display:block;width:100%;height:100%;min-height:170px;object-fit:cover}
-.dua-card-image-wrap.image-fallback{display:flex;align-items:center;justify-content:center}
-.dua-card-image-wrap.image-fallback::after{content:'🕌';font-size:3rem;opacity:.8}
-</style>
-<style id="dua-card-layout-final-fix">
-.dua-card{min-width:0;width:100%;box-sizing:border-box}
-.dua-card-body{
-  box-sizing:border-box!important;
-  width:100%!important;
-  min-width:0!important;
-  display:flex!important;
-  flex-direction:column!important;
-  justify-content:flex-start!important;
-  align-items:stretch!important;
-  gap:.35rem!important;
-  overflow:hidden!important;
-  text-align:center!important;
-}
-.dua-card-category,.dua-card-title,.dua-card-description{
-  display:block!important;
-  width:100%!important;
-  max-width:100%!important;
-  min-width:0!important;
-  margin:0!important;
-  box-sizing:border-box!important;
-  overflow-wrap:anywhere!important;
-  word-break:break-word!important;
-  white-space:normal!important;
-}
-.dua-card-category{
-  font-size:.72rem!important;
-  opacity:.65;
-  text-transform:none!important;
-}
-.dua-card-title{
-  font-size:1rem!important;
-  line-height:1.35!important;
-  font-weight:700!important;
-}
-.dua-card-description{
-  font-size:.82rem!important;
-  line-height:1.45!important;
-  opacity:.78;
-}
-@media(max-width:420px){
-  .dua-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:.65rem!important;padding:.65rem!important}
-  .dua-card-body{padding:.75rem .6rem .85rem!important}
-  .dua-card-title{font-size:.9rem!important}
-  .dua-card-description{font-size:.76rem!important}
-}
-</style>
-<style id="premium-home-dashboard-v13">
-.premium-home-dashboard{margin:0 1rem 1rem;border-radius:24px;padding:1rem;background:linear-gradient(135deg,#0f766e,#115e59);color:#fff;box-shadow:0 14px 35px rgba(15,118,110,.18)}
-.dashboard-welcome{display:flex;align-items:center;justify-content:space-between;gap:1rem}
-.dashboard-kicker{font-size:.68rem;letter-spacing:.08em;opacity:.75}
-.dashboard-welcome h2{margin:.35rem 0 .15rem;font-size:1.05rem;line-height:1.35}
-.dashboard-welcome p{margin:0;font-size:.76rem;opacity:.75}
-.dashboard-mosque{font-size:2.6rem}
-.dashboard-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem;margin-top:1rem}
-.dashboard-stat{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.12);color:#fff;border-radius:16px;padding:.7rem .35rem;cursor:pointer}
-.dashboard-stat strong{display:block;font-size:1.05rem}.dashboard-stat span{display:block;font-size:.67rem;opacity:.75;margin-top:.15rem}
-.dashboard-actions{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-top:.65rem}
-.dashboard-actions button{border:0;border-radius:14px;padding:.68rem .5rem;background:#fff;color:#115e59;font-weight:700;cursor:pointer}
-</style>
-<style id="single-category-row-fix-v14">
-.categories{
-  display:flex!important;
-  flex-wrap:nowrap!important;
-  align-items:center!important;
-  gap:.55rem!important;
-  overflow-x:auto!important;
-  overflow-y:hidden!important;
-  width:100%!important;
-  max-width:100%!important;
-  padding:.35rem .15rem .7rem!important;
-  margin:0!important;
-  scrollbar-width:none!important;
-  white-space:nowrap!important;
-}
-.categories::-webkit-scrollbar{display:none!important}
-.categories>*{flex:0 0 auto!important;white-space:nowrap!important}
-#premiumCategoryChips{display:none!important}
-</style>
-<style id="category-row-selection-fix-v15">
-#categoriesContainer{position:relative;z-index:5;touch-action:pan-x;pointer-events:auto}
-#categoriesContainer .category-btn{pointer-events:auto;cursor:pointer}
-#categoriesContainer .category-btn.active{font-weight:800;transform:translateY(-1px)}
-</style>
-<style id="language-fix-v17">
-.language-switcher{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
-.lang-btn{padding:12px;border-radius:14px;border:1px solid var(--border-light);background:var(--bg-card);color:var(--text-dark);font-weight:700;font-size:15px;cursor:pointer;touch-action:manipulation}
-.lang-btn.active{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
-</style></head>
+</head>
 <body>
     <div class="app-container">
         <!-- Header -->
@@ -1583,6 +1188,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 <button class="btn-header" id="installBtn" style="display:none;">
                     <span>📱</span>
                     <span>Install App</span>
+                </button>
+                <button class="btn-header" id="darkModeBtn">
+                    <span id="darkIcon">🌙</span>
+                    <span id="darkText">Dark</span>
                 </button>
             </div>
         </div>
@@ -1610,32 +1219,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                     </div>
                 </div>
 
-                <section id="premiumHomeDashboard" class="premium-home-dashboard">
-                    <div class="dashboard-welcome">
-                        <div>
-                            <span class="dashboard-kicker">🕌 MASS ISLAMIC MEDIA</span>
-                            <h2>இன்றைய துஆவை நினைவில் கொள்வோம்</h2>
-                            <p>Knowledge • Dawah • Duas</p>
-                        </div>
-                        <div class="dashboard-mosque">🕌</div>
-                    </div>
-                    <div class="dashboard-stats">
-                        <button type="button" class="dashboard-stat" onclick="goToPage('home')">
-                            <strong id="dashDuaCount">0</strong><span>துஆக்கள்</span>
-                        </button>
-                        <button type="button" class="dashboard-stat" onclick="goToPage('favorites')">
-                            <strong id="dashFavCount">0</strong><span>Favorites</span>
-                        </button>
-                        <button type="button" class="dashboard-stat" onclick="goToPage('settings')">
-                            <strong id="dashAdminState">OFF</strong><span>Admin</span>
-                        </button>
-                    </div>
-                    <div class="dashboard-actions">
-                        <button type="button" onclick="focusDuaSearch()">🔍 துஆ தேடு</button>
-                        <button type="button" onclick="goToPage('favorites')">❤️ Favorites</button>
-                    </div>
-                </section>
-
                 <!-- Search -->
                 <div class="search-container">
                     <div class="search-box">
@@ -1656,15 +1239,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 <!-- Categories -->
                 <div class="categories" id="categoriesContainer"></div>
 
-
                 <!-- Dua Grid -->
-                <div id="premiumResultsToolbar" class="premium-results-toolbar" style="display:none;">
-                    <div>
-                        <strong id="resultCountText">0 Duas</strong>
-                        <span id="favoriteCountText">0 Favorites</span>
-                    </div>
-                    <button type="button" id="clearSearchBtn">✕ Clear</button>
-                </div>
                 <div class="dua-grid" id="duaGrid"></div>
             </div>
 
@@ -1674,80 +1249,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                     <h2 style="margin-bottom: 1rem;">⭐ பிடித்த துஆ</h2>
                 </div>
                 <div class="dua-grid" id="favoritesGrid"></div>
-                <div id="favoritesEmpty" class="premium-empty-state" style="display:none;">
-                    <div class="empty-icon">♡</div>
-                    <h3>இன்னும் Favorites இல்லை</h3>
-                    <p>பிடித்த துஆவின் ❤️-ஐ அழுத்தி Favorites-ல் சேமிக்கவும்.</p>
-                    <button type="button" onclick="goToPage('home')">🕌 துஆ பார்க்க</button>
-                </div>
-
-            </div>
-
-            <div class="page" id="settingsPage">
-                <div class="settings-container">
-                    <h2 id="settingsTitle" style="margin-bottom: 2rem;">⚙️ Settings</h2>
-
-                    <div class="settings-group" id="languageSettingsGroup">
-                        <h3 id="languageHeading">🌐 Language</h3>
-                        <div class="language-switcher">
-                            <button type="button" id="langTamilBtn" class="lang-btn" onclick="setAppLanguage('ta')">தமிழ்</button>
-                            <button type="button" id="langEnglishBtn" class="lang-btn" onclick="setAppLanguage('en')">English</button>
-                        </div>
-                    </div>
-
-                    <!-- Notifications -->
-                    <div class="settings-group">
-                        <h3>🔔 Notifications</h3>
-                        <div class="settings-item">
-                            <span>Daily Dua Notification</span>
-                            <div class="toggle-switch" id="notificationToggle"></div>
-                        </div>
-                        <div class="settings-item">
-                            <span>Notification Time</span>
-                            <input type="time" id="notificationTime" value="08:00" style="border: none; background: none; color: var(--text-dark);">
-                        </div>
-                    </div>
-
-                    <!-- Display -->
-                    <div class="settings-group" id="displaySettingsGroup">
-                        <h3>🎨 Display</h3>
-                        <div class="settings-item">
-                            <span>Dark Mode</span>
-                            <div class="toggle-switch" id="darkModeToggle"></div>
-                        </div>
-                    </div>
-
-                    <!-- Admin -->
-                    <div class="settings-group">
-                        <h3>👨‍💼 Admin Mode</h3>
-                        <div class="settings-item">
-                            <span id="adminToggleLabel">Admin Panel</span>
-                            <div class="toggle-switch" id="adminToggle" role="switch" tabindex="0"
-                                 aria-label="Admin Panel Enable or Disable"
-                                 onclick="toggleAdminMode()"
-                                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAdminMode();}"></div>
-                            <button type="button" id="adminDisableBtn"
-                                    onclick="disableAdminPanel()"
-                                    style="margin-left:8px;padding:8px 12px;border:0;border-radius:10px;background:#ef4444;color:#fff;font-weight:700;">
-                                Disable
-                            </button>
-                        </div>
-                        <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.75rem;">
-                            Add duas, upload images, manage content
-                        </p>
-                    </div>
-
-                    <!-- About -->
-                    <div class="settings-group">
-                        <h3>ℹ️ About</h3>
-                        <div class="settings-item">
-                            <div>
-                                <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 17.0</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Admin Panel Page -->
@@ -1757,7 +1258,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
                     <div class="admin-tabs">
                         <button class="admin-tab-btn active" id="addDuaTab">➕ புதிய துஆ</button>
-                        <button class="admin-tab-btn" id="manageDuasTab">📋 Manage Duas</button>
+                        <button class="admin-tab-btn" id="manageDuasTab">📋 Manage</button>
                         <button class="admin-tab-btn" id="backupTab">💾 Backup</button>
                     </div>
 
@@ -1829,45 +1330,104 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                     </div>
 
                     <!-- Backup Tab -->
-                    <div class="admin-tab-content" id="backupContent" style="display:none;">
+                    <div class="admin-tab-content" id="backupContent" style="display: none;">
                         <div class="alert" id="backupAlert"></div>
+
                         <div class="backup-section">
-                            <h3 style="margin-top:0;">💾 Backup & Restore</h3>
-                            <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem;">
+                            <h3 style="margin-top: 0;">💾 Backup & Restore</h3>
+
+                            <div style="margin-top: 1.5rem;">
+                                <h4 style="margin-bottom: 1rem;">📤 Backup (Local Storage)</h4>
+                                <p style="opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem;">
+                                    Download all your duas and favorites as JSON file
+                                </p>
                                 <button class="btn-small" id="backupBtn">📥 Download Backup</button>
-                                <button class="btn-small secondary" id="restoreBtn">📤 Restore Backup</button>
-                                <input type="file" id="restoreInput" accept=".json" style="display:none;">
                             </div>
 
-                            <div style="margin-top:1.5rem;border-top:1px solid var(--border-light);padding-top:1rem;">
-                                <h4>🕒 Backup History</h4>
-                                <div id="backupHistoryList" style="margin-top:.8rem;"></div>
+                            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+                                <h4 style="margin-bottom: 1rem;">📤 Restore (Upload JSON)</h4>
+                                <p style="opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem;">
+                                    Upload previously backed up JSON file
+                                </p>
+                                <input type="file" id="restoreInput" accept=".json" style="display: none;">
+                                <button class="btn-small secondary" id="restoreBtn">📤 Upload Backup</button>
                             </div>
 
-                            <div style="margin-top:1.5rem;border-top:1px solid var(--border-light);padding-top:1rem;">
-                                <h4>☁️ GitHub Cloud Backup</h4>
-                                <p style="opacity:.7;font-size:.9rem;">Dua data-வை GitHub repository-ல் JSON backup ஆக சேமிக்கலாம்.</p>
+                            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+                                <h4 style="margin-bottom: 1rem;">⚙️ Export All Duas (CSV)</h4>
+                                <p style="opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem;">
+                                    Export all duas as CSV for spreadsheet editing
+                                </p>
+                                <button class="btn-small secondary" id="exportCsvBtn">📊 Export as CSV</button>
+                            </div>
+
+                            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+                                <h4 style="margin-bottom: 1rem;">☁️ GitHub Sync</h4>
+                                <p style="opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem;">
+                                    உங்க் GitHub repository-ல் direct upload செய்யவும்
+                                </p>
                                 <div class="form-group">
-                                    <input type="text" id="githubRepoInput" placeholder="username/repository">
-                                    <input type="password" id="githubTokenInput" placeholder="GitHub Personal Access Token">
+                                    <input type="text" id="githubRepoInput" placeholder="username/repo" style="width: 100%; padding: 0.75rem; margin-bottom: 0.5rem; border: 1px solid var(--border-light); border-radius: 6px;">
+                                    <input type="password" id="githubTokenInput" placeholder="GitHub Personal Token" style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 1px solid var(--border-light); border-radius: 6px;">
                                 </div>
-                                <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-                                    <button class="btn-small secondary" id="saveGithubBtn">💾 Save Settings</button>
-                                    <button class="btn-small" id="syncGithubBtn">☁️ Backup to GitHub</button>
-                                    <button class="btn-small secondary" id="clearGithubBtn">🗑️ Clear Token</button>
-                                </div>
-                                <p style="font-size:.75rem;opacity:.6;margin-top:.7rem;">⚠️ GitHub token browser storage-ல் சேமிக்கப்படும். Shared device-ல் பயன்படுத்த வேண்டாம்.</p>
-                            </div>
-
-                            <div style="margin-top:1.5rem;border-top:1px solid var(--border-light);padding-top:1rem;">
-                                <h4>📊 Export</h4>
-                                <button class="btn-small secondary" id="exportCsvBtn">📊 Export CSV</button>
+                                <div style="display:flex;gap:.5rem;flex-wrap:wrap;"><button class="btn-small secondary" id="saveGithubBtn">💾 Save Settings</button><button class="btn-small" id="syncGithubBtn">☁️ Backup to GitHub</button><button class="btn-small secondary" id="clearGithubBtn">🗑️ Clear Token</button></div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Settings Page -->
-            
+            <!-- Settings Page -->
+            <div class="page" id="settingsPage">
+                <div class="settings-container">
+                    <h2 style="margin-bottom: 2rem;">⚙️ Settings</h2>
+
+                    <!-- Notifications -->
+                    <div class="settings-group">
+                        <h3>🔔 Notifications</h3>
+                        <div class="settings-item">
+                            <span>Daily Dua Notification</span>
+                            <div class="toggle-switch" id="notificationToggle"></div>
+                        </div>
+                        <div class="settings-item">
+                            <span>Notification Time</span>
+                            <input type="time" id="notificationTime" value="08:00" style="border: none; background: none; color: var(--text-dark);">
+                        </div>
+                    </div>
+
+                    <!-- Display -->
+                    <div class="settings-group">
+                        <h3>🎨 Display</h3>
+                        <div class="settings-item">
+                            <span>Dark Mode</span>
+                            <div class="toggle-switch" id="darkModeToggle"></div>
+                        </div>
+                    </div>
+
+                    <!-- Admin -->
+                    <div class="settings-group">
+                        <h3>👨‍💼 Admin Mode</h3>
+                        <div class="settings-item">
+                            <span>Enable Admin Panel</span>
+                            <div class="toggle-switch" id="adminToggle"></div>
+                        </div>
+                        <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.75rem;">
+                            Add duas, upload images, manage content
+                        </p>
+                    </div>
+
+                    <!-- About -->
+                    <div class="settings-group">
+                        <h3>ℹ️ About</h3>
+                        <div class="settings-item">
+                            <div>
+                                <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 17.0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1875,10 +1435,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     <div class="pin-modal" id="pinModal">
         <div class="pin-container">
             <div class="pin-title">🔐 Admin PIN</div>
-            <p id="pinModalMessage" style="margin-bottom: 1rem; font-size: 0.9rem;">Enter your 4-digit PIN</p>
+            <p id="pinModalMessage" style="margin-bottom: 1rem; font-size: 0.9rem;">Enter your 6-digit PIN</p>
             
             <div class="pin-input-group">
-                <input type="text" id="pinInput" class="pin-input" maxlength="4" placeholder="••••" readonly>
+                <input type="text" id="pinInput" class="pin-input" maxlength="6" placeholder="••••••" readonly>
             </div>
 
             <div class="pin-keypad">
@@ -1922,6 +1482,27 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             </div>
         </div>
     </div>
+
+    <!-- PIN Verification Modal -->
+    <div class="modal" id="pinModal" style="background: rgba(0, 0, 0, 0.7);">
+        <div class="modal-content" style="width: 90%; max-width: 400px; aspect-ratio: auto; padding: 2rem;">
+            <h2 style="margin-bottom: 1.5rem; text-align: center;">🔐 Admin PIN</h2>
+            
+            <div id="pinSetup" style="display: none;">
+                <p style="margin-bottom: 1rem; opacity: 0.9;">முதல் முறை - 6 இலக்க PIN அமைக்கவும்:</p>
+                <input type="password" id="setPinInput" placeholder="6 digit PIN" maxlength="6" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
+                <button class="btn-save" onclick="savePIN()" style="width: 100%;">✅ Set PIN</button>
+            </div>
+
+            <div id="pinVerify" style="display: none;">
+                <p style="margin-bottom: 1rem; opacity: 0.9;">உங்க் PIN உள்ளிடவும்:</p>
+                <input type="password" id="verifyPinInput" placeholder="6 digit PIN" maxlength="6" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
+                <button class="btn-save" onclick="verifyPIN()" style="width: 100%; margin-bottom: 0.5rem;">✅ Verify</button>
+                <button class="btn-cancel" onclick="closePINModal()" style="width: 100%;">Cancel</button>
+            </div>
+
+            <div id="pinError" style="display: none; background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 1rem; border-radius: 6px; margin-top: 1rem; text-align: center;"></div>
+        </div>
     </div>
 
     <!-- Navigation -->
@@ -1946,7 +1527,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
     <script>
         // ============= DATA =============
-        let duasData = [
+        const duasData = [
             {
                 id: 1,
                 title: 'காலை துஆ',
@@ -1991,8 +1572,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             }
         ];
 
-        const builtInDuaIds = new Set(duasData.map(d => d.id));
-
         const categories = [
             { id: 'all', name: 'அனைத்து', icon: '📱' },
             { id: 'morning', name: 'காலை', icon: '🌅' },
@@ -2014,298 +1593,100 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         let notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
         let notificationTime = localStorage.getItem('notificationTime') || '08:00';
         let zoomLevel = 1;
-        let isAdmin = false; // PIN-controlled only
+        let isAdmin = false;  // Changed to false by default
         let selectedImageFile = null;
         let adminPIN = localStorage.getItem('adminPIN') || null;
         let adminAuthenticated = false;
-        let adminPanelEnabled = localStorage.getItem('adminPanelEnabled') === 'true';
         let githubRepo = localStorage.getItem('githubRepo') || '';
 
         // ============= PIN PROTECTION FUNCTIONS =============
-        let pinMode = 'verify';
-
-        // Only 4-digit PINs are valid. Older PIN formats are reset.
-        if (adminPIN && !/^\d{4}$/.test(adminPIN)) {
-            localStorage.removeItem('adminPIN');
-            adminPIN = null;
-        }
-
         function setupAdminPIN() {
-            // One and only one Admin PIN flow.
-            if (adminPIN && !/^\d{4}$/.test(adminPIN)) {
-                localStorage.removeItem('adminPIN');
-                adminPIN = null;
+            if (!adminPIN) {
+                // First time setup - create PIN
+                showPINModal('setup');
+            } else {
+                // Verify PIN
+                showPINModal('verify');
             }
-            pinMode = adminPIN ? 'verify' : 'setup';
-            openPINModal(pinMode);
         }
 
-        function openPINModal(mode) {
+        function showPINModal(mode) {
             const modal = document.getElementById('pinModal');
-            const input = document.getElementById('pinInput');
             const message = document.getElementById('pinModalMessage');
-            const error = document.getElementById('pinError');
             const info = document.getElementById('pinInfo');
-
-            if (!modal || !input) return;
-
-            pinMode = mode;
-            input.value = '';
-            error.textContent = '';
-            error.style.display = 'none';
-
+            
+            modal.classList.add('show');
+            
             if (mode === 'setup') {
-                message.textContent = 'Create your 4-digit Admin PIN';
-                info.textContent = 'இந்த PIN-ஐ பாதுகாப்பாக வைத்துக்கொள்ளுங்கள்.';
+                message.textContent = 'Set your 6-digit Admin PIN';
+                info.textContent = 'You can change this later in settings';
             } else {
-                message.textContent = 'Enter your 4-digit PIN';
+                message.textContent = 'Enter your 6-digit PIN to access Admin Panel';
                 info.textContent = '';
             }
-
-            modal.style.display = 'flex';
-            modal.classList.add('show');
-        }
-
-        function closePINModal() {
-            const modal = document.getElementById('pinModal');
-            if (!modal) return;
-            modal.classList.remove('show');
-            modal.style.display = 'none';
-            document.getElementById('pinInput').value = '';
-            document.getElementById('pinError').textContent = '';
+            
+            window.pinMode = mode;
+            window.pinValue = '';
+            updatePINDisplay();
         }
 
         function pinKeypress(digit) {
-            const input = document.getElementById('pinInput');
-            const error = document.getElementById('pinError');
-            if (!input || input.value.length >= 4) return;
-            input.value += String(digit);
-            error.textContent = '';
-            error.style.display = 'none';
+            if (window.pinValue.length < 6) {
+                window.pinValue += digit;
+                updatePINDisplay();
+                
+                // Auto-submit when 6 digits entered
+                if (window.pinValue.length === 6) {
+                    setTimeout(pinSubmit, 300);
+                }
+            }
         }
 
         function pinDelete() {
+            if (window.pinValue.length > 0) {
+                window.pinValue = window.pinValue.slice(0, -1);
+                updatePINDisplay();
+            }
+        }
+
+        function updatePINDisplay() {
             const input = document.getElementById('pinInput');
-            if (input) input.value = input.value.slice(0, -1);
+            input.value = '•'.repeat(window.pinValue.length);
         }
 
         function pinSubmit() {
-            const input = document.getElementById('pinInput');
             const error = document.getElementById('pinError');
-            if (!input || !/^\d{4}$/.test(input.value)) {
-                error.textContent = '❌ Please enter exactly 4 digits';
-                error.style.display = 'block';
+            
+            if (window.pinValue.length !== 6) {
+                error.textContent = 'PIN must be 6 digits';
                 return;
             }
 
-            const entered = input.value;
-
-            if (pinMode === 'setup') {
-                adminPIN = entered;
+            if (window.pinMode === 'setup') {
+                // Save new PIN
+                adminPIN = window.pinValue;
                 localStorage.setItem('adminPIN', adminPIN);
                 adminAuthenticated = true;
-                isAdmin = true;
-                adminPanelEnabled = true;
-                localStorage.setItem('adminPanelEnabled', 'true');
-                updateAdminToggle();
-                closePINModal();
-                const nav = document.getElementById('adminNav');
-                if (nav) nav.style.display = 'flex';
+                error.textContent = '';
+                document.getElementById('pinModal').classList.remove('show');
+                showAdminAlert('addAlert', '✅ Admin PIN set successfully!', 'success');
                 goToPage('admin');
-                return;
+            } else {
+                // Verify PIN
+                if (window.pinValue === adminPIN) {
+                    adminAuthenticated = true;
+                    error.textContent = '';
+                    document.getElementById('pinModal').classList.remove('show');
+                    goToPage('admin');
+                } else {
+                    error.textContent = '❌ Wrong PIN. Try again.';
+                    window.pinValue = '';
+                    updatePINDisplay();
+                }
             }
-
-            if (entered !== adminPIN) {
-                error.textContent = '❌ Incorrect PIN';
-                error.style.display = 'block';
-                input.value = '';
-                return;
-            }
-
-            adminAuthenticated = true;
-            isAdmin = true;
-            adminPanelEnabled = true;
-            localStorage.setItem('adminPanelEnabled', 'true');
-            updateAdminToggle();
-            closePINModal();
-            const nav = document.getElementById('adminNav');
-            if (nav) nav.style.display = 'flex';
-            goToPage('admin');
         }
-
-        function savePIN() { pinSubmit(); }
-        function verifyPIN() { pinSubmit(); }
 
         // ============= INITIALIZATION =============
-        function makeBackupObject() {
-            return {
-                app: 'Mass Islamic Media',
-                version: '7.0',
-                timestamp: new Date().toISOString(),
-                duas: duasData,
-                favorites: JSON.parse(localStorage.getItem('favorites') || '[]'),
-                settings: { darkMode, notificationsEnabled, notificationTime }
-            };
-        }
-
-        function renderBackupHistory() {
-            const box = document.getElementById('backupHistoryList');
-            if (!box) return;
-            const history = JSON.parse(localStorage.getItem('backupHistory') || '[]');
-
-            if (!history.length) {
-                box.innerHTML = '<div style="opacity:.6;padding:.6rem 0;">No backup history yet.</div>';
-                return;
-            }
-
-            box.innerHTML = history.map((item, i) => `
-                <div style="display:flex;justify-content:space-between;gap:.5rem;align-items:center;padding:.7rem 0;border-bottom:1px solid var(--border-light);">
-                    <div><strong>${new Date(item.timestamp).toLocaleString()}</strong>
-                    <div style="font-size:.75rem;opacity:.6;">${(item.size/1024).toFixed(1)} KB</div></div>
-                    <button class="btn-small secondary" onclick="restoreBackupHistory(${i})">Restore</button>
-                </div>
-            `).join('');
-        }
-
-        function createLocalBackup() {
-            if (!checkAdminAccess()) return;
-            const backup = makeBackupObject();
-            const json = JSON.stringify(backup, null, 2);
-
-            const history = JSON.parse(localStorage.getItem('backupHistory') || '[]');
-            history.unshift({
-                timestamp: backup.timestamp,
-                size: new Blob([json]).size,
-                data: backup
-            });
-            localStorage.setItem('backupHistory', JSON.stringify(history.slice(0,10)));
-
-            const blob = new Blob([json], {type:'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href=url;
-            a.download=`mass-islamic-media-backup-${new Date().toISOString().slice(0,10)}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-
-            renderBackupHistory();
-            showAdminAlert('backupAlert','✅ Backup downloaded','success');
-        }
-
-        function restoreBackupObject(backup) {
-            if (!backup || !Array.isArray(backup.duas)) {
-                showAdminAlert('backupAlert','❌ Invalid backup','error');
-                return;
-            }
-            if (!confirm('இந்த backup-ஐ restore செய்யவா?')) return;
-
-            const builtIns = duasData.filter(d => builtInDuaIds.has(d.id));
-            const custom = backup.duas.filter(d => !builtInDuaIds.has(d.id));
-            duasData = [...builtIns, ...custom];
-            localStorage.setItem('customDuas', JSON.stringify(custom));
-
-            if (Array.isArray(backup.favorites)) {
-                favorites = backup.favorites;
-                localStorage.setItem('favorites', JSON.stringify(favorites));
-            }
-
-            renderDuas();
-            renderDaily();
-            renderManageDuas();
-            updateAdminStats();
-            showAdminAlert('backupAlert','✅ Backup restored','success');
-        }
-
-        function restoreBackupHistory(index) {
-            const history = JSON.parse(localStorage.getItem('backupHistory') || '[]');
-            if (history[index]?.data) restoreBackupObject(history[index].data);
-        }
-
-        function restoreData(file) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                try { restoreBackupObject(JSON.parse(e.target.result)); }
-                catch { showAdminAlert('backupAlert','❌ Invalid backup file','error'); }
-            };
-            reader.readAsText(file);
-        }
-
-        function saveGithubSettings() {
-            const repo=document.getElementById('githubRepoInput').value.trim();
-            const token=document.getElementById('githubTokenInput').value.trim();
-
-            if (!/^[^/]+\/[^/]+$/.test(repo)) {
-                showAdminAlert('backupAlert','❌ Repo format: username/repository','error'); return;
-            }
-            if (!token) {
-                showAdminAlert('backupAlert','❌ GitHub token required','error'); return;
-            }
-
-            localStorage.setItem('githubRepo',repo);
-            localStorage.setItem('githubToken',token);
-            showAdminAlert('backupAlert','✅ GitHub settings saved','success');
-        }
-
-        async function syncToGitHub() {
-            if (!checkAdminAccess()) return;
-
-            const repo=document.getElementById('githubRepoInput').value.trim() || localStorage.getItem('githubRepo');
-            const token=document.getElementById('githubTokenInput').value.trim() || localStorage.getItem('githubToken');
-
-            if (!repo || !token) {
-                showAdminAlert('backupAlert','❌ GitHub settings first save செய்யவும்','error'); return;
-            }
-
-            const parts=repo.split('/');
-            if (parts.length!==2) {
-                showAdminAlert('backupAlert','❌ Repo format: username/repository','error'); return;
-            }
-
-            const content=JSON.stringify(makeBackupObject(),null,2);
-            const bytes=new TextEncoder().encode(content);
-            let binary='';
-            bytes.forEach(b=>binary+=String.fromCharCode(b));
-            const base64=btoa(binary);
-
-            const filename=`backups/mass-islamic-media-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
-            const url=`https://api.github.com/repos/${encodeURIComponent(parts[0])}/${encodeURIComponent(parts[1])}/contents/${filename}`;
-
-            showAdminAlert('backupAlert','⏳ Uploading to GitHub...','info');
-
-            try {
-                const response=await fetch(url,{
-                    method:'PUT',
-                    headers:{
-                        'Authorization':`Bearer ${token}`,
-                        'Accept':'application/vnd.github+json',
-                        'Content-Type':'application/json'
-                    },
-                    body:JSON.stringify({
-                        message:`Mass Islamic Media backup ${new Date().toISOString()}`,
-                        content:base64
-                    })
-                });
-
-                if(!response.ok){
-                    const detail=await response.json().catch(()=>({}));
-                    throw new Error(detail.message || `GitHub API ${response.status}`);
-                }
-
-                localStorage.setItem('githubRepo',repo);
-                localStorage.setItem('githubToken',token);
-                showAdminAlert('backupAlert','✅ GitHub backup completed','success');
-            } catch(error) {
-                showAdminAlert('backupAlert','❌ GitHub sync failed: '+error.message,'error');
-            }
-        }
-
-        function loadBackupSettings() {
-            const repo=localStorage.getItem('githubRepo') || '';
-            const input=document.getElementById('githubRepoInput');
-            if(input) input.value=repo;
-            renderBackupHistory();
-        }
-
         function init() {
             initDarkMode();
             initPWA();
@@ -2316,37 +1697,32 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             attachEventListeners();
             initAdminPanel();
             
-            // Initialize Admin Panel enabled/disabled state.
-            const adminNav = document.getElementById('adminNav');
-            if (adminNav) {
-                adminNav.style.display = adminPanelEnabled ? 'flex' : 'none';
+            // Initialize admin panel
+            if (isAdmin) {
+                document.getElementById('adminNav').style.display = 'flex';
             }
-            updateAdminToggle();
             
             // Load GitHub config if exists
             const savedRepo = localStorage.getItem('githubRepo');
+            const savedToken = localStorage.getItem('githubToken');
             if (savedRepo) {
-                const repoInput = document.getElementById('githubRepoInput'); if (repoInput) repoInput.value = savedRepo;
+                document.getElementById('githubRepoInput').value = savedRepo;
+            }
+            if (savedToken) {
+                document.getElementById('githubTokenInput').value = savedToken;
             }
         }
 
         // Load custom duas from localStorage
         function loadCustomDuas() {
             const saved = localStorage.getItem('customDuas');
-            if (!saved) return;
-
-            try {
-                const customDuas = JSON.parse(saved);
-                if (!Array.isArray(customDuas)) return;
-
-                const cleanCustom = customDuas.filter(d =>
-                    d && !builtInDuaIds.has(d.id) && d.title && d.category
-                );
-
-                duasData = [...duasData, ...cleanCustom];
-                localStorage.setItem('customDuas', JSON.stringify(cleanCustom));
-            } catch (e) {
-                console.error('Error loading custom duas:', e);
+            if (saved) {
+                try {
+                    const customDuas = JSON.parse(saved);
+                    duasData = [...duasData, ...customDuas];
+                } catch (e) {
+                    console.error('Error loading custom duas:', e);
+                }
             }
         }
 
@@ -2361,7 +1737,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             // Schedule notification if enabled
             if (notificationsEnabled) {
                 scheduleNotification();
-                showNotificationStatus(`🔔 Daily Dua: ${notificationTime}`);
             }
         }
 
@@ -2400,9 +1775,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 renderDuas();
             });
 
-            const clearSearchBtn = document.getElementById('clearSearchBtn');
-            if (clearSearchBtn) clearSearchBtn.addEventListener('click', clearPremiumSearch);
-
             // Advanced Search
             document.getElementById('advancedSearchBtn').addEventListener('click', () => {
                 const advanced = document.getElementById('advancedSearch');
@@ -2421,6 +1793,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 filtersContainer.appendChild(btn);
             });
 
+            // Dark Mode
+            document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
+
             // Install
             document.getElementById('installBtn').addEventListener('click', handleInstall);
             document.getElementById('installBannerBtn').addEventListener('click', handleInstall);
@@ -2429,25 +1804,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             document.getElementById('homeNav').addEventListener('click', () => goToPage('home'));
             document.getElementById('favoritesNav').addEventListener('click', () => goToPage('favorites'));
             document.getElementById('settingsNav').addEventListener('click', () => goToPage('settings'));
-            document.getElementById('adminNav').addEventListener('click', () => {
-                if (!adminPanelEnabled) return;
-
-                if (!adminPIN || !adminAuthenticated) {
-                    setupAdminPIN();
-                } else {
-                    goToPage('admin');
-                }
-            });
+            document.getElementById('adminNav').addEventListener('click', () => goToPage('admin'));
 
             // Settings
             document.getElementById('notificationToggle').addEventListener('click', toggleNotifications);
             document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
-            
+            document.getElementById('adminToggle').addEventListener('click', toggleAdminMode);
             document.getElementById('notificationTime').addEventListener('change', (e) => {
                 notificationTime = e.target.value;
                 localStorage.setItem('notificationTime', notificationTime);
-                if (notificationsEnabled) scheduleNotification();
-                showNotificationStatus(`⏰ Daily Dua: ${notificationTime}`);
             });
 
             // Zoom
@@ -2478,259 +1843,76 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             });
         }
 
-        // ============= LANGUAGE =============
-        let appLanguage = localStorage.getItem('appLanguage') || 'ta';
-        const langCategoryNames = {
-            ta:{all:'அனைத்து',morning:'காலை',forgiveness:'மன்னிப்பு',travel:'பயணம்',sleep:'தூக்கம்',food:'உணவு',knowledge:'ஞானம்'},
-            en:{all:'All',morning:'Morning',forgiveness:'Forgiveness',travel:'Travel',sleep:'Sleep',food:'Food',knowledge:'Knowledge'}
-        };
-        const langDuas = {
-            1:['Morning Dua','Let us thank Allah'],2:['Dua for Forgiveness','Ask Allah to forgive our mistakes'],
-            3:['Travel Dua','For a safe journey'],4:['Dua Before Sleep','For peaceful and healthy sleep'],
-            5:['Dua Before Eating','Let us thank Allah for food'],6:['Dua for Knowledge','Ask for beneficial knowledge']
-        };
-        const langUI={
-            ta:{settings:'⚙️ அமைப்புகள்',language:'🌐 மொழி',home:'முகப்பு',favorites:'விருப்பங்கள்',admin:'நிர்வாகம்',today:'🌟 இன்றைய துஆ',search:'துஆவைத் தேடுக...',daily:'தினசரி துஆ அறிவிப்பு',time:'அறிவிப்பு நேரம்',display:'🎨 காட்சி',dark:'Dark Mode'},
-            en:{settings:'⚙️ Settings',language:'🌐 Language',home:'Home',favorites:'Favorites',admin:'Admin',today:'🌟 Today’s Dua',search:'Search duas...',daily:'Daily Dua Notification',time:'Notification Time',display:'🎨 Display',dark:'Dark Mode'}
-        };
-        function langCategory(id){return (langCategoryNames[appLanguage]||langCategoryNames.ta)[id]||id;}
-        function langTitle(dua){return appLanguage==='en' && langDuas[dua.id] ? langDuas[dua.id][0] : (dua.title||'');}
-        function langDesc(dua){return appLanguage==='en' && langDuas[dua.id] ? langDuas[dua.id][1] : (dua.description||'');}
-        function setAppLanguage(lang){
-            appLanguage=lang==='en'?'en':'ta'; localStorage.setItem('appLanguage',appLanguage);
-            applyAppLanguage();
-        }
-        function applyAppLanguage(){
-            document.documentElement.lang=appLanguage;
-            const t=langUI[appLanguage];
-            const set=(id,text)=>{const e=document.getElementById(id);if(e)e.textContent=text;};
-            set('settingsTitle',t.settings);set('languageHeading',t.language);set('homeNav',t.home);set('favoritesNav',t.favorites);set('settingsNav',t.settings);set('adminNav',t.admin);set('dailyLabel',t.today);
-            const search=document.getElementById('searchInput');if(search)search.placeholder=t.search;
-            const items=document.querySelectorAll('#settingsPage .settings-item span');if(items[0])items[0].textContent=t.daily;if(items[1])items[1].textContent=t.time;
-            const dg=document.getElementById('displaySettingsGroup');if(dg){const h=dg.querySelector('h3'),sp=dg.querySelector('.settings-item span');if(h)h.textContent=t.display;if(sp)sp.textContent=t.dark;}
-            const tb=document.getElementById('langTamilBtn'),eb=document.getElementById('langEnglishBtn');if(tb)tb.classList.toggle('active',appLanguage==='ta');if(eb)eb.classList.toggle('active',appLanguage==='en');
-            renderCategories(); renderDuas(); renderDaily(); renderFavorites();
-        }
-
         // ============= RENDERING =============
         function renderCategories() {
             const container = document.getElementById('categoriesContainer');
             container.innerHTML = categories.map(cat => `
-                <button type="button" class="category-btn ${cat.id === 'all' ? 'active' : ''}"
-                    data-category="${cat.id}"
+                <button class="category-btn ${cat.id === 'all' ? 'active' : ''}" 
                     onclick="selectCategory('${cat.id}')">
                     <span>${cat.icon}</span>
-                    <span>${langCategory(cat.id)}</span>
+                    <span>${cat.name}</span>
                 </button>
             `).join('');
         }
 
-        function updatePremiumHomeDashboard() {
-            const duaCount=document.getElementById('dashDuaCount');
-            const favCount=document.getElementById('dashFavCount');
-            const adminState=document.getElementById('dashAdminState');
-            if(duaCount) duaCount.textContent=String(duasData.length);
-            if(favCount) favCount.textContent=String(favorites.length);
-            if(adminState) adminState.textContent=adminPanelEnabled ? 'ON' : 'OFF';
-        }
-
-        function focusDuaSearch() {
-            goToPage('home');
-            setTimeout(()=>{
-                const input=document.getElementById('searchInput');
-                if(input){ input.focus(); input.scrollIntoView({behavior:'smooth',block:'center'}); }
-            },80);
-        }
-
         function renderDuas() {
-            const grid = document.getElementById('duaGrid');
-            if (!grid) return;
-
-            const query = String(searchTerm || '').trim().toLowerCase();
-            const activeCategory = selectedCategory || 'all';
-
             const filtered = duasData.filter(dua => {
-                const matchesQuery = !query ||
-                    String(dua.title || '').toLowerCase().includes(query) ||
-                    String(dua.description || '').toLowerCase().includes(query);
-
-                const matchesCategory = activeCategory === 'all' ||
-                    String(dua.category || '').toLowerCase() === activeCategory;
-
-                return matchesQuery && matchesCategory;
+                const categoryMatch = selectedCategory === 'all' || dua.category === selectedCategory;
+                const searchMatch = dua.title.toLowerCase().includes(searchTerm) || 
+                                   dua.description.toLowerCase().includes(searchTerm);
+                return categoryMatch && searchMatch;
             });
+            
+            filteredDuas = filtered;  // Store for swipe navigation
 
-            grid.innerHTML = '';
-
-            if (!filtered.length) {
-                grid.innerHTML = `
-                    <div class="premium-search-empty">
-                        <div>🔎</div>
-                        <h3>துஆ கிடைக்கவில்லை</h3>
-                        <p>வேறு வார்த்தை அல்லது category முயற்சி செய்யுங்கள்.</p>
-                        <button type="button" onclick="clearPremiumSearch()">Reset</button>
-                    </div>`;
-            } else {
-                filtered.forEach(dua => grid.appendChild(createDuaCard(dua)));
+            const grid = document.getElementById('duaGrid');
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-icon">🔍</div><p>துஆ கிடைக்கவில்லை</p></div>';
+                return;
             }
 
-            updatePremiumResultsToolbar(filtered.length, query, activeCategory);
-            updatePremiumHomeDashboard();
+            grid.innerHTML = filtered.map(dua => `
+                <div class="dua-card" onclick="openModal(${dua.id})">
+                    <div class="dua-card-header">
+                        <div class="dua-card-icon">${getCategoryIcon(dua.category)}</div>
+                        <div class="dua-card-title">${dua.title}</div>
+                    </div>
+                    <div class="dua-card-body">
+                        <div class="dua-card-desc">${dua.description}</div>
+                    </div>
+                </div>
+            `).join('');
         }
-
-        function updatePremiumResultsToolbar(count, query, category) {
-            const bar=document.getElementById('premiumResultsToolbar');
-            const countEl=document.getElementById('resultCountText');
-            const favEl=document.getElementById('favoriteCountText');
-            const clear=document.getElementById('clearSearchBtn');
-            if(!bar) return;
-
-            const filteredActive=Boolean(query || category !== 'all');
-            bar.style.display = filteredActive ? 'flex' : 'none';
-
-            if(countEl) countEl.textContent = `${count} ${count === 1 ? 'Dua' : 'Duas'}`;
-            if(favEl) favEl.textContent = `${favorites.length} Favorites`;
-            if(clear) clear.style.display = filteredActive ? 'inline-flex' : 'none';
-        }
-
-        function clearPremiumSearch() {
-            searchTerm='';
-            window.activeDuaCategory='all';
-            selectedCategory='all';
-            const input=document.getElementById('searchInput');
-            if(input) input.value='';
-            renderDuas();
-        }
-
-        function renderPremiumCategoryChips() {
-            const box=document.getElementById('premiumCategoryChips');
-            if(!box) return;
-
-            const current=window.activeDuaCategory || 'all';
-            const cats=[{id:'all',name:'அனைத்தும்',icon:'✨'}, ...categories.slice(1).map(c=>({
-                id:String(c.id || c.name || '').toLowerCase(),
-                name:c.name,
-                icon:c.icon
-            }))];
-
-            box.innerHTML=cats.map(c=>`
-                <button type="button" class="premium-chip ${current===c.id?'active':''}"
-                        onclick="setPremiumCategory('${String(c.id).replace(/'/g,"\\'")}')">
-                    ${c.icon} ${escapeHtml(c.name)}
-                </button>`).join('');
-        }
-
-        function setPremiumCategory(category) {
-            window.activeDuaCategory=category;
-            renderDuas();
-        }
-
-
-        function getCategoryLabel(category) { return langCategory(String(category||'all').toLowerCase()); }
-
-        function createDuaCard(dua) {
-            // Build the card with DOM APIs instead of injecting the image URL into
-            // innerHTML. The built-in SVG data URLs contain quotes, which can
-            // otherwise break the <img> attribute and expose raw HTML on screen.
-            const card = document.createElement('div');
-            card.className = 'dua-card';
-
-            const isFav = favorites.includes(dua.id);
-
-            const imageWrap = document.createElement('div');
-            imageWrap.className = 'dua-card-image-wrap';
-
-            const img = document.createElement('img');
-            img.className = 'dua-card-image';
-            img.alt = dua.title || 'Dua';
-            img.loading = 'lazy';
-            img.src = dua.image || '';
-            img.onerror = function () {
-                this.style.display = 'none';
-                imageWrap.classList.add('image-fallback');
-            };
-
-            const favBtn = document.createElement('button');
-            favBtn.type = 'button';
-            favBtn.className = `dua-favorite-btn ${isFav ? 'active' : ''}`;
-            favBtn.setAttribute('aria-label', isFav ? 'Remove from favorites' : 'Add to favorites');
-            favBtn.textContent = isFav ? '❤️' : '♡';
-            favBtn.addEventListener('click', function (event) {
-                event.stopPropagation();
-                toggleFavoriteById(dua.id);
-            });
-
-            imageWrap.appendChild(img);
-            imageWrap.appendChild(favBtn);
-
-            const body = document.createElement('div');
-            body.className = 'dua-card-body';
-
-            const category = document.createElement('div');
-            category.className = 'dua-card-category';
-            category.textContent = getCategoryLabel(dua.category);
-
-            const title = document.createElement('h3');
-            title.className = 'dua-card-title';
-            title.textContent = langTitle(dua);
-
-            const description = document.createElement('p');
-            description.className = 'dua-card-description';
-            description.textContent = langDesc(dua);
-
-            body.appendChild(category);
-            body.appendChild(title);
-            body.appendChild(description);
-
-            card.appendChild(imageWrap);
-            card.appendChild(body);
-
-            card.addEventListener('click', function () {
-                openDua(dua.id);
-            });
-
-            return card;
-        }
-
-        function toggleFavoriteById(id) {
-            const index=favorites.indexOf(id);
-            if(index>=0) favorites.splice(index,1);
-            else favorites.push(id);
-
-            localStorage.setItem('favorites',JSON.stringify(favorites));
-            renderDuas();
-            renderFavorites();
-            updatePremiumHomeDashboard();
-            updatePremiumResultsToolbar(
-                document.querySelectorAll('#duaGrid .dua-card').length,
-                searchTerm,
-                window.activeDuaCategory || 'all'
-            );
-        }
-
 
         function renderDaily() {
             const today = new Date().getDate();
             const daily = duasData[today % duasData.length];
-            document.getElementById('dailyTitle').textContent = langTitle(daily);
-            document.getElementById('dailyDesc').textContent = langDesc(daily);
+            document.getElementById('dailyTitle').textContent = daily.title;
+            document.getElementById('dailyDesc').textContent = daily.description;
             document.getElementById('dailyDua').addEventListener('click', () => openModal(daily.id));
         }
 
         function renderFavorites() {
-            const grid=document.getElementById('favoritesGrid');
-            const empty=document.getElementById('favoritesEmpty');
-            if(!grid) return;
+            const favoriteDuas = duasData.filter(d => favorites.includes(d.id));
+            const grid = document.getElementById('favoritesGrid');
+            
+            if (favoriteDuas.length === 0) {
+                grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-icon">⭐</div><p>பிடித்த துஆவை சேர்க்கவும்</p></div>';
+                return;
+            }
 
-            const favDuas=duasData.filter(d=>favorites.includes(d.id));
-            grid.innerHTML='';
-
-            favDuas.forEach(dua=>grid.appendChild(createDuaCard(dua)));
-
-            if(empty) empty.style.display=favDuas.length ? 'none' : 'block';
-            grid.style.display=favDuas.length ? 'grid' : 'none';
+            grid.innerHTML = favoriteDuas.map(dua => `
+                <div class="dua-card" onclick="openModal(${dua.id})">
+                    <div class="dua-card-header">
+                        <div class="dua-card-icon">${getCategoryIcon(dua.category)}</div>
+                        <div class="dua-card-title">${dua.title}</div>
+                    </div>
+                    <div class="dua-card-body">
+                        <div class="dua-card-desc">${dua.description}</div>
+                    </div>
+                </div>
+            `).join('');
         }
-
 
         function getCategoryIcon(category) {
             const cat = categories.find(c => c.id === category);
@@ -2740,12 +1922,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         // ============= INTERACTIONS =============
         function selectCategory(catId) {
             selectedCategory = catId;
-            window.activeDuaCategory = catId;
-
-            document.querySelectorAll('#categoriesContainer .category-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.category === catId);
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(categories.find(c => c.id === catId).name));
             });
-
             renderDuas();
         }
 
@@ -2771,112 +1950,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
         function updateNotificationToggle() {
             const toggle = document.getElementById('notificationToggle');
-            if (toggle) {
-                toggle.classList.toggle('active', notificationsEnabled);
-                toggle.setAttribute('aria-checked', notificationsEnabled ? 'true' : 'false');
-            }
+            toggle.classList.toggle('active', notificationsEnabled);
         }
 
         function updateSettingsToggle() {
             const darkToggle = document.getElementById('darkModeToggle');
-            if (darkToggle) {
-                darkToggle.classList.toggle('active', darkMode);
-                darkToggle.setAttribute('aria-checked', darkMode ? 'true' : 'false');
-            }
+            darkToggle.classList.toggle('active', darkMode);
         }
 
-        let notificationTimer = null;
-
-        async function requestNotificationPermission() {
-            if (!('Notification' in window)) {
-                notificationsEnabled = false;
-                localStorage.setItem('notificationsEnabled', 'false');
-                updateNotificationToggle();
-                showNotificationStatus('இந்த browser Notifications-ஐ support செய்யவில்லை.');
-                return false;
-            }
-
-            if (Notification.permission === 'denied') {
-                notificationsEnabled = false;
-                localStorage.setItem('notificationsEnabled', 'false');
-                updateNotificationToggle();
-                showNotificationStatus('🔕 Notifications browser settings-ல் Block செய்யப்பட்டுள்ளன.');
-                return false;
-            }
-
-            if (Notification.permission === 'default') {
-                const permission = await Notification.requestPermission();
-                if (permission !== 'granted') {
-                    notificationsEnabled = false;
-                    localStorage.setItem('notificationsEnabled', 'false');
-                    updateNotificationToggle();
-                    showNotificationStatus('🔕 Notification permission வழங்கப்படவில்லை.');
-                    return false;
-                }
-            }
-
-            showNotificationStatus('🔔 Daily Dua notification ON');
-            return true;
-        }
-
-        function showNotificationStatus(message) {
-            let box = document.getElementById('notificationStatus');
-            if (!box) {
-                box = document.createElement('div');
-                box.id = 'notificationStatus';
-                box.style.cssText = 'margin-top:.6rem;padding:.7rem;border-radius:10px;font-size:.82rem;background:var(--bg-card);border:1px solid var(--border-light);';
-                const group = document.getElementById('notificationToggle')?.closest('.settings-group');
-                group?.appendChild(box);
-            }
-            box.textContent = message;
-        }
-
-        function clearNotificationTimer() {
-            if (notificationTimer) {
-                clearTimeout(notificationTimer);
-                notificationTimer = null;
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
             }
         }
-
-        function scheduleNotification() {
-            clearNotificationTimer();
-
-            if (!notificationsEnabled || !('Notification' in window) ||
-                Notification.permission !== 'granted') {
-                return;
-            }
-
-            const parts = String(notificationTime || '08:00').split(':');
-            const hours = Math.min(23, Math.max(0, parseInt(parts[0], 10) || 8));
-            const minutes = Math.min(59, Math.max(0, parseInt(parts[1], 10) || 0));
-
-            const now = new Date();
-            const next = new Date(now);
-            next.setHours(hours, minutes, 0, 0);
-            if (next <= now) next.setDate(next.getDate() + 1);
-
-            const delay = Math.max(1000, next.getTime() - now.getTime());
-
-            notificationTimer = setTimeout(() => {
-                if (!notificationsEnabled || Notification.permission !== 'granted') return;
-
-                const index = new Date().getDate() % Math.max(duasData.length, 1);
-                const dua = duasData[index] || duasData[0];
-
-                try {
-                    new Notification('Daily Dua 🕌', {
-                        body: dua ? `${dua.title} — ${dua.description}` : 'இன்றைய துஆவை படிக்கவும்',
-                        tag: 'mass-islamic-media-daily-dua',
-                        renotify: true
-                    });
-                } catch (e) {
-                    console.error('Notification error:', e);
-                }
-
-                scheduleNotification();
-            }, delay);
-        }
-
 
         // Image Compression
         function compressImage(file, callback, maxSize = 2 * 1024 * 1024) {
@@ -2936,7 +2022,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
         // Admin Panel Functions
         function initAdminPanel() {
-            loadBackupSettings();
             // Tab switching
             document.getElementById('addDuaTab').addEventListener('click', () => switchAdminTab('addDua'));
             document.getElementById('manageDuasTab').addEventListener('click', () => switchAdminTab('manageDuas'));
@@ -2973,7 +2058,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             });
 
             // Backup buttons
-            document.getElementById('backupBtn').addEventListener('click', createLocalBackup);
+            document.getElementById('backupBtn').addEventListener('click', backupData);
             document.getElementById('restoreBtn').addEventListener('click', () => document.getElementById('restoreInput').click());
             document.getElementById('restoreInput').addEventListener('change', (e) => {
                 if (e.target.files.length > 0) {
@@ -2982,8 +2067,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             });
             document.getElementById('exportCsvBtn').addEventListener('click', exportAsCSV);
             document.getElementById('syncGithubBtn').addEventListener('click', syncToGitHub);
-            document.getElementById('saveGithubBtn').addEventListener('click', saveGithubSettings);
-            document.getElementById('clearGithubBtn').addEventListener('click', () => { localStorage.removeItem('githubToken'); document.getElementById('githubTokenInput').value=''; showAdminAlert('backupAlert','✅ Token cleared','success'); });
+            document.getElementById('saveGithubBtn').addEventListener('click', saveGitHubSettings);
+            document.getElementById('clearGithubBtn').addEventListener('click', clearGitHubSettings);
+
 
             updateAdminStats();
         }
@@ -3022,34 +2108,24 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 return;
             }
 
-            const custom = JSON.parse(localStorage.getItem('customDuas') || '[]');
-            const maxId = Math.max(
-                ...duasData.map(d => Number(d.id) || 0),
-                ...custom.map(d => Number(d.id) || 0),
-                6
-            );
-
             const newDua = {
-                id: maxId + 1,
-                title,
-                category,
-                description,
+                id: Math.max(...duasData.map(d => d.id), 0) + 1,
+                title: title,
+                category: category,
+                description: description,
                 image: selectedImageFile
             };
 
-            custom.push(newDua);
-            localStorage.setItem('customDuas', JSON.stringify(custom));
             duasData.push(newDua);
+            localStorage.setItem('customDuas', JSON.stringify(duasData));
 
             showAdminAlert('addAlert', '✅ Dua added successfully!', 'success');
             document.getElementById('addDuaForm').reset();
             document.getElementById('imagePreview').style.display = 'none';
-            document.getElementById('imageInfo').textContent = '';
             selectedImageFile = null;
 
             updateAdminStats();
             renderDuas();
-            renderDaily();
         }
 
         function switchAdminTab(tab) {
@@ -3073,111 +2149,35 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
         function renderManageDuas() {
             const container = document.getElementById('duasListAdmin');
-            if (!container) return;
             container.innerHTML = '';
 
-            const customIds = new Set(
-                JSON.parse(localStorage.getItem('customDuas') || '[]').map(d => d.id)
-            );
-
             duasData.forEach(dua => {
-                const isCustom = customIds.has(dua.id);
                 const div = document.createElement('div');
                 div.className = 'dua-card';
                 div.style.marginBottom = '1rem';
-
-                const image = dua.image ? `<img src="${dua.image}" alt="" style="width:64px;height:88px;object-fit:cover;border-radius:10px;margin-right:12px;">` : '';
-
                 div.innerHTML = `
-                    <div style="display:flex;gap:10px;align-items:center;">
-                        ${image}
-                        <div style="flex:1;min-width:0;">
-                            <h3 style="margin:0 0 .35rem 0;">${escapeHtml(dua.title)}</h3>
-                            <p style="margin:0 0 .35rem 0;opacity:.7;font-size:.9rem;">${escapeHtml(dua.description)}</p>
-                            <p style="margin:0;font-size:.8rem;opacity:.6;">${escapeHtml(dua.category)} ${isCustom ? '• Custom' : '• Built-in'}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <h3 style="margin: 0 0 0.5rem 0;">${dua.title}</h3>
+                            <p style="margin: 0 0 0.5rem 0; opacity: 0.7; font-size: 0.9rem;">${dua.description}</p>
+                            <p style="margin: 0; font-size: 0.85rem; opacity: 0.6;">Category: ${dua.category}</p>
                         </div>
-                        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
-                            ${isCustom
-                                ? `<button class="btn-small" onclick="editDua(${dua.id})">✏️ Edit</button>
-                                   <button class="btn-small" onclick="deleteDua(${dua.id})" style="background:#ef4444;">🗑️ Delete</button>`
-                                : `<span style="font-size:.75rem;opacity:.6;">Built-in</span>`
-                            }
-                        </div>
+                        <button class="btn-small" onclick="deleteDua(${dua.id})" style="background: #ef4444;">🗑️ Delete</button>
                     </div>
                 `;
                 container.appendChild(div);
             });
         }
 
-        function escapeHtml(value) {
-            return String(value ?? '').replace(/[&<>"']/g, ch => ({
-                '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
-            }[ch]));
-        }
-
-        function editDua(id) {
-            const custom = JSON.parse(localStorage.getItem('customDuas') || '[]');
-            const dua = custom.find(d => d.id === id);
-            if (!dua) {
-                showAdminAlert('manageAlert', '❌ Built-in Dua cannot be edited', 'error');
-                return;
-            }
-
-            const title = prompt('Dua Title:', dua.title);
-            if (title === null) return;
-
-            const description = prompt('Dua Description:', dua.description);
-            if (description === null) return;
-
-            const category = prompt(
-                'Category: morning / forgiveness / travel / sleep / food / knowledge',
-                dua.category
-            );
-            if (category === null) return;
-
-            const allowed = ['morning','forgiveness','travel','sleep','food','knowledge'];
-            if (!allowed.includes(category.trim())) {
-                showAdminAlert('manageAlert', '❌ Invalid category', 'error');
-                return;
-            }
-
-            dua.title = title.trim();
-            dua.description = description.trim();
-            dua.category = category.trim();
-
-            localStorage.setItem('customDuas', JSON.stringify(custom));
-
-            const index = duasData.findIndex(d => d.id === id);
-            if (index !== -1) duasData[index] = { ...duasData[index], ...dua };
-
-            renderManageDuas();
-            renderDuas();
-            renderDaily();
-            showAdminAlert('manageAlert', '✅ Dua updated', 'success');
-        }
-
         function deleteDua(id) {
-            if (builtInDuaIds.has(id)) {
-                showAdminAlert('manageAlert', '❌ Built-in Dua cannot be deleted', 'error');
-                return;
+            if (confirm('Delete this dua?')) {
+                duasData = duasData.filter(d => d.id !== id);
+                localStorage.setItem('customDuas', JSON.stringify(duasData));
+                showAdminAlert('manageAlert', '✅ Dua deleted', 'success');
+                renderManageDuas();
+                updateAdminStats();
+                renderDuas();
             }
-
-            if (!confirm('இந்த துஆவை Delete செய்யவா?')) return;
-
-            const custom = JSON.parse(localStorage.getItem('customDuas') || '[]')
-                .filter(d => d.id !== id);
-
-            localStorage.setItem('customDuas', JSON.stringify(custom));
-            duasData = duasData.filter(d => d.id !== id);
-
-            favorites = favorites.filter(f => f !== id);
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-
-            showAdminAlert('manageAlert', '✅ Dua deleted', 'success');
-            renderManageDuas();
-            updateAdminStats();
-            renderDuas();
-            renderDaily();
         }
 
         function updateAdminStats() {
@@ -3276,15 +2276,189 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             setTimeout(() => alert.classList.remove('show'), 4000);
         }
 
+        // GitHub Sync Function
+        function getGitHubCredentials() {
+            const repoEl = document.getElementById('githubRepoInput');
+            const tokenEl = document.getElementById('githubTokenInput');
+            return {
+                repo: (repoEl?.value || localStorage.getItem('githubRepo') || '').trim(),
+                token: (tokenEl?.value || localStorage.getItem('githubToken') || '').trim()
+            };
+        }
+
+        function saveGitHubSettings() {
+            const repo = (document.getElementById('githubRepoInput')?.value || '').trim();
+            const token = (document.getElementById('githubTokenInput')?.value || '').trim();
+
+            if (!/^[^/]+\/[^/]+$/.test(repo)) {
+                showAdminAlert('backupAlert', '❌ Repository: username/repository', 'error');
+                return false;
+            }
+            if (!token) {
+                showAdminAlert('backupAlert', '❌ GitHub Personal Access Token paste செய்யவும்', 'error');
+                return false;
+            }
+
+            localStorage.setItem('githubRepo', repo);
+            localStorage.setItem('githubToken', token);
+            showAdminAlert('backupAlert', '✅ GitHub Settings saved', 'success');
+            return true;
+        }
+
+        async function syncToGitHub() {
+            const { repo, token } = getGitHubCredentials();
+
+            if (!/^[^/]+\/[^/]+$/.test(repo)) {
+                showAdminAlert('backupAlert', '❌ Repository: username/repository', 'error');
+                return;
+            }
+            if (!token) {
+                showAdminAlert('backupAlert', '❌ GitHub Personal Access Token paste செய்யவும்', 'error');
+                return;
+            }
+
+            localStorage.setItem('githubRepo', repo);
+            localStorage.setItem('githubToken', token);
+            showAdminAlert('backupAlert', '⏳ GitHub backup நடைபெறுகிறது...', 'info');
+
+            const backup = {
+                version: '17.0',
+                timestamp: new Date().toISOString(),
+                duas: duasData,
+                favorites: JSON.parse(localStorage.getItem('favorites') || '[]')
+            };
+
+            try {
+                await syncDataToGitHub(repo, token, backup);
+                showAdminAlert('backupAlert', '✅ GitHub Backup successful!', 'success');
+            } catch (error) {
+                showAdminAlert('backupAlert', '❌ GitHub Backup failed: ' + (error.message || error), 'error');
+            }
+        }
+
+        async function syncDataToGitHub(repo, token, backupObject) {
+            const [owner, repoName] = repo.split('/');
+            if (!owner || !repoName) throw new Error('Repository format must be username/repository');
+
+            const filename = `duas-backup-${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.json`;
+            const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/contents/${encodeURIComponent(filename)}`;
+            const content = JSON.stringify(backupObject, null, 2);
+            const base64Content = btoa(unescape(encodeURIComponent(content)));
+
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github+json',
+                    'Content-Type': 'application/json',
+                    'X-GitHub-Api-Version': '2022-11-28'
+                },
+                body: JSON.stringify({
+                    message: `Dua backup ${new Date().toISOString()}`,
+                    content: base64Content
+                })
+            });
+
+            let data = {};
+            try { data = await response.json(); } catch (_) {}
+
+            if (!response.ok) {
+                throw new Error(data.message ? `${data.message} (HTTP ${response.status})` : `HTTP ${response.status}`);
+            }
+            return data;
+        }
+
+        function clearGitHubSettings() {
+            localStorage.removeItem('githubRepo');
+            localStorage.removeItem('githubToken');
+            const repoEl = document.getElementById('githubRepoInput');
+            const tokenEl = document.getElementById('githubTokenInput');
+            if (repoEl) repoEl.value = '';
+            if (tokenEl) tokenEl.value = '';
+            showAdminAlert('backupAlert', '🗑️ GitHub settings cleared', 'success');
+        }
+
+        function openPINModal() {
+            const pinModal = document.getElementById('pinModal');
+            pinModal.style.display = 'flex';
+
+            if (!adminPIN) {
+                // First time setup
+                document.getElementById('pinSetup').style.display = 'block';
+                document.getElementById('pinVerify').style.display = 'none';
+            } else {
+                // Existing PIN verification
+                document.getElementById('pinSetup').style.display = 'none';
+                document.getElementById('pinVerify').style.display = 'block';
+            }
+        }
+
+        function closePINModal() {
+            document.getElementById('pinModal').style.display = 'none';
+            document.getElementById('pinError').style.display = 'none';
+            document.getElementById('setPinInput').value = '';
+            document.getElementById('verifyPinInput').value = '';
+        }
+
+        function savePIN() {
+            const pin = document.getElementById('setPinInput').value;
+            const errorDiv = document.getElementById('pinError');
+
+            if (pin.length !== 6 || isNaN(pin)) {
+                errorDiv.textContent = '❌ 6 digit PIN enter செய்யவும்';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            adminPIN = pin;
+            localStorage.setItem('adminPIN', pin);
+            adminAuthenticated = true;
+            isAdmin = true;
+
+            showAdminAlert('addAlert', '✅ PIN set successfully! Admin access enabled.', 'success');
+            closePINModal();
+            document.getElementById('adminNav').style.display = 'flex';
+        }
+
+        function verifyPIN() {
+            const pin = document.getElementById('verifyPinInput').value;
+            const errorDiv = document.getElementById('pinError');
+
+            if (pin !== adminPIN) {
+                errorDiv.textContent = '❌ PIN incorrect!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            adminAuthenticated = true;
+            isAdmin = true;
+            closePINModal();
+            document.getElementById('adminNav').style.display = 'flex';
+            showAdminAlert('addAlert', '✅ Admin access granted!', 'success');
+        }
+
         function checkAdminAccess() {
-            if (!adminPanelEnabled || !adminAuthenticated) {
-                setupAdminPIN();
+            if (adminPIN && !adminAuthenticated) {
+                openPINModal();
                 return false;
             }
             return true;
         }
 
         // GitHub Sync Functions
+        function setupGitHubSync() {
+            const repo = document.getElementById('githubRepoInput').value;
+            const token = document.getElementById('githubTokenInput').value;
+
+            if (!repo || !token) {
+                showAdminAlert('backupAlert', '❌ GitHub credentials needed', 'error');
+                return;
+            }
+
+            localStorage.setItem('githubRepo', repo);
+            localStorage.setItem('githubToken', token);
+            showAdminAlert('backupAlert', '✅ GitHub credentials saved', 'success');
+        }
 
         function syncToGitHub() {
             if (!checkAdminAccess()) return;
@@ -3396,13 +2570,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         function updateDarkModeButton() {
-            // Legacy header dark-mode elements may not exist in the current UI.
-            // Never allow a missing optional element to stop app initialization.
             const icon = document.getElementById('darkIcon');
             const text = document.getElementById('darkText');
-
-            if (icon) icon.textContent = darkMode ? '☀️' : '🌙';
-            if (text) text.textContent = darkMode ? 'Light' : 'Dark';
+            if (darkMode) {
+                icon.textContent = '☀️';
+                text.textContent = 'Light';
+            } else {
+                icon.textContent = '🌙';
+                text.textContent = 'Dark';
+            }
         }
 
         function openModal(duaId) {
@@ -3470,14 +2646,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                 document.getElementById('settingsNav').classList.add('active');
                 updateSettingsUI();
             } else if (page === 'admin') {
-                if (!adminPanelEnabled) {
-                    goToPage('settings');
-                    return;
-                }
-                if (!adminPIN || !adminAuthenticated) {
-                    setupAdminPIN();
-                    return;
-                }
                 document.getElementById('adminPage').classList.add('active');
                 document.getElementById('adminNav').classList.add('active');
                 updateAdminStats();
@@ -3488,82 +2656,28 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             updateNotificationToggle();
             updateSettingsToggle();
             updateAdminToggle();
-            const timeInput = document.getElementById('notificationTime');
-            if (timeInput) timeInput.value = notificationTime;
-        }
-
-        function disableAdminPanel() {
-            // Explicit hard-disable: no PIN, no toggle state dependency.
-            adminPanelEnabled = false;
-            adminAuthenticated = false;
-            isAdmin = false;
-
-            localStorage.setItem('adminPanelEnabled', 'false');
-            localStorage.removeItem('adminMode');
-
-            const nav = document.getElementById('adminNav');
-            if (nav) {
-                nav.style.display = 'none';
-                nav.classList.remove('active');
-            }
-
-            const adminPage = document.getElementById('adminPage');
-            if (adminPage) adminPage.classList.remove('active');
-
-            updateAdminToggle();
-
-            if (typeof currentPage !== 'undefined' && currentPage === 'admin') {
-                goToPage('settings');
-            }
+            document.getElementById('notificationTime').value = notificationTime;
         }
 
         function toggleAdminMode() {
-            const nav = document.getElementById('adminNav');
-
-            // Enabled -> disable immediately. No PIN is required to disable.
-            if (adminPanelEnabled === true) {
-                adminPanelEnabled = false;
-                adminAuthenticated = false;
-                isAdmin = false;
-                localStorage.setItem('adminPanelEnabled', 'false');
-
-                if (nav) {
-                    nav.style.display = 'none';
-                    nav.classList.remove('active');
-                }
-
-                updateAdminToggle();
-
-                if (currentPage === 'admin' ||
-                    document.getElementById('adminPage')?.classList.contains('active')) {
-                    goToPage('settings');
-                }
-                return;
+            isAdmin = !isAdmin;
+            localStorage.setItem('adminMode', isAdmin);
+            updateAdminToggle();
+            
+            if (isAdmin) {
+                document.getElementById('adminNav').style.display = 'flex';
+                showAdminAlert('addAlert', '✅ Admin mode enabled!', 'success');
+            } else {
+                document.getElementById('adminNav').style.display = 'none';
+                goToPage('home');
+                showAdminAlert('addAlert', '❌ Admin mode disabled', 'info');
             }
-
-            // Disabled -> enable only after the 4-digit PIN.
-            setupAdminPIN();
         }
 
         function updateAdminToggle() {
             const toggle = document.getElementById('adminToggle');
-            const nav = document.getElementById('adminNav');
-            if (!toggle) return;
-
-            toggle.classList.toggle('active', adminPanelEnabled === true);
-            toggle.setAttribute('aria-checked', adminPanelEnabled === true ? 'true' : 'false');
-            toggle.dataset.state = adminPanelEnabled === true ? 'enabled' : 'disabled';
-            toggle.title = adminPanelEnabled === true
-                ? 'Admin Panel Enabled — tap to Disable'
-                : 'Admin Panel Disabled — tap to Enable';
-
-            if (nav) {
-                nav.style.display = adminPanelEnabled === true ? 'flex' : 'none';
-            }
-
-            const disableBtn = document.getElementById('adminDisableBtn');
-            if (disableBtn) {
-                disableBtn.style.display = adminPanelEnabled === true ? 'inline-block' : 'none';
+            if (toggle) {
+                toggle.classList.toggle('active', isAdmin);
             }
         }
 
@@ -3581,8 +2695,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         // Initialize on load
-        document.addEventListener('DOMContentLoaded', function(){ init(); try{applyAppLanguage();}catch(e){console.warn('Language init',e);} });
-
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
