@@ -1528,6 +1528,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .dua-card-description{font-size:.76rem!important}
 }
 </style>
+<style id="premium-home-dashboard-v13">
+.premium-home-dashboard{margin:0 1rem 1rem;border-radius:24px;padding:1rem;background:linear-gradient(135deg,#0f766e,#115e59);color:#fff;box-shadow:0 14px 35px rgba(15,118,110,.18)}
+.dashboard-welcome{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.dashboard-kicker{font-size:.68rem;letter-spacing:.08em;opacity:.75}
+.dashboard-welcome h2{margin:.35rem 0 .15rem;font-size:1.05rem;line-height:1.35}
+.dashboard-welcome p{margin:0;font-size:.76rem;opacity:.75}
+.dashboard-mosque{font-size:2.6rem}
+.dashboard-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem;margin-top:1rem}
+.dashboard-stat{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.12);color:#fff;border-radius:16px;padding:.7rem .35rem;cursor:pointer}
+.dashboard-stat strong{display:block;font-size:1.05rem}.dashboard-stat span{display:block;font-size:.67rem;opacity:.75;margin-top:.15rem}
+.dashboard-actions{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-top:.65rem}
+.dashboard-actions button{border:0;border-radius:14px;padding:.68rem .5rem;background:#fff;color:#115e59;font-weight:700;cursor:pointer}
+</style>
 </head>
 <body>
     <div class="app-container">
@@ -1568,6 +1581,32 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                         <p class="daily-card-hint">விரிவாக பார்க்க தட்டவும் →</p>
                     </div>
                 </div>
+
+                <section id="premiumHomeDashboard" class="premium-home-dashboard">
+                    <div class="dashboard-welcome">
+                        <div>
+                            <span class="dashboard-kicker">🕌 MASS ISLAMIC MEDIA</span>
+                            <h2>இன்றைய துஆவை நினைவில் கொள்வோம்</h2>
+                            <p>Knowledge • Dawah • Duas</p>
+                        </div>
+                        <div class="dashboard-mosque">🕌</div>
+                    </div>
+                    <div class="dashboard-stats">
+                        <button type="button" class="dashboard-stat" onclick="goToPage('home')">
+                            <strong id="dashDuaCount">0</strong><span>துஆக்கள்</span>
+                        </button>
+                        <button type="button" class="dashboard-stat" onclick="goToPage('favorites')">
+                            <strong id="dashFavCount">0</strong><span>Favorites</span>
+                        </button>
+                        <button type="button" class="dashboard-stat" onclick="goToPage('settings')">
+                            <strong id="dashAdminState">OFF</strong><span>Admin</span>
+                        </button>
+                    </div>
+                    <div class="dashboard-actions">
+                        <button type="button" onclick="focusDuaSearch()">🔍 துஆ தேடு</button>
+                        <button type="button" onclick="goToPage('favorites')">❤️ Favorites</button>
+                    </div>
+                </section>
 
                 <!-- Search -->
                 <div class="search-container">
@@ -1669,7 +1708,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 12.0</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 13.0</p>
                             </div>
                         </div>
                     </div>
@@ -2416,6 +2455,23 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             `).join('');
         }
 
+        function updatePremiumHomeDashboard() {
+            const duaCount=document.getElementById('dashDuaCount');
+            const favCount=document.getElementById('dashFavCount');
+            const adminState=document.getElementById('dashAdminState');
+            if(duaCount) duaCount.textContent=String(duasData.length);
+            if(favCount) favCount.textContent=String(favorites.length);
+            if(adminState) adminState.textContent=adminPanelEnabled ? 'ON' : 'OFF';
+        }
+
+        function focusDuaSearch() {
+            goToPage('home');
+            setTimeout(()=>{
+                const input=document.getElementById('searchInput');
+                if(input){ input.focus(); input.scrollIntoView({behavior:'smooth',block:'center'}); }
+            },80);
+        }
+
         function renderDuas() {
             const grid = document.getElementById('duaGrid');
             if (!grid) return;
@@ -2450,6 +2506,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
             updatePremiumResultsToolbar(filtered.length, query, activeCategory);
             renderPremiumCategoryChips();
+            updatePremiumHomeDashboard();
         }
 
         function updatePremiumResultsToolbar(count, query, category) {
@@ -2584,6 +2641,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             localStorage.setItem('favorites',JSON.stringify(favorites));
             renderDuas();
             renderFavorites();
+            updatePremiumHomeDashboard();
             updatePremiumResultsToolbar(
                 document.querySelectorAll('#duaGrid .dua-card').length,
                 searchTerm,
