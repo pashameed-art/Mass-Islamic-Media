@@ -1565,15 +1565,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #categoriesContainer .category-btn{pointer-events:auto;cursor:pointer}
 #categoriesContainer .category-btn.active{font-weight:800;transform:translateY(-1px)}
 </style>
-<style id="language-switcher-v16">
-.language-switcher{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
-.lang-btn{border:1px solid var(--border-light);background:var(--bg-card);color:var(--text-dark);border-radius:14px;padding:.75rem;font-weight:700;cursor:pointer}
+<style id="language-fix-v17">
+.language-switcher{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.lang-btn{padding:12px;border-radius:14px;border:1px solid var(--border-light);background:var(--bg-card);color:var(--text-dark);font-weight:700;font-size:15px;cursor:pointer;touch-action:manipulation}
 .lang-btn.active{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
-</style>
-<style id="header-language-v16">
-.header-language-btn{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;border-radius:12px;padding:.45rem .65rem;font-weight:700;cursor:pointer}
-</style>
-</head>
+</style></head>
 <body>
     <div class="app-container">
         <!-- Header -->
@@ -1584,7 +1580,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             </h1>
             <p class="tagline">Knowledge • Dawah • Duas</p>
             <div class="header-actions">
-                <button type="button" id="headerLanguageBtn" class="header-language-btn" onclick="goToPage('settings')" aria-label="Language">🌐 <span id="headerLanguageText">தமிழ் / English</span></button>
                 <button class="btn-header" id="installBtn" style="display:none;">
                     <span>📱</span>
                     <span>Install App</span>
@@ -1607,7 +1602,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             <div class="page active" id="homePage">
                 <!-- Daily Dua -->
                 <div class="daily-section">
-                    <h3 class="daily-label" id="dailyLabel">🌟 இன்றைய துஆ</h3>
+                    <h3 class="daily-label">🌟 இன்றைய துஆ</h3>
                     <div class="daily-card" id="dailyDua">
                         <h4 id="dailyTitle">கிளியாக மக்களுக்கு</h4>
                         <p id="dailyDesc">Loading...</p>
@@ -1676,7 +1671,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             <!-- Favorites Page -->
             <div class="page" id="favoritesPage">
                 <div style="padding: 1rem;">
-                    <h2 id="favoritesTitle" style="margin-bottom: 1rem;">⭐ பிடித்த துஆ</h2>
+                    <h2 style="margin-bottom: 1rem;">⭐ பிடித்த துஆ</h2>
                 </div>
                 <div class="dua-grid" id="favoritesGrid"></div>
                 <div id="favoritesEmpty" class="premium-empty-state" style="display:none;">
@@ -1694,9 +1689,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
                     <div class="settings-group" id="languageSettingsGroup">
                         <h3 id="languageHeading">🌐 Language</h3>
-                        <div class="language-switcher" role="group" aria-label="Language">
-                            <button type="button" id="langTamilBtn" class="lang-btn" onclick="setLanguage('ta')">தமிழ்</button>
-                            <button type="button" id="langEnglishBtn" class="lang-btn" onclick="setLanguage('en')">English</button>
+                        <div class="language-switcher">
+                            <button type="button" id="langTamilBtn" class="lang-btn" onclick="setAppLanguage('ta')">தமிழ்</button>
+                            <button type="button" id="langEnglishBtn" class="lang-btn" onclick="setAppLanguage('en')">English</button>
                         </div>
                     </div>
 
@@ -1748,7 +1743,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 16.0</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 15.0</p>
                             </div>
                         </div>
                     </div>
@@ -2025,141 +2020,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         let adminAuthenticated = false;
         let adminPanelEnabled = localStorage.getItem('adminPanelEnabled') === 'true';
         let githubRepo = localStorage.getItem('githubRepo') || '';
-
-        // ============= LANGUAGE =============
-        let appLanguage = localStorage.getItem('appLanguage') || 'ta';
-
-        const categoryNames = {
-            ta: {all:'அனைத்து', morning:'காலை', forgiveness:'மன்னிப்பு', travel:'பயணம்', sleep:'தூக்கம்', food:'உணவு', knowledge:'ஞானம்'},
-            en: {all:'All', morning:'Morning', forgiveness:'Forgiveness', travel:'Travel', sleep:'Sleep', food:'Food', knowledge:'Knowledge'}
-        };
-
-        const duaTranslations = {
-            1:{enTitle:'Morning Dua',enDescription:'Let us thank Allah'},
-            2:{enTitle:'Dua for Forgiveness',enDescription:'Ask Allah to forgive our mistakes'},
-            3:{enTitle:'Travel Dua',enDescription:'For a safe journey'},
-            4:{enTitle:'Dua Before Sleep',enDescription:'For peaceful and healthy sleep'},
-            5:{enTitle:'Dua Before Eating',enDescription:'Let us thank Allah for food'},
-            6:{enTitle:'Dua for Knowledge',enDescription:'Ask for beneficial knowledge'}
-        };
-
-        const uiText = {
-            ta:{
-                settings:'⚙️ அமைப்புகள்', language:'🌐 மொழி', notifications:'🔔 அறிவிப்புகள்',
-                dailyNotification:'தினசரி துஆ அறிவிப்பு', notificationTime:'அறிவிப்பு நேரம்',
-                display:'🎨 காட்சி', darkMode:'Dark Mode', home:'முகப்பு', favorites:'விருப்பங்கள்', admin:'நிர்வாகம்',
-                todayDua:'🌟 இன்றைய துஆ', search:'துஆவைத் தேடுக...', searchDua:'🔍 துஆ தேடு',
-                favorite:'❤️ Favorites', duaCount:'துஆக்கள்', viewMore:'விரிவாக பார்க்க தட்டவும் →',
-                favoriteDua:'⭐ பிடித்த துஆ', noFavorites:'இன்னும் Favorites இல்லை',
-                saveFavorite:'பிடித்த துஆவின் ❤️-ஐ அழுத்தி Favorites-ல் சேமிக்கவும்.',
-                viewDua:'🕌 துஆ பார்க்க', knowledge:'Knowledge • Dawah • Duas'
-            },
-            en:{
-                settings:'⚙️ Settings', language:'🌐 Language', notifications:'🔔 Notifications',
-                dailyNotification:'Daily Dua Notification', notificationTime:'Notification Time',
-                display:'🎨 Display', darkMode:'Dark Mode', home:'Home', favorites:'Favorites', admin:'Admin',
-                todayDua:'🌟 Today’s Dua', search:'Search duas...', searchDua:'🔍 Search Dua',
-                favorite:'❤️ Favorites', duaCount:'Duas', viewMore:'Tap to view details →',
-                favoriteDua:'⭐ Favorite Duas', noFavorites:'No favorites yet',
-                saveFavorite:'Tap ❤️ on a dua to save it to Favorites.',
-                viewDua:'🕌 View Dua', knowledge:'Knowledge • Dawah • Duas'
-            }
-        };
-
-        function getText(key){
-            return (uiText[appLanguage] && uiText[appLanguage][key]) || uiText.ta[key] || key;
-        }
-
-        function getDuaTitle(dua){
-            if(appLanguage==='en' && duaTranslations[dua.id]) return duaTranslations[dua.id].enTitle;
-            return dua.title || '';
-        }
-
-        function getDuaDescription(dua){
-            if(appLanguage==='en' && duaTranslations[dua.id]) return duaTranslations[dua.id].enDescription;
-            return dua.description || '';
-        }
-
-        function getCategoryLabel(category){
-            const key=String(category||'all').toLowerCase();
-            return (categoryNames[appLanguage] && categoryNames[appLanguage][key]) || key;
-        }
-
-        function setLanguage(lang){
-            appLanguage = lang === 'en' ? 'en' : 'ta';
-            localStorage.setItem('appLanguage', appLanguage);
-            applyLanguage();
-        }
-
-        function applyLanguage(){
-            document.documentElement.lang=appLanguage;
-            const t=uiText[appLanguage];
-
-            const ids={
-                settingsTitle:'settings', languageHeading:'language', dailyLabel:'todayDua', homeNav:'home',
-                favoritesNav:'favorites', settingsNav:'settings', adminNav:'admin',
-                dailyLabel:'todayDua', searchDuaBtn:'searchDua', favoriteDuaBtn:'favorite',
-                favoritesTitle:'favoriteDua'
-            };
-            Object.entries(ids).forEach(([id,key])=>{
-                const el=document.getElementById(id);
-                if(el && t[key]) el.textContent=t[key];
-            });
-
-            const input=document.getElementById('searchInput');
-            if(input) input.placeholder=t.search;
-
-            const notificationLabels=document.querySelectorAll('#settingsPage .settings-item span');
-            if(notificationLabels[0]) notificationLabels[0].textContent=t.dailyNotification;
-            if(notificationLabels[1]) notificationLabels[1].textContent=t.notificationTime;
-
-            const displayGroup=document.getElementById('displaySettingsGroup');
-            if(displayGroup){
-                const h3=displayGroup.querySelector('h3');
-                const span=displayGroup.querySelector('.settings-item span');
-                if(h3) h3.textContent=t.display;
-                if(span) span.textContent=t.darkMode;
-            }
-
-            const dash=document.getElementById('dashDuaCount');
-            const dashFav=document.getElementById('dashFavCount');
-            const dashAdmin=document.getElementById('dashAdminState');
-            const dashStats=document.querySelectorAll('.dashboard-stat span');
-            if(dashStats[0]) dashStats[0].textContent=t.duaCount;
-            if(dashStats[1]) dashStats[1].textContent=t.favorites;
-            if(dashStats[2]) dashStats[2].textContent=t.admin;
-            const dashActions=document.querySelectorAll('.dashboard-actions button');
-            if(dashActions[0]) dashActions[0].textContent=t.searchDua;
-            if(dashActions[1]) dashActions[1].textContent=t.favorite;
-
-            document.querySelectorAll('#categoriesContainer .category-btn').forEach(btn=>{
-                const id=btn.dataset.category;
-                const cat=categories.find(c=>c.id===id);
-                if(cat){
-                    const spans=btn.querySelectorAll('span');
-                    if(spans[1]) spans[1].textContent=getCategoryLabel(id);
-                }
-            });
-
-            const favEmpty=document.getElementById('favoritesEmpty');
-            if(favEmpty){
-                const h3=favEmpty.querySelector('h3');
-                const p=favEmpty.querySelector('p');
-                const b=favEmpty.querySelector('button');
-                if(h3) h3.textContent=t.noFavorites;
-                if(p) p.textContent=t.saveFavorite;
-                if(b) b.textContent=t.viewDua;
-            }
-
-            const taBtn=document.getElementById('langTamilBtn');
-            const enBtn=document.getElementById('langEnglishBtn');
-            if(taBtn) taBtn.classList.toggle('active',appLanguage==='ta');
-            if(enBtn) enBtn.classList.toggle('active',appLanguage==='en');
-
-            renderDuas();
-            renderDaily();
-            renderFavorites();
-        }
 
         // ============= PIN PROTECTION FUNCTIONS =============
         let pinMode = 'verify';
@@ -2466,7 +2326,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             // Load GitHub config if exists
             const savedRepo = localStorage.getItem('githubRepo');
             if (savedRepo) {
-                document.getElementById('githubRepoInput').value = savedRepo;
+                const repoInput = document.getElementById('githubRepoInput'); if (repoInput) repoInput.value = savedRepo;
             }
         }
 
@@ -2618,6 +2478,40 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             });
         }
 
+        // ============= LANGUAGE =============
+        let appLanguage = localStorage.getItem('appLanguage') || 'ta';
+        const langCategoryNames = {
+            ta:{all:'அனைத்து',morning:'காலை',forgiveness:'மன்னிப்பு',travel:'பயணம்',sleep:'தூக்கம்',food:'உணவு',knowledge:'ஞானம்'},
+            en:{all:'All',morning:'Morning',forgiveness:'Forgiveness',travel:'Travel',sleep:'Sleep',food:'Food',knowledge:'Knowledge'}
+        };
+        const langDuas = {
+            1:['Morning Dua','Let us thank Allah'],2:['Dua for Forgiveness','Ask Allah to forgive our mistakes'],
+            3:['Travel Dua','For a safe journey'],4:['Dua Before Sleep','For peaceful and healthy sleep'],
+            5:['Dua Before Eating','Let us thank Allah for food'],6:['Dua for Knowledge','Ask for beneficial knowledge']
+        };
+        const langUI={
+            ta:{settings:'⚙️ அமைப்புகள்',language:'🌐 மொழி',home:'முகப்பு',favorites:'விருப்பங்கள்',admin:'நிர்வாகம்',today:'🌟 இன்றைய துஆ',search:'துஆவைத் தேடுக...',daily:'தினசரி துஆ அறிவிப்பு',time:'அறிவிப்பு நேரம்',display:'🎨 காட்சி',dark:'Dark Mode'},
+            en:{settings:'⚙️ Settings',language:'🌐 Language',home:'Home',favorites:'Favorites',admin:'Admin',today:'🌟 Today’s Dua',search:'Search duas...',daily:'Daily Dua Notification',time:'Notification Time',display:'🎨 Display',dark:'Dark Mode'}
+        };
+        function langCategory(id){return (langCategoryNames[appLanguage]||langCategoryNames.ta)[id]||id;}
+        function langTitle(dua){return appLanguage==='en' && langDuas[dua.id] ? langDuas[dua.id][0] : (dua.title||'');}
+        function langDesc(dua){return appLanguage==='en' && langDuas[dua.id] ? langDuas[dua.id][1] : (dua.description||'');}
+        function setAppLanguage(lang){
+            appLanguage=lang==='en'?'en':'ta'; localStorage.setItem('appLanguage',appLanguage);
+            applyAppLanguage();
+        }
+        function applyAppLanguage(){
+            document.documentElement.lang=appLanguage;
+            const t=langUI[appLanguage];
+            const set=(id,text)=>{const e=document.getElementById(id);if(e)e.textContent=text;};
+            set('settingsTitle',t.settings);set('languageHeading',t.language);set('homeNav',t.home);set('favoritesNav',t.favorites);set('settingsNav',t.settings);set('adminNav',t.admin);set('dailyLabel',t.today);
+            const search=document.getElementById('searchInput');if(search)search.placeholder=t.search;
+            const items=document.querySelectorAll('#settingsPage .settings-item span');if(items[0])items[0].textContent=t.daily;if(items[1])items[1].textContent=t.time;
+            const dg=document.getElementById('displaySettingsGroup');if(dg){const h=dg.querySelector('h3'),sp=dg.querySelector('.settings-item span');if(h)h.textContent=t.display;if(sp)sp.textContent=t.dark;}
+            const tb=document.getElementById('langTamilBtn'),eb=document.getElementById('langEnglishBtn');if(tb)tb.classList.toggle('active',appLanguage==='ta');if(eb)eb.classList.toggle('active',appLanguage==='en');
+            renderCategories(); renderDuas(); renderDaily(); renderFavorites();
+        }
+
         // ============= RENDERING =============
         function renderCategories() {
             const container = document.getElementById('categoriesContainer');
@@ -2626,7 +2520,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                     data-category="${cat.id}"
                     onclick="selectCategory('${cat.id}')">
                     <span>${cat.icon}</span>
-                    <span>${getCategoryLabel(cat.id)}</span>
+                    <span>${langCategory(cat.id)}</span>
                 </button>
             `).join('');
         }
@@ -2730,6 +2624,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             window.activeDuaCategory=category;
             renderDuas();
         }
+
+
+        function getCategoryLabel(category) { return langCategory(String(category||'all').toLowerCase()); }
+
         function createDuaCard(dua) {
             // Build the card with DOM APIs instead of injecting the image URL into
             // innerHTML. The built-in SVG data URLs contain quotes, which can
@@ -2774,11 +2672,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
             const title = document.createElement('h3');
             title.className = 'dua-card-title';
-            title.textContent = getDuaTitle(dua);
+            title.textContent = langTitle(dua);
 
             const description = document.createElement('p');
             description.className = 'dua-card-description';
-            description.textContent = getDuaDescription(dua);
+            description.textContent = langDesc(dua);
 
             body.appendChild(category);
             body.appendChild(title);
@@ -2814,8 +2712,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         function renderDaily() {
             const today = new Date().getDate();
             const daily = duasData[today % duasData.length];
-            document.getElementById('dailyTitle').textContent = getDuaTitle(daily);
-            document.getElementById('dailyDesc').textContent = getDuaDescription(daily);
+            document.getElementById('dailyTitle').textContent = langTitle(daily);
+            document.getElementById('dailyDesc').textContent = langDesc(daily);
             document.getElementById('dailyDua').addEventListener('click', () => openModal(daily.id));
         }
 
@@ -3683,6 +3581,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }
 
         // Initialize on load
-        document.addEventListener('DOMContentLoaded', function(){ init(); try { renderCategories(); applyLanguage(); } catch(e) { console.warn('Language init:', e); } });
+        document.addEventListener('DOMContentLoaded', function(){ init(); try{applyAppLanguage();}catch(e){console.warn('Language init',e);} });
+
+    </script>
 </body>
 </html>
