@@ -1422,7 +1422,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 17.0</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 17.1</p>
                             </div>
                         </div>
                     </div>
@@ -1453,7 +1453,7 @@
                 <button class="pin-key" onclick="pinKeypress('9')">9</button>
                 <button class="pin-key delete" onclick="pinDelete()">🔙 Delete</button>
                 <button class="pin-key" onclick="pinKeypress('0')">0</button>
-                <button class="pin-key submit" onclick="pinSubmit()">✓ Submit</button>
+                <button type="button" class="pin-key submit" onclick="return pinSubmit()">✓ Submit</button>
             </div>
 
             <div class="pin-error" id="pinError"></div>
@@ -1631,64 +1631,60 @@
         }
 
         function pinKeypress(digit) {
-            if (window.pinValue.length < 4) {
-                window.pinValue += digit;
-                updatePINDisplay();
-                
-                // Auto-submit when 6 digits entered
-                if (window.pinValue.length === 4) {
-                    setTimeout(pinSubmit, 300);
-                }
-            }
+            if (!window.pinValue) window.pinValue = '';
+            if (window.pinValue.length >= 4) return;
+            window.pinValue += String(digit);
+            updatePINDisplay();
         }
 
         function pinDelete() {
-            if (window.pinValue.length > 0) {
-                window.pinValue = window.pinValue.slice(0, -1);
-                updatePINDisplay();
-            }
+            if (!window.pinValue) window.pinValue = '';
+            window.pinValue = window.pinValue.slice(0, -1);
+            updatePINDisplay();
         }
 
         function updatePINDisplay() {
             const input = document.getElementById('pinInput');
-            input.value = '•'.repeat(window.pinValue.length);
+            if (input) input.value = '•'.repeat((window.pinValue || '').length);
         }
 
         function pinSubmit() {
-            const pin = window.pinValue || '';
-            if (!/^\d{4}$/.test(pin)) {
-                const info = document.getElementById('pinInfo');
-                if (info) info.textContent = '❌ 4 இலக்க PIN உள்ளிடவும்';
-                return;
+            const value = String(window.pinValue || '');
+            const error = document.getElementById('pinError');
+            const info = document.getElementById('pinInfo');
+
+            if (!/^\d{4}$/.test(value)) {
+                if (error) error.textContent = '❌ 4 இலக்க PIN உள்ளிடவும்';
+                return false;
             }
 
             if (window.pinMode === 'setup') {
-                adminPIN = pin;
-                localStorage.setItem('adminPIN', pin);
+                adminPIN = value;
+                localStorage.setItem('adminPIN', value);
                 adminAuthenticated = true;
                 isAdmin = true;
-                closePINModal();
-                updateAdminToggle();
-                const nav = document.getElementById('adminNav');
-                if (nav) nav.style.display = 'flex';
-                showAdminAlert('addAlert', '✅ 4-digit Admin PIN set successfully!', 'success');
-                return;
+                if (error) error.textContent = '';
+                const modal = document.getElementById('pinModal');
+                if (modal) modal.classList.remove('show');
+                showAdminAlert('addAlert', '✅ Admin PIN set successfully!', 'success');
+                goToPage('admin');
+                return false;
             }
 
-            if (pin === adminPIN) {
+            if (value === String(adminPIN || '')) {
                 adminAuthenticated = true;
                 isAdmin = true;
-                closePINModal();
-                updateAdminToggle();
-                const nav = document.getElementById('adminNav');
-                if (nav) nav.style.display = 'flex';
-                showAdminAlert('addAlert', '✅ Admin access granted!', 'success');
+                if (error) error.textContent = '';
+                if (info) info.textContent = '';
+                const modal = document.getElementById('pinModal');
+                if (modal) modal.classList.remove('show');
+                goToPage('admin');
             } else {
+                if (error) error.textContent = '❌ Wrong PIN. Try again.';
                 window.pinValue = '';
                 updatePINDisplay();
-                const info = document.getElementById('pinInfo');
-                if (info) info.textContent = '❌ PIN incorrect. Try again.';
             }
+            return false;
         }
 
         // ============= INITIALIZATION =============
@@ -2393,7 +2389,7 @@
             const pin = document.getElementById('setPinInput').value;
             const errorDiv = document.getElementById('pinError');
 
-            if (!/^\d{4}$/.test(pin)) {
+            if (pin.length !== 6 || isNaN(pin)) {
                 errorDiv.textContent = '❌ 4 digit PIN enter செய்யவும்';
                 errorDiv.style.display = 'block';
                 return;
