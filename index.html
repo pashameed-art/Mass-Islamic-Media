@@ -1422,7 +1422,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 17.1</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 17.3</p>
                             </div>
                         </div>
                     </div>
@@ -1480,28 +1480,6 @@
                 <button class="icon-btn" id="favoriteBtn">🤍</button>
                 <button class="icon-btn" id="shareBtn">📤</button>
             </div>
-        </div>
-    </div>
-
-    <!-- PIN Verification Modal -->
-    <div class="modal" id="pinModal" style="background: rgba(0, 0, 0, 0.7);">
-        <div class="modal-content" style="width: 90%; max-width: 400px; aspect-ratio: auto; padding: 2rem;">
-            <h2 style="margin-bottom: 1.5rem; text-align: center;">🔐 Admin PIN</h2>
-            
-            <div id="pinSetup" style="display: none;">
-                <p style="margin-bottom: 1rem; opacity: 0.9;">முதல் முறை - 6 இலக்க PIN அமைக்கவும்:</p>
-                <input type="password" id="setPinInput" placeholder="4 digit PIN" maxlength="4" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
-                <button class="btn-save" onclick="savePIN()" style="width: 100%;">✅ Set PIN</button>
-            </div>
-
-            <div id="pinVerify" style="display: none;">
-                <p style="margin-bottom: 1rem; opacity: 0.9;">உங்க் PIN உள்ளிடவும்:</p>
-                <input type="password" id="verifyPinInput" placeholder="4 digit PIN" maxlength="4" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
-                <button class="btn-save" onclick="verifyPIN()" style="width: 100%; margin-bottom: 0.5rem;">✅ Verify</button>
-                <button class="btn-cancel" onclick="closePINModal()" style="width: 100%;">Cancel</button>
-            </div>
-
-            <div id="pinError" style="display: none; background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 1rem; border-radius: 6px; margin-top: 1rem; text-align: center;"></div>
         </div>
     </div>
 
@@ -1600,46 +1578,42 @@
         let githubRepo = localStorage.getItem('githubRepo') || '';
 
         // ============= PIN PROTECTION FUNCTIONS =============
+        // ============= ADMIN PIN PROTECTION (FINAL 4-DIGIT VERSION) =============
         function setupAdminPIN() {
-            if (!adminPIN) {
-                // First time setup - create PIN
-                showPINModal('setup');
-            } else {
-                // Verify PIN
-                showPINModal('verify');
-            }
+            showPINModal(adminPIN ? 'verify' : 'setup');
         }
 
         function showPINModal(mode) {
             const modal = document.getElementById('pinModal');
             const message = document.getElementById('pinModalMessage');
             const info = document.getElementById('pinInfo');
-            
-            modal.classList.add('show');
-            
-            if (mode === 'setup') {
-                message.textContent = 'Set your 4-digit Admin PIN';
-                info.textContent = 'You can change this later in settings';
-            } else {
-                message.textContent = 'Enter your 4-digit PIN to access Admin Panel';
-                info.textContent = '';
-            }
-            
+            const error = document.getElementById('pinError');
             window.pinMode = mode;
             window.pinValue = '';
+            if (message) message.textContent = mode === 'setup'
+                ? 'Set your 4-digit Admin PIN'
+                : 'Enter your 4-digit PIN';
+            if (info) info.textContent = mode === 'setup'
+                ? '4 digits required'
+                : '';
+            if (error) error.textContent = '';
+            if (modal) {
+                modal.classList.add('show');
+                modal.style.display = 'flex';
+            }
             updatePINDisplay();
         }
 
         function pinKeypress(digit) {
-            if (!window.pinValue) window.pinValue = '';
-            if (window.pinValue.length >= 4) return;
-            window.pinValue += String(digit);
+            digit = String(digit);
+            if (!/^\d$/.test(digit)) return;
+            if ((window.pinValue || '').length >= 4) return;
+            window.pinValue = (window.pinValue || '') + digit;
             updatePINDisplay();
         }
 
         function pinDelete() {
-            if (!window.pinValue) window.pinValue = '';
-            window.pinValue = window.pinValue.slice(0, -1);
+            window.pinValue = (window.pinValue || '').slice(0, -1);
             updatePINDisplay();
         }
 
@@ -1649,35 +1623,34 @@
         }
 
         function pinSubmit() {
-            const value = String(window.pinValue || '');
+            const pin = String(window.pinValue || '');
             const error = document.getElementById('pinError');
-            const info = document.getElementById('pinInfo');
 
-            if (!/^\d{4}$/.test(value)) {
-                if (error) error.textContent = '❌ 4 இலக்க PIN உள்ளிடவும்';
+            if (!/^\d{4}$/.test(pin)) {
+                if (error) error.textContent = '❌ 4 digit PIN enter செய்யவும்';
                 return false;
             }
 
-            if (window.pinMode === 'setup') {
-                adminPIN = value;
-                localStorage.setItem('adminPIN', value);
+            if (window.pinMode === 'setup' || !adminPIN) {
+                adminPIN = pin;
+                localStorage.setItem('adminPIN', pin);
                 adminAuthenticated = true;
                 isAdmin = true;
-                if (error) error.textContent = '';
-                const modal = document.getElementById('pinModal');
-                if (modal) modal.classList.remove('show');
-                showAdminAlert('addAlert', '✅ Admin PIN set successfully!', 'success');
+                closePINModal();
+                const nav = document.getElementById('adminNav');
+                if (nav) nav.style.display = 'flex';
+                showAdminAlert('addAlert', '✅ 4-digit Admin PIN set successfully!', 'success');
                 goToPage('admin');
                 return false;
             }
 
-            if (value === String(adminPIN || '')) {
+            if (pin === String(adminPIN)) {
                 adminAuthenticated = true;
                 isAdmin = true;
-                if (error) error.textContent = '';
-                if (info) info.textContent = '';
-                const modal = document.getElementById('pinModal');
-                if (modal) modal.classList.remove('show');
+                closePINModal();
+                const nav = document.getElementById('adminNav');
+                if (nav) nav.style.display = 'flex';
+                showAdminAlert('addAlert', '✅ Admin access granted!', 'success');
                 goToPage('admin');
             } else {
                 if (error) error.textContent = '❌ Wrong PIN. Try again.';
@@ -1685,6 +1658,33 @@
                 updatePINDisplay();
             }
             return false;
+        }
+
+        function closePINModal() {
+            const modal = document.getElementById('pinModal');
+            window.pinValue = '';
+            updatePINDisplay();
+            if (modal) {
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+            }
+            const error = document.getElementById('pinError');
+            if (error) error.textContent = '';
+        }
+
+        function openPINModal() {
+            showPINModal(adminPIN ? 'verify' : 'setup');
+        }
+
+        function savePIN() { return pinSubmit(); }
+        function verifyPIN() { return pinSubmit(); }
+
+        function checkAdminAccess() {
+            if (adminPIN && !adminAuthenticated) {
+                openPINModal();
+                return false;
+            }
+            return true;
         }
 
         // ============= INITIALIZATION =============
