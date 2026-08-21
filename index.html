@@ -1439,7 +1439,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.0</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.2</p>
                             </div>
                         </div>
                     </div>
@@ -2961,114 +2961,40 @@ document.addEventListener('DOMContentLoaded',function(){
  syncPrayerHome();
  setInterval(syncPrayerHome,60000);
 });
-/* v18.5 PRAYER TIMES: CACHE + LOCATION SAFE */
+/* FINAL PRAYER UI INIT — button + next prayer time only */
 (function(){
-  window.loadPrayerTimes=async function(force=false){
-    const loc=getPrayerLocation();
-    const key=prayerDateKey();
-    const status=document.getElementById('prayerStatus');
-
-    // Always show the selected location immediately.
-    const dloc=document.getElementById('prayerDetailLocation');
-    const hloc=document.getElementById('prayerHomeLocation');
-    if(dloc)dloc.textContent=loc.city+', '+loc.state;
-    if(hloc)hloc.textContent='📍 '+loc.city;
-
-    // Use today's cache for instant display when it belongs to this location.
-    let cached=null;
-    try{cached=JSON.parse(localStorage.getItem('prayerTimesCache')||'null')}catch(e){}
-    if(!force && cached && cached.date===key && cached.timings &&
-       (!cached.location || cached.location.toLowerCase()===loc.city.toLowerCase())){
-      prayerTimesToday=cached.timings;
-      renderPrayerTimes();
-      if(status)status.textContent='📍 '+loc.city+' • இன்று';
-      return;
-    }
-
-    if(status)status.textContent='⏳ தொழுகை நேரங்கள் update ஆகிறது...';
-
-    try{
-      const url=`https://api.aladhan.com/v1/timingsByCity/${key}?city=${encodeURIComponent(loc.city)}&country=${encodeURIComponent(loc.country)}&method=1&school=1`;
-      const r=await fetch(url,{cache:'no-store'});
-      if(!r.ok)throw new Error('HTTP '+r.status);
-      const d=await r.json();
-      if(!d.data || !d.data.timings)throw new Error('No timings');
-
-      prayerTimesToday=Object.fromEntries(PRAYER_NAMES.map(n=>[n,(d.data.timings[n]||'').slice(0,5)]));
-      localStorage.setItem('prayerTimesCache',JSON.stringify({
-        date:key,timings:prayerTimesToday,location:loc.city
-      }));
-      renderPrayerTimes();
-      if(status)status.textContent='📍 '+loc.city+' • இன்று';
-    }catch(e){
-      // Never erase working times because the network temporarily failed.
-      if(cached && cached.date===key && cached.timings){
-        prayerTimesToday=cached.timings;
-        renderPrayerTimes();
-        if(status)status.textContent='📍 '+loc.city+' • Saved times';
-      }else if(prayerTimesToday){
-        renderPrayerTimes();
-        if(status)status.textContent='📍 '+loc.city+' • Saved times';
-      }else{
-        if(status)status.textContent='⚠️ இன்று தொழுகை நேரங்கள் கிடைக்கவில்லை. ↻ மீண்டும் முயற்சிக்கவும்.';
-      }
-    }
-  };
-
-  window.getPrayerLocationForApi=function(){return getPrayerLocation();};
-})(); 
-
-/* v18.9 PRAYER NEXT-TIME ENGINE — no countdown */
-(function(){
-  function getNextPrayerState(){
-    if(!prayerTimesToday) return null;
-    const now=new Date();
-    for(const name of PRAYER_NAMES){
-      const hm=String(prayerTimesToday[name]||'').slice(0,5);
-      if(!/^\d{1,2}:\d{2}$/.test(hm)) continue;
-      const t=prayerTimeToDate(hm,now);
-      if(t>now) return {name,time:hm};
-    }
-    if(prayerTimesToday.Fajr) return {name:'Fajr',time:String(prayerTimesToday.Fajr).slice(0,5)};
-    return null;
+  function refreshPrayerHome(){
+    if(typeof syncPrayerHome==='function') syncPrayerHome();
+    if(typeof updateNextPrayer==='function') updateNextPrayer();
   }
 
-  function paintNextPrayer(){
-    const next=getNextPrayerState();
-    const label=next ? (PRAYER_LABELS[next.name]||next.name) : '—';
-    const time=next ? prayerFormat(next.time) : '--:--';
-
-    const n1=document.getElementById('prayerHomeNext');
-    const t1=document.getElementById('prayerHomeNextTime');
-    const n2=document.getElementById('prayerDetailNext');
-    const t2=document.getElementById('prayerDetailNextTime');
-
-    if(n1)n1.textContent=label;
-    if(t1)t1.textContent=time;
-    if(n2)n2.textContent=label;
-    if(t2)t2.textContent=time;
-
-    document.querySelectorAll('.prayer-row').forEach(r=>r.classList.remove('active'));
-    if(next){
-      const row=document.getElementById('prayer'+next.name)?.closest('.prayer-row');
-      if(row)row.classList.add('active');
+  document.addEventListener('DOMContentLoaded', function(){
+    const prayerBtn=document.getElementById('prayerHomeButton');
+    if(prayerBtn){
+      prayerBtn.onclick=function(e){
+        e.preventDefault();
+        if(typeof goToPage==='function') goToPage('prayerDetails');
+        if(typeof loadPrayerTimes==='function') loadPrayerTimes(false);
+      };
     }
-  }
 
-  window.forcePrayerNextTime=paintNextPrayer;
+    const back=document.getElementById('prayerBackBtn');
+    if(back) back.onclick=function(){
+      if(typeof goToPage==='function') goToPage('home');
+    };
 
-  document.addEventListener('DOMContentLoaded',function(){
-    const btn=document.getElementById('prayerHomeButton');
-    if(btn){
-      btn.addEventListener('click',function(){
-        if(typeof goToPage==='function') goToPage('prayerDetailsPage');
-      });
-    }
-    paintNextPrayer();
-    setInterval(paintNextPrayer,60000);
+    const locBtn=document.getElementById('prayerLocationBtn');
+    if(locBtn) locBtn.onclick=function(){
+      if(typeof changePrayerLocation==='function') changePrayerLocation();
+    };
+
+    refreshPrayerHome();
+    if(typeof loadPrayerTimes==='function') loadPrayerTimes(false);
+    setInterval(function(){
+      if(typeof updateNextPrayer==='function') updateNextPrayer();
+    },60000);
   });
 })();
-
 </script>
 </body>
 </html>
