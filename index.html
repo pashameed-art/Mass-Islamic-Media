@@ -12,7 +12,7 @@
     
     <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png"><text x='50' y='75' font-size='80' text-anchor='middle'>🕌</text></svg>">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
     
     <title>தினசரி துஆ - Daily Duas</title>
     
@@ -1439,7 +1439,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 18.9</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.0</p>
                             </div>
                         </div>
                     </div>
@@ -2887,27 +2887,33 @@ function prayerPrefs(){try{return JSON.parse(localStorage.getItem('prayerReminde
 async function loadPrayerTimes(force=false){let s=document.getElementById('prayerStatus'),key=prayerDateKey();try{let c=JSON.parse(localStorage.getItem('prayerTimesCache')||'null');if(!force&&c&&c.date===key){prayerTimesToday=c.timings;renderPrayerTimes();return}}catch(e){}if(s)s.textContent='⏳ தொழுகை நேரங்கள் loading...';try{let r=await fetch(`https://api.aladhan.com/v1/timingsByCity/${key}?city=${encodeURIComponent(PRAYER_CITY)}&country=${encodeURIComponent(PRAYER_COUNTRY)}&method=${PRAYER_METHOD}&school=1`,{cache:'no-store'});let d=await r.json();if(!r.ok||!d.data?.timings)throw Error('API');prayerTimesToday=Object.fromEntries(PRAYER_NAMES.map(n=>[n,(d.data.timings[n]||'').slice(0,5)]));localStorage.setItem('prayerTimesCache',JSON.stringify({date:key,timings:prayerTimesToday}));renderPrayerTimes();if(s)s.textContent='📍 Kadayanallur • இன்று'}catch(e){if(s)s.textContent='⚠️ நேரங்களை பெற முடியவில்லை. ↻ அழுத்தி முயற்சிக்கவும்.'}}
 function renderPrayerTimes(){if(!prayerTimesToday)return;PRAYER_NAMES.forEach(n=>{let e=document.getElementById('prayer'+n);if(e)e.textContent=prayerFormat(prayerTimesToday[n])});let p=prayerPrefs();document.querySelectorAll('.prayer-reminder').forEach(b=>{let on=p[b.dataset.prayer]!==false;b.textContent=on?'🔔':'🔕';b.classList.toggle('off',!on)});schedulePrayerReminders();updateNextPrayer()}
 function updateNextPrayer(){
- if(!prayerTimesToday)return;
- const now=new Date();
- const list=PRAYER_NAMES.map(n=>({name:n,time:prayerTimeToDate(prayerTimesToday[n],now)}));
- let next=list.find(x=>x.time>now);
- if(!next){
-   const tomorrow=new Date(now);
-   tomorrow.setDate(tomorrow.getDate()+1);
-   next={name:'Fajr',time:prayerTimeToDate(prayerTimesToday.Fajr,tomorrow)};
- }
- const seconds=Math.max(0,Math.floor((next.time-now)/1000));
- const h=Math.floor(seconds/3600),m=Math.floor((seconds%3600)/60),s=seconds%60;
- const countdown=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
- const label=PRAYER_LABELS[next.name]||next.name;
- [['prayerHomeNext','prayerHomeNextTime'],['prayerDetailNext','prayerDetailNextTime']].forEach(ids=>{
-   const n=document.getElementById(ids[0]),c=document.getElementById(ids[1]);
-   if(n)n.textContent=label;
-   if(c)c.textContent=countdown;
- });
- document.querySelectorAll('.prayer-row').forEach(r=>r.classList.remove('active'));
- const row=document.getElementById('prayer'+next.name)?.closest('.prayer-row');
- if(row)row.classList.add('active');
+  if(!prayerTimesToday) return;
+  const now=new Date();
+  let next=null;
+  for(const name of PRAYER_NAMES){
+    const hm=String(prayerTimesToday[name]||'').slice(0,5);
+    if(!/^\d{1,2}:\d{2}$/.test(hm)) continue;
+    const t=prayerTimeToDate(hm,now);
+    if(t>now){ next={name,time:hm}; break; }
+  }
+  if(!next && prayerTimesToday.Fajr){
+    next={name:'Fajr',time:String(prayerTimesToday.Fajr).slice(0,5)};
+  }
+  const label=next ? (PRAYER_LABELS[next.name]||next.name) : '—';
+  const time=next ? prayerFormat(next.time) : '--:--';
+  const n1=document.getElementById('prayerHomeNext');
+  const t1=document.getElementById('prayerHomeNextTime');
+  const n2=document.getElementById('prayerDetailNext');
+  const t2=document.getElementById('prayerDetailNextTime');
+  if(n1)n1.textContent=label;
+  if(t1)t1.textContent=time;
+  if(n2)n2.textContent=label;
+  if(t2)t2.textContent=time;
+  document.querySelectorAll('.prayer-row').forEach(r=>r.classList.remove('active'));
+  if(next){
+    const row=document.getElementById('prayer'+next.name)?.closest('.prayer-row');
+    if(row)row.classList.add('active');
+  }
 }
 function getPrayerLocation(){
   try{
@@ -2953,7 +2959,7 @@ document.addEventListener('DOMContentLoaded',function(){
  document.getElementById('prayerBackBtn')?.addEventListener('click',()=>goToPage('home'));
  document.getElementById('prayerLocationBtn')?.addEventListener('click',changePrayerLocation);
  syncPrayerHome();
- setInterval(syncPrayerHome,1000);
+ setInterval(syncPrayerHome,60000);
 });
 /* v18.5 PRAYER TIMES: CACHE + LOCATION SAFE */
 (function(){
