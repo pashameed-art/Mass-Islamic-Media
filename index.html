@@ -1430,7 +1430,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 18.4</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 18.5</p>
                             </div>
                         </div>
                     </div>
@@ -2916,7 +2916,13 @@ function updateNextPrayer(){
 function getPrayerLocation(){
   try{
     const x=JSON.parse(localStorage.getItem('prayerLocation')||'null');
-    if(x&&x.city)return {city:x.city,state:x.state||'Tamil Nadu',country:x.country||'India'};
+    if(x&&x.city){
+      const city=String(x.city).trim();
+      const state=String(x.state||'Tamil Nadu').trim();
+      if(city && city.toLowerCase()!=='kerala'){
+        return {city,state,country:String(x.country||'India').trim()};
+      }
+    }
   }catch(e){}
   return {city:'Kadayanallur',state:'Tamil Nadu',country:'India'};
 }
@@ -2933,7 +2939,7 @@ function syncPrayerHome(){
 }
 window.openPrayerDetails=function(){
   if(typeof goToPage==='function') goToPage('prayerDetails');
-  if(typeof loadPrayerTimes==='function') loadPrayerTimes(true);
+  if(typeof loadPrayerTimes==='function') loadPrayerTimes(false);
 };
 window.changePrayerLocation=function(){
  const loc=getPrayerLocation();
@@ -2953,33 +2959,62 @@ document.addEventListener('DOMContentLoaded',function(){
  syncPrayerHome();
  setInterval(syncPrayerHome,1000);
 });
-/* v18.2 PRAYER LOCATION API FIX */
+/* v18.5 PRAYER TIMES: CACHE + LOCATION SAFE */
 (function(){
-  const _oldLoad = window.loadPrayerTimes;
-  window.loadPrayerTimes = async function(force=false){
-    const getLoc=window.getPrayerLocationForApi||function(){
-      try{const x=JSON.parse(localStorage.getItem('prayerLocation')||'null');if(x&&x.city)return x;}catch(e){}
-      return {city:'Kadayanallur',state:'Tamil Nadu',country:'India'};
-    };
-    const loc=getLoc();
-    const key=(typeof prayerDateKey==='function')?prayerDateKey():new Date().toISOString().slice(0,10);
+  window.loadPrayerTimes=async function(force=false){
+    const loc=getPrayerLocation();
+    const key=prayerDateKey();
     const status=document.getElementById('prayerStatus');
-    if(status)status.textContent='⏳ தொழுகை நேரங்கள் loading...';
+
+    // Always show the selected location immediately.
+    const dloc=document.getElementById('prayerDetailLocation');
+    const hloc=document.getElementById('prayerHomeLocation');
+    if(dloc)dloc.textContent=loc.city+', '+loc.state;
+    if(hloc)hloc.textContent='📍 '+loc.city;
+
+    // Use today's cache for instant display when it belongs to this location.
+    let cached=null;
+    try{cached=JSON.parse(localStorage.getItem('prayerTimesCache')||'null')}catch(e){}
+    if(!force && cached && cached.date===key && cached.timings &&
+       (!cached.location || cached.location.toLowerCase()===loc.city.toLowerCase())){
+      prayerTimesToday=cached.timings;
+      renderPrayerTimes();
+      if(status)status.textContent='📍 '+loc.city+' • இன்று';
+      return;
+    }
+
+    if(status)status.textContent='⏳ தொழுகை நேரங்கள் update ஆகிறது...';
+
     try{
       const url=`https://api.aladhan.com/v1/timingsByCity/${key}?city=${encodeURIComponent(loc.city)}&country=${encodeURIComponent(loc.country)}&method=1&school=1`;
       const r=await fetch(url,{cache:'no-store'});
+      if(!r.ok)throw new Error('HTTP '+r.status);
       const d=await r.json();
-      if(!r.ok || !d.data || !d.data.timings) throw new Error('Prayer API');
+      if(!d.data || !d.data.timings)throw new Error('No timings');
+
       prayerTimesToday=Object.fromEntries(PRAYER_NAMES.map(n=>[n,(d.data.timings[n]||'').slice(0,5)]));
-      localStorage.setItem('prayerTimesCache',JSON.stringify({date:key,timings:prayerTimesToday,location:loc.city}));
+      localStorage.setItem('prayerTimesCache',JSON.stringify({
+        date:key,timings:prayerTimesToday,location:loc.city
+      }));
       renderPrayerTimes();
       if(status)status.textContent='📍 '+loc.city+' • இன்று';
     }catch(e){
-      if(status)status.textContent='⚠️ நேரங்களை பெற முடியவில்லை. Internet / Location சரிபார்க்கவும்.';
+      // Never erase working times because the network temporarily failed.
+      if(cached && cached.date===key && cached.timings){
+        prayerTimesToday=cached.timings;
+        renderPrayerTimes();
+        if(status)status.textContent='📍 '+loc.city+' • Saved times';
+      }else if(prayerTimesToday){
+        renderPrayerTimes();
+        if(status)status.textContent='📍 '+loc.city+' • Saved times';
+      }else{
+        if(status)status.textContent='⚠️ இன்று தொழுகை நேரங்கள் கிடைக்கவில்லை. ↻ மீண்டும் முயற்சிக்கவும்.';
+      }
     }
   };
-  window.getPrayerLocationForApi=function(){try{const x=JSON.parse(localStorage.getItem('prayerLocation')||'null');if(x&&x.city)return x}catch(e){}return{city:'Kadayanallur',state:'Tamil Nadu',country:'India'}};
-})();
+
+  window.getPrayerLocationForApi=function(){return getPrayerLocation();};
+})(); 
 
 /* v18.4 INDEPENDENT PRAYER COUNTDOWN ENGINE */
 (function(){
