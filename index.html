@@ -1439,7 +1439,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.2</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.3</p>
                             </div>
                         </div>
                     </div>
@@ -2884,35 +2884,67 @@ function prayerDateKey(d=new Date()){return`${d.getFullYear()}-${String(d.getMon
 function prayerTimeToDate(hm,d=new Date()){let[h,m]=hm.split(':').map(Number),x=new Date(d);x.setHours(h,m,0,0);return x}
 function prayerFormat(hm){if(!hm)return'--:--';let[h,m]=hm.split(':').map(Number),ap=h>=12?'PM':'AM';return`${h%12||12}:${String(m).padStart(2,'0')} ${ap}`}
 function prayerPrefs(){try{return JSON.parse(localStorage.getItem('prayerReminders')||'{}')}catch(e){return{}}}
-async function loadPrayerTimes(force=false){let s=document.getElementById('prayerStatus'),key=prayerDateKey();try{let c=JSON.parse(localStorage.getItem('prayerTimesCache')||'null');if(!force&&c&&c.date===key){prayerTimesToday=c.timings;renderPrayerTimes();return}}catch(e){}if(s)s.textContent='⏳ தொழுகை நேரங்கள் loading...';try{let r=await fetch(`https://api.aladhan.com/v1/timingsByCity/${key}?city=${encodeURIComponent(PRAYER_CITY)}&country=${encodeURIComponent(PRAYER_COUNTRY)}&method=${PRAYER_METHOD}&school=1`,{cache:'no-store'});let d=await r.json();if(!r.ok||!d.data?.timings)throw Error('API');prayerTimesToday=Object.fromEntries(PRAYER_NAMES.map(n=>[n,(d.data.timings[n]||'').slice(0,5)]));localStorage.setItem('prayerTimesCache',JSON.stringify({date:key,timings:prayerTimesToday}));renderPrayerTimes();if(s)s.textContent='📍 Kadayanallur • இன்று'}catch(e){if(s)s.textContent='⚠️ நேரங்களை பெற முடியவில்லை. ↻ அழுத்தி முயற்சிக்கவும்.'}}
-function renderPrayerTimes(){if(!prayerTimesToday)return;PRAYER_NAMES.forEach(n=>{let e=document.getElementById('prayer'+n);if(e)e.textContent=prayerFormat(prayerTimesToday[n])});let p=prayerPrefs();document.querySelectorAll('.prayer-reminder').forEach(b=>{let on=p[b.dataset.prayer]!==false;b.textContent=on?'🔔':'🔕';b.classList.toggle('off',!on)});schedulePrayerReminders();updateNextPrayer()}
-function updateNextPrayer(){
-  if(!prayerTimesToday) return;
+async function loadPrayerTimes(force=false){
+  const status=document.getElementById('prayerStatus');
+  const loc=getPrayerLocation();
   const now=new Date();
-  let next=null;
-  for(const name of PRAYER_NAMES){
-    const hm=String(prayerTimesToday[name]||'').slice(0,5);
-    if(!/^\d{1,2}:\d{2}$/.test(hm)) continue;
-    const t=prayerTimeToDate(hm,now);
-    if(t>now){ next={name,time:hm}; break; }
-  }
-  if(!next && prayerTimesToday.Fajr){
-    next={name:'Fajr',time:String(prayerTimesToday.Fajr).slice(0,5)};
-  }
-  const label=next ? (PRAYER_LABELS[next.name]||next.name) : '—';
-  const time=next ? prayerFormat(next.time) : '--:--';
-  const n1=document.getElementById('prayerHomeNext');
-  const t1=document.getElementById('prayerHomeNextTime');
-  const n2=document.getElementById('prayerDetailNext');
-  const t2=document.getElementById('prayerDetailNextTime');
-  if(n1)n1.textContent=label;
-  if(t1)t1.textContent=time;
-  if(n2)n2.textContent=label;
-  if(t2)t2.textContent=time;
-  document.querySelectorAll('.prayer-row').forEach(r=>r.classList.remove('active'));
-  if(next){
-    const row=document.getElementById('prayer'+next.name)?.closest('.prayer-row');
-    if(row)row.classList.add('active');
+  const dateKey=prayerDateKey(now);
+  const apiDate=`${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`;
+
+  const homeLoc=document.getElementById('prayerHomeLocation');
+  const detailLoc=document.getElementById('prayerDetailLocation');
+  if(homeLoc) homeLoc.textContent='📍 '+loc.city;
+  if(detailLoc) detailLoc.textContent=loc.city+', '+loc.state;
+
+  try{
+    const cache=JSON.parse(localStorage.getItem('prayerTimesCache')||'null');
+    if(!force && cache && cache.date===dateKey && cache.city===loc.city && cache.timings){
+      prayerTimesToday=cache.timings;
+      renderPrayerTimes();
+      if(status) status.textContent='📍 '+loc.city+' • இன்று';
+      return;
+    }
+  }catch(e){}
+
+  if(status) status.textContent='⏳ தொழுகை நேரங்கள் பெறப்படுகிறது...';
+
+  const url='https://api.aladhan.com/v1/timingsByCity/'+apiDate+
+    '?city='+encodeURIComponent(loc.city)+
+    '&country='+encodeURIComponent(loc.country||'India')+
+    '&state='+encodeURIComponent(loc.state||'Tamil Nadu')+
+    '&method='+PRAYER_METHOD+'&school=1&iso8601=false';
+
+  try{
+    const response=await fetch(url,{cache:'no-store',headers:{'Accept':'application/json'}});
+    if(!response.ok) throw new Error('HTTP '+response.status);
+    const data=await response.json();
+    if(!data || data.code!==200 || !data.data || !data.data.timings) throw new Error('Invalid prayer data');
+
+    prayerTimesToday={};
+    PRAYER_NAMES.forEach(name=>{
+      prayerTimesToday[name]=String(data.data.timings[name]||'').slice(0,5);
+    });
+
+    localStorage.setItem('prayerTimesCache',JSON.stringify({
+      date:dateKey, city:loc.city, state:loc.state, timings:prayerTimesToday
+    }));
+
+    renderPrayerTimes();
+    if(status) status.textContent='📍 '+loc.city+' • இன்று';
+  }catch(error){
+    console.error('Prayer times error:',error);
+    try{
+      const cache=JSON.parse(localStorage.getItem('prayerTimesCache')||'null');
+      if(cache && cache.timings && cache.city===loc.city){
+        prayerTimesToday=cache.timings;
+        renderPrayerTimes();
+        if(status) status.textContent='📍 '+loc.city+' • Saved times';
+        return;
+      }
+    }catch(e){}
+    prayerTimesToday=null;
+    if(status) status.textContent='⚠️ நேரங்களை பெற முடியவில்லை. Internet சரிபார்த்து மீண்டும் திறக்கவும்.';
+    updateNextPrayer();
   }
 }
 function getPrayerLocation(){
