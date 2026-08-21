@@ -1430,7 +1430,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 18.1</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 18.2</p>
                             </div>
                         </div>
                     </div>
@@ -2895,29 +2895,79 @@ async function togglePrayerReminder(n){if(!('Notification'in window)){alert('இ
 function schedulePrayerReminders(){Object.values(prayerReminderTimers).forEach(clearTimeout);prayerReminderTimers={};if(!prayerTimesToday)return;let p=prayerPrefs(),now=new Date();PRAYER_NAMES.forEach(n=>{if(p[n]===false)return;let t=prayerTimeToDate(prayerTimesToday[n],now);if(t<=now)return;prayerReminderTimers[n]=setTimeout(()=>{if(Notification.permission==='granted')new Notification(`${PRAYER_LABELS[n]} நேரம்`,{body:`Kadayanallur — ${prayerFormat(prayerTimesToday[n])}`,tag:'prayer-'+n})},t-now)})}
 function initPrayerTimes(){document.querySelectorAll('.prayer-reminder').forEach(b=>b.addEventListener('click',()=>togglePrayerReminder(b.dataset.prayer)));document.getElementById('prayerRefreshBtn')?.addEventListener('click',()=>loadPrayerTimes(true));loadPrayerTimes();clearInterval(prayerCountdownTimer);prayerCountdownTimer=setInterval(updateNextPrayer,1000)}
 
-/* v18.1 HOME PRAYER BUTTON */
+/* v18.2 HOME PRAYER BUTTON + LOCATION FIX */
 (function(){
+function getPrayerLocation(){
+  try{
+    const x=JSON.parse(localStorage.getItem('prayerLocation')||'null');
+    if(x && x.city) return {city:x.city,state:x.state||'Tamil Nadu',country:x.country||'India'};
+  }catch(e){}
+  return {city:'Kadayanallur',state:'Tamil Nadu',country:'India'};
+}
+function savePrayerLocation(city,state,country){
+  localStorage.setItem('prayerLocation',JSON.stringify({city:city.trim(),state:state.trim(),country:country.trim()}));
+  localStorage.removeItem('prayerTimesCache');
+}
 function syncPrayerHome(){
- const city=localStorage.getItem('prayerCity')||'Kadayanallur';
+ const loc=getPrayerLocation();
  const l=document.getElementById('prayerHomeLocation'),d=document.getElementById('prayerDetailLocation');
- if(l)l.textContent='📍 '+city;if(d)d.textContent=city+', Tamil Nadu';
+ if(l)l.textContent='📍 '+loc.city;
+ if(d)d.textContent=loc.city+', '+loc.state;
  const n=document.getElementById('nextPrayerName'),c=document.getElementById('nextPrayerCountdown');
  if(document.getElementById('prayerHomeNext')&&n)document.getElementById('prayerHomeNext').textContent=n.textContent;
  if(document.getElementById('prayerHomeCountdown')&&c)document.getElementById('prayerHomeCountdown').textContent=c.textContent;
  if(document.getElementById('prayerDetailNext')&&n)document.getElementById('prayerDetailNext').textContent=n.textContent;
  if(document.getElementById('prayerDetailCountdown')&&c)document.getElementById('prayerDetailCountdown').textContent=c.textContent;
 }
-window.openPrayerDetails=function(){goToPage('prayerDetails');if(typeof loadPrayerTimes==='function')loadPrayerTimes();};
+window.openPrayerDetails=function(){
+  if(typeof goToPage==='function') goToPage('prayerDetails');
+  if(typeof loadPrayerTimes==='function') loadPrayerTimes(true);
+};
 window.changePrayerLocation=function(){
- const old=localStorage.getItem('prayerCity')||'Kadayanallur',city=prompt('Enter city / town',old);
- if(!city)return;localStorage.setItem('prayerCity',city.trim());localStorage.removeItem('prayerTimesCache');syncPrayerHome();if(typeof loadPrayerTimes==='function')loadPrayerTimes(true);
+ const loc=getPrayerLocation();
+ const city=prompt('City / Town',loc.city);
+ if(!city) return;
+ const state=prompt('State',loc.state);
+ if(!state) return;
+ const country=prompt('Country',loc.country)||loc.country;
+ savePrayerLocation(city,state,country);
+ syncPrayerHome();
+ if(typeof loadPrayerTimes==='function') loadPrayerTimes(true);
 };
 document.addEventListener('DOMContentLoaded',function(){
  document.getElementById('prayerHomeButton')?.addEventListener('click',openPrayerDetails);
  document.getElementById('prayerBackBtn')?.addEventListener('click',()=>goToPage('home'));
  document.getElementById('prayerLocationBtn')?.addEventListener('click',changePrayerLocation);
- syncPrayerHome();setInterval(syncPrayerHome,1000);
+ syncPrayerHome();
+ setInterval(syncPrayerHome,1000);
 });
+})();
+/* v18.2 PRAYER LOCATION API FIX */
+(function(){
+  const _oldLoad = window.loadPrayerTimes;
+  window.loadPrayerTimes = async function(force=false){
+    const getLoc=window.getPrayerLocationForApi||function(){
+      try{const x=JSON.parse(localStorage.getItem('prayerLocation')||'null');if(x&&x.city)return x;}catch(e){}
+      return {city:'Kadayanallur',state:'Tamil Nadu',country:'India'};
+    };
+    const loc=getLoc();
+    const key=(typeof prayerDateKey==='function')?prayerDateKey():new Date().toISOString().slice(0,10);
+    const status=document.getElementById('prayerStatus');
+    if(status)status.textContent='⏳ தொழுகை நேரங்கள் loading...';
+    try{
+      const url=`https://api.aladhan.com/v1/timingsByCity/${key}?city=${encodeURIComponent(loc.city)}&country=${encodeURIComponent(loc.country)}&method=1&school=1`;
+      const r=await fetch(url,{cache:'no-store'});
+      const d=await r.json();
+      if(!r.ok || !d.data || !d.data.timings) throw new Error('Prayer API');
+      prayerTimesToday=Object.fromEntries(PRAYER_NAMES.map(n=>[n,(d.data.timings[n]||'').slice(0,5)]));
+      localStorage.setItem('prayerTimesCache',JSON.stringify({date:key,timings:prayerTimesToday,location:loc.city}));
+      renderPrayerTimes();
+      if(status)status.textContent='📍 '+loc.city+' • இன்று';
+    }catch(e){
+      if(status)status.textContent='⚠️ நேரங்களை பெற முடியவில்லை. Internet / Location சரிபார்க்கவும்.';
+    }
+  };
+  window.getPrayerLocationForApi=function(){try{const x=JSON.parse(localStorage.getItem('prayerLocation')||'null');if(x&&x.city)return x}catch(e){}return{city:'Kadayanallur',state:'Tamil Nadu',country:'India'}};
 })();
 </script>
 </body>
