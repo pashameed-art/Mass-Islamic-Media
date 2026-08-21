@@ -1395,15 +1395,6 @@
                         </div>
                     </div>
 
-                    <!-- Display -->
-                    <div class="settings-group">
-                        <h3>🎨 Display</h3>
-                        <div class="settings-item">
-                            <span>Dark Mode</span>
-                            <div class="toggle-switch" id="darkModeToggle"></div>
-                        </div>
-                    </div>
-
                     <!-- Admin -->
                     <div class="settings-group">
                         <h3>👨‍💼 Admin Mode</h3>
@@ -1805,7 +1796,7 @@
 
             // Settings
             document.getElementById('notificationToggle').addEventListener('click', toggleNotifications);
-            document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+            
             document.getElementById('adminToggle').addEventListener('click', toggleAdminMode);
             document.getElementById('notificationTime').addEventListener('change', (e) => {
                 notificationTime = e.target.value;
