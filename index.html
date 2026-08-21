@@ -1942,8 +1942,10 @@
         }
 
         function updateSettingsToggle() {
-            const darkToggle = document.getElementById('darkModeToggle');
-            darkToggle.classList.toggle('active', darkMode);
+            // Dark Mode is controlled from the header only.
+            // Settings → Display → Dark Mode was intentionally removed.
+            const toggle = document.getElementById('darkModeToggle');
+            if (toggle) toggle.classList.toggle('active', !!darkMode);
         }
 
         function requestNotificationPermission() {
