@@ -2681,6 +2681,81 @@
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', init);
-    </script>
+    
+/* FINAL 4-DIGIT ADMIN PIN OVERRIDE */
+(function(){
+  adminPIN = localStorage.getItem('adminPIN') || null;
+  window.pinValue = '';
+
+  window.openPINModal = function(){
+    const m=document.getElementById('pinModal');
+    const msg=document.getElementById('pinModalMessage');
+    const input=document.getElementById('pinInput');
+    const err=document.getElementById('pinError');
+    window.pinMode = adminPIN ? 'verify' : 'setup';
+    window.pinValue='';
+    if(msg) msg.textContent=adminPIN ? 'Enter your 4-digit PIN' : 'Set your 4-digit Admin PIN';
+    if(input){ input.maxLength=4; input.value=''; }
+    if(err) err.textContent='';
+    if(m){ m.style.display='flex'; m.classList.add('show'); }
+  };
+
+  window.pinKeypress=function(d){
+    d=String(d);
+    if(!/^\d$/.test(d) || (window.pinValue||'').length>=4) return;
+    window.pinValue+=d;
+    const i=document.getElementById('pinInput');
+    if(i) i.value='•'.repeat(window.pinValue.length);
+  };
+
+  window.pinDelete=function(){
+    window.pinValue=(window.pinValue||'').slice(0,-1);
+    const i=document.getElementById('pinInput');
+    if(i) i.value='•'.repeat(window.pinValue.length);
+  };
+
+  window.pinSubmit=function(){
+    const v=String(window.pinValue||'');
+    const err=document.getElementById('pinError');
+    if(!/^\d{4}$/.test(v)){
+      if(err) err.textContent='❌ 4 இலக்க PIN உள்ளிடவும்';
+      return false;
+    }
+    if(window.pinMode==='setup' || !adminPIN){
+      adminPIN=v;
+      localStorage.setItem('adminPIN',v);
+      adminAuthenticated=true; isAdmin=true;
+      const m=document.getElementById('pinModal');
+      if(m){m.style.display='none';m.classList.remove('show');}
+      const n=document.getElementById('adminNav'); if(n)n.style.display='flex';
+      goToPage('admin');
+    }else if(v===String(adminPIN)){
+      adminAuthenticated=true; isAdmin=true;
+      const m=document.getElementById('pinModal');
+      if(m){m.style.display='none';m.classList.remove('show');}
+      const n=document.getElementById('adminNav'); if(n)n.style.display='flex';
+      goToPage('admin');
+    }else{
+      if(err) err.textContent='❌ PIN incorrect!';
+      window.pinValue='';
+      const i=document.getElementById('pinInput'); if(i)i.value='';
+    }
+    return false;
+  };
+
+  window.checkAdminAccess=function(){
+    if(adminPIN && !adminAuthenticated){window.openPINModal();return false;}
+    return true;
+  };
+
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('#pinModal .pin-key.submit').forEach(function(btn){
+      btn.type='button';
+      btn.onclick=function(e){e.preventDefault();return window.pinSubmit();};
+    });
+  });
+})();
+
+</script>
 </body>
 </html>
