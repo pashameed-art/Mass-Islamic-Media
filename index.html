@@ -1422,7 +1422,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 17.4</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 17.5</p>
                             </div>
                         </div>
                     </div>
@@ -2753,6 +2753,119 @@
       btn.type='button';
       btn.onclick=function(e){e.preventDefault();return window.pinSubmit();};
     });
+  });
+})();
+
+
+/* ===== v17.5 ADMIN PIN FINAL FIX ===== */
+(function(){
+  // Old 6-digit/invalid PINs from previous builds must not block the new 4-digit PIN.
+  try {
+    const saved = localStorage.getItem('adminPIN');
+    if (saved && !/^\d{4}$/.test(String(saved))) {
+      localStorage.removeItem('adminPIN');
+      adminPIN = null;
+      adminAuthenticated = false;
+      isAdmin = false;
+    }
+  } catch(e) {}
+
+  window.openPINModal = function(){
+    const modal = document.getElementById('pinModal');
+    const message = document.getElementById('pinModalMessage');
+    const info = document.getElementById('pinInfo');
+    const error = document.getElementById('pinError');
+    const input = document.getElementById('pinInput');
+
+    adminPIN = localStorage.getItem('adminPIN') || null;
+    window.pinMode = adminPIN ? 'verify' : 'setup';
+    window.pinValue = '';
+
+    if (message) message.textContent = adminPIN
+      ? 'Enter your 4-digit PIN'
+      : 'Set your 4-digit Admin PIN';
+    if (info) info.textContent = adminPIN ? '' : '4 digits required';
+    if (error) error.textContent = '';
+    if (input) { input.value=''; input.maxLength=4; }
+
+    if (modal) {
+      modal.style.display='flex';
+      modal.classList.add('show');
+    }
+  };
+
+  window.pinSubmit = function(){
+    const pin = String(window.pinValue || '');
+    const error = document.getElementById('pinError');
+
+    if (!/^\d{4}$/.test(pin)) {
+      if (error) error.textContent='❌ 4 இலக்க PIN உள்ளிடவும்';
+      return false;
+    }
+
+    adminPIN = localStorage.getItem('adminPIN') || null;
+
+    // First-time setup.
+    if (!adminPIN) {
+      localStorage.setItem('adminPIN', pin);
+      adminPIN = pin;
+      adminAuthenticated = true;
+      isAdmin = true;
+    }
+    // Existing 4-digit PIN verification.
+    else if (pin === String(adminPIN)) {
+      adminAuthenticated = true;
+      isAdmin = true;
+    }
+    else {
+      if (error) error.textContent='❌ Wrong PIN. Try again.';
+      window.pinValue='';
+      const input=document.getElementById('pinInput');
+      if(input) input.value='';
+      return false;
+    }
+
+    const modal=document.getElementById('pinModal');
+    if(modal){ modal.style.display='none'; modal.classList.remove('show'); }
+
+    const nav=document.getElementById('adminNav');
+    if(nav) nav.style.display='flex';
+
+    updateAdminToggle();
+    goToPage('admin');
+    return false;
+  };
+
+  // Settings toggle must be PIN-protected.
+  window.toggleAdminMode = function(){
+    if (isAdmin && adminAuthenticated) {
+      isAdmin=false;
+      adminAuthenticated=false;
+      localStorage.setItem('adminMode','false');
+      const nav=document.getElementById('adminNav');
+      if(nav) nav.style.display='none';
+      updateAdminToggle();
+      goToPage('home');
+      return;
+    }
+    window.openPINModal();
+  };
+
+  // Admin navigation must also require authentication.
+  document.addEventListener('DOMContentLoaded', function(){
+    const nav=document.getElementById('adminNav');
+    if(nav){
+      nav.onclick=function(e){
+        e.preventDefault();
+        if(adminAuthenticated && isAdmin) goToPage('admin');
+        else window.openPINModal();
+      };
+    }
+    const btn=document.querySelector('#pinModal button.pin-key.submit');
+    if(btn){
+      btn.type='button';
+      btn.onclick=function(e){ e.preventDefault(); return window.pinSubmit(); };
+    }
   });
 })();
 
