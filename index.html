@@ -1430,7 +1430,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 18.2</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 18.4</p>
                             </div>
                         </div>
                     </div>
@@ -2890,17 +2890,33 @@ function prayerFormat(hm){if(!hm)return'--:--';let[h,m]=hm.split(':').map(Number
 function prayerPrefs(){try{return JSON.parse(localStorage.getItem('prayerReminders')||'{}')}catch(e){return{}}}
 async function loadPrayerTimes(force=false){let s=document.getElementById('prayerStatus'),key=prayerDateKey();try{let c=JSON.parse(localStorage.getItem('prayerTimesCache')||'null');if(!force&&c&&c.date===key){prayerTimesToday=c.timings;renderPrayerTimes();return}}catch(e){}if(s)s.textContent='⏳ தொழுகை நேரங்கள் loading...';try{let r=await fetch(`https://api.aladhan.com/v1/timingsByCity/${key}?city=${encodeURIComponent(PRAYER_CITY)}&country=${encodeURIComponent(PRAYER_COUNTRY)}&method=${PRAYER_METHOD}&school=1`,{cache:'no-store'});let d=await r.json();if(!r.ok||!d.data?.timings)throw Error('API');prayerTimesToday=Object.fromEntries(PRAYER_NAMES.map(n=>[n,(d.data.timings[n]||'').slice(0,5)]));localStorage.setItem('prayerTimesCache',JSON.stringify({date:key,timings:prayerTimesToday}));renderPrayerTimes();if(s)s.textContent='📍 Kadayanallur • இன்று'}catch(e){if(s)s.textContent='⚠️ நேரங்களை பெற முடியவில்லை. ↻ அழுத்தி முயற்சிக்கவும்.'}}
 function renderPrayerTimes(){if(!prayerTimesToday)return;PRAYER_NAMES.forEach(n=>{let e=document.getElementById('prayer'+n);if(e)e.textContent=prayerFormat(prayerTimesToday[n])});let p=prayerPrefs();document.querySelectorAll('.prayer-reminder').forEach(b=>{let on=p[b.dataset.prayer]!==false;b.textContent=on?'🔔':'🔕';b.classList.toggle('off',!on)});schedulePrayerReminders();updateNextPrayer()}
-function updateNextPrayer(){if(!prayerTimesToday)return;let now=new Date(),a=PRAYER_NAMES.map(n=>({name:n,time:prayerTimeToDate(prayerTimesToday[n],now)})),next=a.find(x=>x.time>now);if(!next){let d=new Date(now);d.setDate(d.getDate()+1);next={name:'Fajr',time:prayerTimeToDate(prayerTimesToday.Fajr,d)}}let q=Math.max(0,Math.floor((next.time-now)/1000)),h=Math.floor(q/3600),m=Math.floor(q%3600/60),s=q%60;document.getElementById('nextPrayerName').textContent=PRAYER_LABELS[next.name];document.getElementById('nextPrayerCountdown').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;document.querySelectorAll('.prayer-row').forEach(r=>r.classList.remove('active'));document.getElementById('prayer'+next.name)?.closest('.prayer-row')?.classList.add('active')}
-async function togglePrayerReminder(n){if(!('Notification'in window)){alert('இந்த browser notification-ஐ ஆதரிக்கவில்லை.');return}let p=prayerPrefs();if(p[n]!==false){p[n]=false;localStorage.setItem('prayerReminders',JSON.stringify(p));renderPrayerTimes();return}let ok=Notification.permission==='granted'||await Notification.requestPermission()==='granted';if(!ok)return;p[n]=true;localStorage.setItem('prayerReminders',JSON.stringify(p));renderPrayerTimes()}
-function schedulePrayerReminders(){Object.values(prayerReminderTimers).forEach(clearTimeout);prayerReminderTimers={};if(!prayerTimesToday)return;let p=prayerPrefs(),now=new Date();PRAYER_NAMES.forEach(n=>{if(p[n]===false)return;let t=prayerTimeToDate(prayerTimesToday[n],now);if(t<=now)return;prayerReminderTimers[n]=setTimeout(()=>{if(Notification.permission==='granted')new Notification(`${PRAYER_LABELS[n]} நேரம்`,{body:`Kadayanallur — ${prayerFormat(prayerTimesToday[n])}`,tag:'prayer-'+n})},t-now)})}
-function initPrayerTimes(){document.querySelectorAll('.prayer-reminder').forEach(b=>b.addEventListener('click',()=>togglePrayerReminder(b.dataset.prayer)));document.getElementById('prayerRefreshBtn')?.addEventListener('click',()=>loadPrayerTimes(true));loadPrayerTimes();clearInterval(prayerCountdownTimer);prayerCountdownTimer=setInterval(updateNextPrayer,1000)}
-
-/* v18.2 HOME PRAYER BUTTON + LOCATION FIX */
-(function(){
+function updateNextPrayer(){
+ if(!prayerTimesToday)return;
+ const now=new Date();
+ const list=PRAYER_NAMES.map(n=>({name:n,time:prayerTimeToDate(prayerTimesToday[n],now)}));
+ let next=list.find(x=>x.time>now);
+ if(!next){
+   const tomorrow=new Date(now);
+   tomorrow.setDate(tomorrow.getDate()+1);
+   next={name:'Fajr',time:prayerTimeToDate(prayerTimesToday.Fajr,tomorrow)};
+ }
+ const seconds=Math.max(0,Math.floor((next.time-now)/1000));
+ const h=Math.floor(seconds/3600),m=Math.floor((seconds%3600)/60),s=seconds%60;
+ const countdown=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+ const label=PRAYER_LABELS[next.name]||next.name;
+ [['prayerHomeNext','prayerHomeCountdown'],['prayerDetailNext','prayerDetailCountdown']].forEach(ids=>{
+   const n=document.getElementById(ids[0]),c=document.getElementById(ids[1]);
+   if(n)n.textContent=label;
+   if(c)c.textContent=countdown;
+ });
+ document.querySelectorAll('.prayer-row').forEach(r=>r.classList.remove('active'));
+ const row=document.getElementById('prayer'+next.name)?.closest('.prayer-row');
+ if(row)row.classList.add('active');
+}
 function getPrayerLocation(){
   try{
     const x=JSON.parse(localStorage.getItem('prayerLocation')||'null');
-    if(x && x.city) return {city:x.city,state:x.state||'Tamil Nadu',country:x.country||'India'};
+    if(x&&x.city)return {city:x.city,state:x.state||'Tamil Nadu',country:x.country||'India'};
   }catch(e){}
   return {city:'Kadayanallur',state:'Tamil Nadu',country:'India'};
 }
@@ -2913,11 +2929,7 @@ function syncPrayerHome(){
  const l=document.getElementById('prayerHomeLocation'),d=document.getElementById('prayerDetailLocation');
  if(l)l.textContent='📍 '+loc.city;
  if(d)d.textContent=loc.city+', '+loc.state;
- const n=document.getElementById('nextPrayerName'),c=document.getElementById('nextPrayerCountdown');
- if(document.getElementById('prayerHomeNext')&&n)document.getElementById('prayerHomeNext').textContent=n.textContent;
- if(document.getElementById('prayerHomeCountdown')&&c)document.getElementById('prayerHomeCountdown').textContent=c.textContent;
- if(document.getElementById('prayerDetailNext')&&n)document.getElementById('prayerDetailNext').textContent=n.textContent;
- if(document.getElementById('prayerDetailCountdown')&&c)document.getElementById('prayerDetailCountdown').textContent=c.textContent;
+ if(typeof updateNextPrayer==='function')updateNextPrayer();
 }
 window.openPrayerDetails=function(){
   if(typeof goToPage==='function') goToPage('prayerDetails');
@@ -2941,7 +2953,6 @@ document.addEventListener('DOMContentLoaded',function(){
  syncPrayerHome();
  setInterval(syncPrayerHome,1000);
 });
-})();
 /* v18.2 PRAYER LOCATION API FIX */
 (function(){
   const _oldLoad = window.loadPrayerTimes;
@@ -2969,6 +2980,71 @@ document.addEventListener('DOMContentLoaded',function(){
   };
   window.getPrayerLocationForApi=function(){try{const x=JSON.parse(localStorage.getItem('prayerLocation')||'null');if(x&&x.city)return x}catch(e){}return{city:'Kadayanallur',state:'Tamil Nadu',country:'India'}};
 })();
+
+/* v18.4 INDEPENDENT PRAYER COUNTDOWN ENGINE */
+(function(){
+  function getNextPrayerState(){
+    if(!window.prayerTimesToday)return null;
+    const now=new Date();
+    let next=null;
+    for(const name of PRAYER_NAMES){
+      const raw=String(prayerTimesToday[name]||'').slice(0,5);
+      const m=raw.match(/^(\d{1,2}):(\d{2})$/);
+      if(!m)continue;
+      const t=new Date(now);
+      t.setHours(Number(m[1]),Number(m[2]),0,0);
+      if(t>now){next={name,time:t};break;}
+    }
+    if(!next){
+      const raw=String(prayerTimesToday.Fajr||'').slice(0,5);
+      const m=raw.match(/^(\d{1,2}):(\d{2})$/);
+      if(!m)return null;
+      const t=new Date(now);
+      t.setDate(t.getDate()+1);
+      t.setHours(Number(m[1]),Number(m[2]),0,0);
+      next={name:'Fajr',time:t};
+    }
+    return next;
+  }
+
+  function paintCountdown(){
+    const next=getNextPrayerState();
+    if(!next)return;
+    let total=Math.max(0,Math.ceil((next.time.getTime()-Date.now())/1000));
+    const h=Math.floor(total/3600);
+    const m=Math.floor((total%3600)/60);
+    const s=total%60;
+    const text=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    const label=(PRAYER_LABELS&&PRAYER_LABELS[next.name])||next.name;
+
+    ['prayerHomeNext','prayerDetailNext'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el)el.textContent=label;
+    });
+    ['prayerHomeCountdown','prayerDetailCountdown'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el)el.textContent=text;
+    });
+
+    document.querySelectorAll('.prayer-row').forEach(r=>r.classList.remove('active'));
+    const row=document.getElementById('prayer'+next.name)?.closest('.prayer-row');
+    if(row)row.classList.add('active');
+  }
+
+  window.forcePrayerCountdown=paintCountdown;
+
+  function start(){
+    paintCountdown();
+    clearInterval(window.__massPrayerCountdownTimer);
+    window.__massPrayerCountdownTimer=setInterval(paintCountdown,1000);
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',start,{once:true});
+  }else{
+    start();
+  }
+})();
+
 </script>
 </body>
 </html>
