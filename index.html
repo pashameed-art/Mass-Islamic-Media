@@ -1211,10 +1211,17 @@
         <div class="content">
             <!-- Home Page -->
             <div class="page active" id="homePage">
-                                <button type="button" class="prayer-home-button" id="prayerHomeButton">
+                                <button type="button" class="prayer-home-button" id="prayerHomeButton" aria-label="தொழுகை நேரங்கள்">
   <div class="prayer-home-icon">🕌</div>
-  <div class="prayer-home-main"><div class="prayer-home-title">தொழுகை நேரங்கள்</div><div class="prayer-home-location" id="prayerHomeLocation">📍 Kadayanallur</div></div>
-  <div class="prayer-home-next"><span>அடுத்த தொழுகை</span><strong id="prayerHomeNext">—</strong><b id="prayerHomeCountdown">--:--:--</b></div>
+  <div class="prayer-home-main">
+    <div class="prayer-home-title">தொழுகை நேரங்கள்</div>
+    <div class="prayer-home-location" id="prayerHomeLocation">📍 Kadayanallur</div>
+  </div>
+  <div class="prayer-home-next">
+    <span>அடுத்த தொழுகை</span>
+    <strong id="prayerHomeNext">—</strong>
+    <b id="prayerHomeNextTime">--:--</b>
+  </div>
   <span class="prayer-home-arrow">›</span>
 </button>
 <!-- Daily Dua -->
@@ -1389,7 +1396,7 @@
             <div class="page" id="prayerDetailsPage"><div class="prayer-details-container">
 <div class="prayer-details-head"><button type="button" class="btn-small" id="prayerBackBtn">← Back</button><h2>🕌 தொழுகை நேரங்கள்</h2></div>
 <div class="prayer-location-box"><span>📍 Location</span><strong id="prayerDetailLocation">Kadayanallur, Tenkasi</strong><button type="button" class="btn-small" id="prayerLocationBtn">Change Location</button></div>
-<div class="next-prayer detail-next"><span>அடுத்த தொழுகை</span><strong id="prayerDetailNext">—</strong><b id="prayerDetailCountdown">--:--:--</b></div>
+<div class="next-prayer detail-next"><span>அடுத்த தொழுகை</span><strong id="prayerDetailNext">—</strong><b id="prayerDetailNextTime">--:--</b></div>
 <div class="prayer-detail-grid">
 <div class="prayer-row"><span>Fajr</span><b id="prayerFajr">--:--</b><button class="prayer-reminder" data-prayer="Fajr">🔔</button></div>
 <div class="prayer-row"><span>Dhuhr</span><b id="prayerDhuhr">--:--</b><button class="prayer-reminder" data-prayer="Dhuhr">🔔</button></div>
@@ -1432,7 +1439,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 18.6</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 18.9</p>
                             </div>
                         </div>
                     </div>
@@ -1751,20 +1758,7 @@
         function initPWA() {
             // Service Worker
             if ('serviceWorker' in navigator) {
-                const swCode = `
-                    const cacheName = 'duas-v1';
-                    self.addEventListener('install', () => self.skipWaiting());
-                    self.addEventListener('fetch', (e) => {
-                        e.respondWith(
-                            caches.open(cacheName).then((cache) => {
-                                return cache.match(e.request).catch(() => fetch(e.request));
-                            }).catch(() => caches.match('/index.html'))
-                        );
-                    });
-                `;
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(swUrl).catch(() => {});
+                navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
             }
 
             // Install Prompt
@@ -2906,7 +2900,7 @@ function updateNextPrayer(){
  const h=Math.floor(seconds/3600),m=Math.floor((seconds%3600)/60),s=seconds%60;
  const countdown=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
  const label=PRAYER_LABELS[next.name]||next.name;
- [['prayerHomeNext','prayerHomeCountdown'],['prayerDetailNext','prayerDetailCountdown']].forEach(ids=>{
+ [['prayerHomeNext','prayerHomeNextTime'],['prayerDetailNext','prayerDetailNextTime']].forEach(ids=>{
    const n=document.getElementById(ids[0]),c=document.getElementById(ids[1]);
    if(n)n.textContent=label;
    if(c)c.textContent=countdown;
@@ -3018,70 +3012,53 @@ document.addEventListener('DOMContentLoaded',function(){
   window.getPrayerLocationForApi=function(){return getPrayerLocation();};
 })(); 
 
-/* v18.4 INDEPENDENT PRAYER COUNTDOWN ENGINE */
+/* v18.9 PRAYER NEXT-TIME ENGINE — no countdown */
 (function(){
   function getNextPrayerState(){
-    if(!window.prayerTimesToday)return null;
+    if(!prayerTimesToday) return null;
     const now=new Date();
-    let next=null;
     for(const name of PRAYER_NAMES){
-      const raw=String(prayerTimesToday[name]||'').slice(0,5);
-      const m=raw.match(/^(\d{1,2}):(\d{2})$/);
-      if(!m)continue;
-      const t=new Date(now);
-      t.setHours(Number(m[1]),Number(m[2]),0,0);
-      if(t>now){next={name,time:t};break;}
+      const hm=String(prayerTimesToday[name]||'').slice(0,5);
+      if(!/^\d{1,2}:\d{2}$/.test(hm)) continue;
+      const t=prayerTimeToDate(hm,now);
+      if(t>now) return {name,time:hm};
     }
-    if(!next){
-      const raw=String(prayerTimesToday.Fajr||'').slice(0,5);
-      const m=raw.match(/^(\d{1,2}):(\d{2})$/);
-      if(!m)return null;
-      const t=new Date(now);
-      t.setDate(t.getDate()+1);
-      t.setHours(Number(m[1]),Number(m[2]),0,0);
-      next={name:'Fajr',time:t};
-    }
-    return next;
+    if(prayerTimesToday.Fajr) return {name:'Fajr',time:String(prayerTimesToday.Fajr).slice(0,5)};
+    return null;
   }
 
-  function paintCountdown(){
+  function paintNextPrayer(){
     const next=getNextPrayerState();
-    if(!next)return;
-    let total=Math.max(0,Math.ceil((next.time.getTime()-Date.now())/1000));
-    const h=Math.floor(total/3600);
-    const m=Math.floor((total%3600)/60);
-    const s=total%60;
-    const text=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-    const label=(PRAYER_LABELS&&PRAYER_LABELS[next.name])||next.name;
+    const label=next ? (PRAYER_LABELS[next.name]||next.name) : '—';
+    const time=next ? prayerFormat(next.time) : '--:--';
 
-    ['prayerHomeNext','prayerDetailNext'].forEach(id=>{
-      const el=document.getElementById(id);
-      if(el)el.textContent=label;
-    });
-    ['prayerHomeCountdown','prayerDetailCountdown'].forEach(id=>{
-      const el=document.getElementById(id);
-      if(el)el.textContent=text;
-    });
+    const n1=document.getElementById('prayerHomeNext');
+    const t1=document.getElementById('prayerHomeNextTime');
+    const n2=document.getElementById('prayerDetailNext');
+    const t2=document.getElementById('prayerDetailNextTime');
+
+    if(n1)n1.textContent=label;
+    if(t1)t1.textContent=time;
+    if(n2)n2.textContent=label;
+    if(t2)t2.textContent=time;
 
     document.querySelectorAll('.prayer-row').forEach(r=>r.classList.remove('active'));
-    const row=document.getElementById('prayer'+next.name)?.closest('.prayer-row');
-    if(row)row.classList.add('active');
+    if(next){
+      const row=document.getElementById('prayer'+next.name)?.closest('.prayer-row');
+      if(row)row.classList.add('active');
+    }
   }
 
-  window.forcePrayerCountdown=paintCountdown;
+  window.forcePrayerNextTime=paintNextPrayer;
 
-  function start(){
-    paintCountdown();
-    clearInterval(window.__massPrayerCountdownTimer);
-    window.__massPrayerCountdownTimer=setInterval(paintCountdown,1000);
-  }
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',start,{once:true});
-  }else{
-    start();
-  }
+  document.addEventListener('DOMContentLoaded',function(){
+    const btn=document.getElementById('prayerHomeButton');
+    if(btn){
+      btn.addEventListener('click',function(){
+        if(typeof goToPage==='function') goToPage('prayerDetailsPage');
+      });
+    }
+    paintNextPrayer();
+    setInterval(paintNextPrayer,60000);
+  });
 })();
-
-</script>
-</body>
-</html>
