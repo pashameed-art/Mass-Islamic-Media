@@ -1,0 +1,2874 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="தினசரி துஆ - தினமும் ஒரு துஆ, தினமும் ஒரு நன்மை">
+    <meta name="theme-color" content="#0F766E">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="தினசரி துஆ">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='75' font-size='80' text-anchor='middle'>🕌</text></svg>">
+    
+    <title>தினசரி துஆ - Daily Duas</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #0F766E;
+            --primary-dark: #134E4A;
+            --text-dark: #1F2937;
+            --text-light: #F3F4F6;
+            --bg-light: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --border-light: #E5E7EB;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        html.dark {
+            --primary-color: #0F766E;
+            --primary-dark: #134E4A;
+            --text-dark: #F3F4F6;
+            --text-light: #F3F4F6;
+            --bg-light: #1F2937;
+            --bg-card: #374151;
+            --border-light: #4B5563;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Advanced Search */
+        .search-advanced {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .search-advanced.active {
+            display: block;
+        }
+
+        .search-filters {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-btn {
+            padding: 0.5rem;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            background: var(--bg-light);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Image Zoom */
+        .modal-zoom-controls {
+            position: absolute;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 3;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Swipe Navigation */
+        .swipe-arrows {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 1rem;
+            transform: translateY(-50%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .swipe-arrow {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: all;
+            transition: all 0.2s;
+        }
+
+        .swipe-arrow:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
+        }
+
+        /* Settings */
+        .settings-container {
+            padding: 1.5rem 1rem;
+        }
+
+        .settings-group {
+            margin-bottom: 2rem;
+        }
+
+        .settings-group h3 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border-light);
+        }
+
+        .toggle-switch {
+            width: 50px;
+            height: 28px;
+            background: #ccc;
+            border-radius: 14px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary-color);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 24px;
+        }
+
+        /* Today's Dua Card (Premium) */
+        .today-dua-section {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .today-dua-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .today-dua-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(15, 118, 110, 0.3);
+        }
+
+        .today-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .today-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .today-desc {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .view-more {
+            display: inline-block;
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .today-dua-card:hover .view-more {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Admin Panel */
+        .admin-section {
+            padding: 1rem;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .admin-tab-btn {
+            padding: 0.75rem 1rem;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .admin-tab-btn.active {
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .admin-form {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            font-family: inherit;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .image-upload-area {
+            border: 2px dashed var(--primary-color);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            background: rgba(15, 118, 110, 0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .image-upload-area:hover {
+            background: rgba(15, 118, 110, 0.1);
+            border-color: var(--primary-dark);
+        }
+
+        .image-upload-area.dragover {
+            background: rgba(15, 118, 110, 0.2);
+            border-color: var(--primary-dark);
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .image-info {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .form-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-save {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-save:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-cancel {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            background: var(--border-light);
+        }
+
+        /* Admin Stats */
+        .admin-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+        }
+
+        /* Backup/Restore */
+        .backup-section {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+        }
+
+        .backup-item {
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .backup-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-small:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-small.secondary {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            border: 1px solid var(--border-light);
+        }
+
+        .btn-small.secondary:hover {
+            background: var(--border-light);
+        }
+
+        /* Admin Status Messages */
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border: 1px solid #22c55e;
+        }
+
+        .alert.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .alert.info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+        }
+
+        /* PIN Protection */
+        .pin-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pin-modal.show {
+            display: flex;
+        }
+
+        .pin-container {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 300px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .pin-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .pin-input-group {
+            margin: 1.5rem 0;
+        }
+
+        .pin-input {
+            font-size: 1.5rem;
+            letter-spacing: 0.5rem;
+            text-align: center;
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .pin-keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .pin-key {
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .pin-key:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .pin-key.delete {
+            grid-column: span 3;
+            background: #ef4444;
+        }
+
+        .pin-key.delete:hover {
+            background: #dc2626;
+        }
+
+        .pin-key.submit {
+            grid-column: span 3;
+            background: #22c55e;
+            font-size: 1rem;
+        }
+
+        .pin-key.submit:hover {
+            background: #16a34a;
+        }
+
+        .pin-error {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            min-height: 1.5rem;
+        }
+
+        .pin-info {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-top: 1rem;
+        }
+
+        /* GitHub Sync */
+        .github-sync-section {
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            padding: 1.5rem;
+            border-radius: 8px;
+            color: #c9d1d9;
+            margin-bottom: 1.5rem;
+            border: 1px solid #30363d;
+        }
+
+        .github-sync-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .github-sync-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .github-sync-config {
+            background: rgba(48, 54, 61, 0.5);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border: 1px solid #30363d;
+        }
+
+        .github-config-group {
+            margin-bottom: 0.75rem;
+        }
+
+        .github-config-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .github-config-label {
+            display: block;
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .github-config-input {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .github-config-input::placeholder {
+            color: #6e7681;
+        }
+
+        .github-sync-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .btn-github {
+            padding: 0.75rem;
+            background: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-github:hover {
+            background: #2ea043;
+        }
+
+        .btn-github.secondary {
+            background: #30363d;
+            color: #c9d1d9;
+        }
+
+        .btn-github.secondary:hover {
+            background: #484f58;
+        }
+
+        .github-status {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(48, 54, 61, 0.5);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .github-status.synced {
+            background: rgba(34, 134, 58, 0.2);
+            border: 1px solid #238636;
+            color: #7ee787;
+        }
+
+        .github-status.syncing {
+            background: rgba(79, 90, 102, 0.2);
+            border: 1px solid #6e7681;
+            color: #8b949e;
+        }
+
+        .github-status.error {
+            background: rgba(248, 81, 73, 0.2);
+            border: 1px solid #da3633;
+            color: #f85149;
+        }
+
+        .header-icon {
+            font-size: 2rem;
+            margin-right: 0.5rem;
+            display: inline-block;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-header {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-header:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Install Banner */
+        .install-banner {
+            background: linear-gradient(135deg, #059669 0%, var(--primary-color) 100%);
+            color: white;
+            padding: 1rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .install-banner.hidden {
+            display: none;
+        }
+
+        .install-banner-text h3 {
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .install-banner-text p {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .btn-install {
+            background: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .btn-install:hover {
+            transform: scale(1.05);
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Daily Dua Section */
+        .daily-section {
+            padding: 1rem;
+        }
+
+        .daily-label {
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .daily-card {
+            background: var(--bg-card);
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .daily-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(15, 118, 110, 0.15);
+        }
+
+        .daily-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .daily-card p {
+            opacity: 0.7;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .daily-card-hint {
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        /* Search */
+        .search-container {
+            padding: 1rem;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            gap: 0.5rem;
+        }
+
+        .search-box input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-dark);
+            font-size: 1rem;
+        }
+
+        .search-box input::placeholder {
+            color: #9CA3AF;
+        }
+
+        /* Categories */
+        .categories {
+            display: flex;
+            overflow-x: auto;
+            gap: 0.5rem;
+            padding: 1rem;
+            padding-bottom: 0.5rem;
+            scroll-behavior: smooth;
+        }
+
+        .categories::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .categories::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .category-btn {
+            flex-shrink: 0;
+            background: var(--border-light);
+            border: 2px solid transparent;
+            color: var(--text-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        .category-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Dua Grid */
+        .dua-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .dua-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--border-light);
+        }
+
+        .dua-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(15, 118, 110, 0.2);
+        }
+
+        .dua-card-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .dua-card-icon {
+            font-size: 1.5rem;
+        }
+
+        .dua-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .dua-card-body {
+            padding: 1rem;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dua-card-desc {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            line-height: 1.4;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6B7280;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 9/16;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(1);
+            transition: transform 0.3s;
+        }
+
+        .modal-content.zoomed {
+            transform: scale(2);
+        }
+
+        .dua-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-controls {
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+            color: white;
+            z-index: 2;
+        }
+
+        .modal-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            color: white;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 1.2rem;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        /* Navigation */
+        .nav-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            color: #6B7280;
+            transition: all 0.2s;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav-btn.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .nav-btn span:first-child {
+            font-size: 1.3rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .dua-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .modal-content {
+                max-width: 100%;
+                aspect-ratio: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <span class="header-icon">🕌</span>
+                <span>Mass Islamic Media</span>
+            </h1>
+            <p class="tagline">Knowledge • Dawah • Duas</p>
+            <div class="header-actions">
+                <button class="btn-header" id="installBtn" style="display:none;">
+                    <span>📱</span>
+                    <span>Install App</span>
+                </button>
+                <button class="btn-header" id="darkModeBtn">
+                    <span id="darkIcon">🌙</span>
+                    <span id="darkText">Dark</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Install Banner -->
+        <div class="install-banner hidden" id="installBanner">
+            <div class="install-banner-text">
+                <h3>📱 ஆப்பை நிறுவுங்கள்</h3>
+                <p>Home Screen இல் add செய்யவும் - offline-ல்கூட வேலை செய்யும்</p>
+            </div>
+            <button class="btn-install" id="installBannerBtn">நிறுவு</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Home Page -->
+            <div class="page active" id="homePage">
+                <!-- Daily Dua -->
+                <div class="daily-section">
+                    <h3 class="daily-label">🌟 இன்றைய துஆ</h3>
+                    <div class="daily-card" id="dailyDua">
+                        <h4 id="dailyTitle">கிளியாக மக்களுக்கு</h4>
+                        <p id="dailyDesc">Loading...</p>
+                        <p class="daily-card-hint">விரிவாக பார்க்க தட்டவும் →</p>
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <div class="search-container">
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" id="searchInput" placeholder="துஆவைத் தேடுக...">
+                        <button id="advancedSearchBtn" style="background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0 0.5rem;">⚙️</button>
+                    </div>
+                    
+                    <!-- Advanced Search -->
+                    <div class="search-advanced" id="advancedSearch">
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 600;">அறிமுக:</label>
+                            <div class="search-filters" id="categoryFilters"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories -->
+                <div class="categories" id="categoriesContainer"></div>
+
+                <!-- Dua Grid -->
+                <div class="dua-grid" id="duaGrid"></div>
+            </div>
+
+            <!-- Favorites Page -->
+            <div class="page" id="favoritesPage">
+                <div style="padding: 1rem;">
+                    <h2 style="margin-bottom: 1rem;">⭐ பிடித்த துஆ</h2>
+                </div>
+                <div class="dua-grid" id="favoritesGrid"></div>
+            </div>
+
+            <!-- Admin Panel Page -->
+            <div class="page" id="adminPage">
+                <div class="admin-section">
+                    <h2 style="margin-bottom: 1.5rem;">👨‍💼 Admin Panel</h2>
+
+                    <div class="admin-tabs">
+                        <button class="admin-tab-btn active" id="addDuaTab">➕ புதிய துஆ</button>
+                        <button class="admin-tab-btn" id="manageDuasTab">📋 Manage</button>
+                        <button class="admin-tab-btn" id="backupTab">💾 Backup</button>
+                    </div>
+
+                    <!-- Add New Dua Tab -->
+                    <div class="admin-tab-content" id="addDuaContent">
+                        <div class="alert" id="addAlert"></div>
+
+                        <div class="admin-stats">
+                            <div class="stat-card">
+                                <div class="stat-value" id="totalDuas">0</div>
+                                <div class="stat-label">Total Duas</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="totalStorage">0 KB</div>
+                                <div class="stat-label">Storage Used</div>
+                            </div>
+                        </div>
+
+                        <form class="admin-form" id="addDuaForm">
+                            <div class="form-group">
+                                <label for="duaTitle">தலைப்பு (Title) *</label>
+                                <input type="text" id="duaTitle" placeholder="e.g., காலை துஆ" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="duaCategory">📂 Category *</label>
+                                <select id="duaCategory" required>
+                                    <option value="">-- Select Category --</option>
+                                    <option value="morning">🌅 Morning</option>
+                                    <option value="forgiveness">🤲 Forgiveness</option>
+                                    <option value="travel">✈️ Travel</option>
+                                    <option value="sleep">🌙 Sleep</option>
+                                    <option value="food">🍽️ Food</option>
+                                    <option value="knowledge">📖 Knowledge</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="duaDescription">விளக்கம் (Description) *</label>
+                                <textarea id="duaDescription" placeholder="Dua description in Tamil..." required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>🖼️ Upload Image *</label>
+                                <div class="image-upload-area" id="imageUploadArea">
+                                    <p style="margin: 0; font-size: 1rem; color: var(--text-dark);">
+                                        📁 Click or drag image here
+                                    </p>
+                                    <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; opacity: 0.7;">
+                                        Supported: PNG, JPG, WebP | Max: 2MB
+                                    </p>
+                                    <input type="file" id="duaImageInput" accept="image/*" style="display: none;">
+                                </div>
+                                <img id="imagePreview" class="image-preview" style="display: none;">
+                                <div class="image-info" id="imageInfo"></div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn-save">💾 Save Dua</button>
+                                <button type="reset" class="btn-cancel">Clear Form</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Manage Duas Tab -->
+                    <div class="admin-tab-content" id="manageDuasContent" style="display: none;">
+                        <div class="alert" id="manageAlert"></div>
+                        <div id="duasListAdmin" style="margin-top: 1rem;"></div>
+                    </div>
+
+                    <!-- Backup Tab -->
+                    <div class="admin-tab-content" id="backupContent" style="display: none;">
+                        <div class="alert" id="backupAlert"></div>
+
+                        <div class="backup-section">
+                            <h3 style="margin-top: 0;">💾 Backup & Restore</h3>
+
+                            <div style="margin-top: 1.5rem;">
+                                <h4 style="margin-bottom: 1rem;">📤 Backup (Local Storage)</h4>
+                                <p style="opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem;">
+                                    Download all your duas and favorites as JSON file
+                                </p>
+                                <button class="btn-small" id="backupBtn">📥 Download Backup</button>
+                            </div>
+
+                            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+                                <h4 style="margin-bottom: 1rem;">📤 Restore (Upload JSON)</h4>
+                                <p style="opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem;">
+                                    Upload previously backed up JSON file
+                                </p>
+                                <input type="file" id="restoreInput" accept=".json" style="display: none;">
+                                <button class="btn-small secondary" id="restoreBtn">📤 Upload Backup</button>
+                            </div>
+
+                            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+                                <h4 style="margin-bottom: 1rem;">⚙️ Export All Duas (CSV)</h4>
+                                <p style="opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem;">
+                                    Export all duas as CSV for spreadsheet editing
+                                </p>
+                                <button class="btn-small secondary" id="exportCsvBtn">📊 Export as CSV</button>
+                            </div>
+
+                            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+                                <h4 style="margin-bottom: 1rem;">☁️ GitHub Sync</h4>
+                                <p style="opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem;">
+                                    உங்க் GitHub repository-ல் direct upload செய்யவும்
+                                </p>
+                                <div class="form-group">
+                                    <input type="text" id="githubRepoInput" placeholder="username/repo" style="width: 100%; padding: 0.75rem; margin-bottom: 0.5rem; border: 1px solid var(--border-light); border-radius: 6px;">
+                                    <input type="password" id="githubTokenInput" placeholder="GitHub Personal Token" style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 1px solid var(--border-light); border-radius: 6px;">
+                                </div>
+                                <button class="btn-small" id="syncGithubBtn">📤 Sync to GitHub</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div class="page" id="settingsPage">
+                <div class="settings-container">
+                    <h2 style="margin-bottom: 2rem;">⚙️ Settings</h2>
+
+                    <!-- Notifications -->
+                    <div class="settings-group">
+                        <h3>🔔 Notifications</h3>
+                        <div class="settings-item">
+                            <span>Daily Dua Notification</span>
+                            <div class="toggle-switch" id="notificationToggle"></div>
+                        </div>
+                        <div class="settings-item">
+                            <span>Notification Time</span>
+                            <input type="time" id="notificationTime" value="08:00" style="border: none; background: none; color: var(--text-dark);">
+                        </div>
+                    </div>
+
+                    <!-- Display -->
+                    <div class="settings-group">
+                        <h3>🎨 Display</h3>
+                        <div class="settings-item">
+                            <span>Dark Mode</span>
+                            <div class="toggle-switch" id="darkModeToggle"></div>
+                        </div>
+                    </div>
+
+                    <!-- Admin -->
+                    <div class="settings-group">
+                        <h3>👨‍💼 Admin Mode</h3>
+                        <div class="settings-item">
+                            <span>Enable Admin Panel</span>
+                            <div class="toggle-switch" id="adminToggle"></div>
+                        </div>
+                        <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.75rem;">
+                            Add duas, upload images, manage content
+                        </p>
+                    </div>
+
+                    <!-- About -->
+                    <div class="settings-group">
+                        <h3>ℹ️ About</h3>
+                        <div class="settings-item">
+                            <div>
+                                <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 17.5</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIN Protection Modal -->
+    <div class="pin-modal" id="pinModal">
+        <div class="pin-container">
+            <div class="pin-title">🔐 Admin PIN</div>
+            <p id="pinModalMessage" style="margin-bottom: 1rem; font-size: 0.9rem;">Enter your 4-digit PIN</p>
+            
+            <div class="pin-input-group">
+                <input type="text" id="pinInput" class="pin-input" maxlength="4" placeholder="••••" readonly>
+            </div>
+
+            <div class="pin-keypad">
+                <button class="pin-key" onclick="pinKeypress('1')">1</button>
+                <button class="pin-key" onclick="pinKeypress('2')">2</button>
+                <button class="pin-key" onclick="pinKeypress('3')">3</button>
+                <button class="pin-key" onclick="pinKeypress('4')">4</button>
+                <button class="pin-key" onclick="pinKeypress('5')">5</button>
+                <button class="pin-key" onclick="pinKeypress('6')">6</button>
+                <button class="pin-key" onclick="pinKeypress('7')">7</button>
+                <button class="pin-key" onclick="pinKeypress('8')">8</button>
+                <button class="pin-key" onclick="pinKeypress('9')">9</button>
+                <button class="pin-key delete" onclick="pinDelete()">🔙 Delete</button>
+                <button class="pin-key" onclick="pinKeypress('0')">0</button>
+                <button type="button" class="pin-key submit" onclick="return pinSubmit()">✓ Submit</button>
+            </div>
+
+            <div class="pin-error" id="pinError"></div>
+            <div class="pin-info" id="pinInfo"></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content" id="modalContent">
+            <img id="modalImage" class="dua-image" src="" alt="">
+            <div class="modal-controls">
+                <button class="icon-btn" id="closeModal">✕</button>
+            </div>
+            <div class="swipe-arrows">
+                <button class="swipe-arrow" id="prevDua">◄</button>
+                <button class="swipe-arrow" id="nextDua">►</button>
+            </div>
+            <div class="modal-zoom-controls">
+                <button class="zoom-btn" id="zoomIn">🔍+</button>
+                <button class="zoom-btn" id="zoomOut">🔍-</button>
+            </div>
+            <div class="modal-bottom">
+                <button class="icon-btn" id="favoriteBtn">🤍</button>
+                <button class="icon-btn" id="shareBtn">📤</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-bottom">
+        <button class="nav-btn active" id="homeNav">
+            <span>🏠</span>
+            <span>Home</span>
+        </button>
+        <button class="nav-btn" id="favoritesNav">
+            <span>⭐</span>
+            <span>Favorites</span>
+        </button>
+        <button class="nav-btn" id="settingsNav">
+            <span>⚙️</span>
+            <span>Settings</span>
+        </button>
+        <button class="nav-btn" id="adminNav" style="display: none;">
+            <span>👨‍💼</span>
+            <span>Admin</span>
+        </button>
+    </div>
+
+    <script>
+        // ============= DATA =============
+        const duasData = [
+            {
+                id: 1,
+                title: 'காலை துஆ',
+                category: 'morning',
+                image: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%230F766E;stop-opacity:1" /><stop offset="100%" style="stop-color:%23134E4A;stop-opacity:1" /></linearGradient></defs><rect fill="url(#g1)" width="400" height="600"/><text x="200" y="80" font-size="32" font-weight="bold" text-anchor="middle" fill="white" font-family="Arial">🌅 காலை துஆ</text><text x="200" y="150" font-size="16" text-anchor="middle" fill="white" font-family="Arial" opacity="0.9">அல்ஹம்துலிஆ, அல்ஹம்துலிஆ</text><text x="200" y="300" font-size="18" text-anchor="middle" fill="white" font-family="Arial" opacity="0.8" dy="1.2em"><tspan x="200">உம்மேத் அல்ஹக்கு, வ அத்ஜ்ஜேராய்,</tspan><tspan x="200" dy="1.5em">வ ஃபனாய் அல்பாத்டிலு.</tspan></text><text x="200" y="520" font-size="14" text-anchor="middle" fill="white" font-family="Arial" opacity="0.7">"தினமும் புதிய மெய்யளிக்க நன்றி"</text></svg>',
+                description: 'அல்-லாஹ்வுக்கு நன்றி சொல்லலாம்'
+            },
+            {
+                id: 2,
+                title: 'மன்னிப்பு துஆ',
+                category: 'forgiveness',
+                image: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600"><defs><linearGradient id="g2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%23166534;stop-opacity:1" /><stop offset="100%" style="stop-color:%230F766E;stop-opacity:1" /></linearGradient></defs><rect fill="url(#g2)" width="400" height="600"/><text x="200" y="80" font-size="32" font-weight="bold" text-anchor="middle" fill="white" font-family="Arial">🤲 மன்னிப்பு துஆ</text><text x="200" y="150" font-size="16" text-anchor="middle" fill="white" font-family="Arial" opacity="0.9">அல்லாஹ்வே, எனக்குக் கூடவும்</text><text x="200" y="300" font-size="18" text-anchor="middle" fill="white" font-family="Arial" opacity="0.8" dy="1.2em"><tspan x="200">அஸ்தக்பிறு அல்லலாஹ, வ அதுபு இலைஹி,</tspan><tspan x="200" dy="1.5em">மின்ன குல்லி தம்பின் அரிஜ்ஜு,</tspan><tspan x="200" dy="1.5em">வ மின் குல்லி கட்வதின் அர்ஹாபு.</tspan></text><text x="200" y="520" font-size="14" text-anchor="middle" fill="white" font-family="Arial" opacity="0.7">"நம் குறைகள் மன்னிக்க வேண்டி"</text></svg>',
+                description: 'தவறுகளை மன்னிக்கக் கேட்டல்'
+            },
+            {
+                id: 3,
+                title: 'பயண துஆ',
+                category: 'travel',
+                image: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600"><defs><linearGradient id="g3" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%230F766E;stop-opacity:1" /><stop offset="100%" style="stop-color:%23115E59;stop-opacity:1" /></linearGradient></defs><rect fill="url(#g3)" width="400" height="600"/><text x="200" y="80" font-size="32" font-weight="bold" text-anchor="middle" fill="white" font-family="Arial">✈️ பயண துஆ</text><text x="200" y="150" font-size="16" text-anchor="middle" fill="white" font-family="Arial" opacity="0.9">பயணத்தில் சுரக்ஷை கேட்டல்</text><text x="200" y="300" font-size="18" text-anchor="middle" fill="white" font-family="Arial" opacity="0.8" dy="1.2em"><tspan x="200">அல்லாஹு அக்பர், அல்லாஹு அக்பர்,</tspan><tspan x="200" dy="1.5em">அல்லாஹு அக்பர், ஸுப்ஹான அல்லாதீ,</tspan><tspan x="200" dy="1.5em">ஸக்கரா லனா ஹாதா.</tspan></text><text x="200" y="520" font-size="14" text-anchor="middle" fill="white" font-family="Arial" opacity="0.7">"எனக்கு பாதுகாப்பளிக்கும் பயணம்"</text></svg>',
+                description: 'பாதுகாப்புடன் பயணம் செய்ய'
+            },
+            {
+                id: 4,
+                title: 'தூங்கும் முன் துஆ',
+                category: 'sleep',
+                image: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600"><defs><linearGradient id="g4" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%231F2937;stop-opacity:1" /><stop offset="100%" style="stop-color:%230F3A3A;stop-opacity:1" /></linearGradient></defs><rect fill="url(#g4)" width="400" height="600"/><text x="200" y="80" font-size="32" font-weight="bold" text-anchor="middle" fill="white" font-family="Arial">🌙 நித்திரை துஆ</text><text x="200" y="150" font-size="16" text-anchor="middle" fill="white" font-family="Arial" opacity="0.9">தூங்குவதற்கு முன் நன்றிசொல்லலாம்</text><text x="200" y="300" font-size="18" text-anchor="middle" fill="white" font-family="Arial" opacity="0.8" dy="1.2em"><tspan x="200">அல்லாஹும்ம இன்னீ ஆஸ்லம்து,</tspan><tspan x="200" dy="1.5em">வஜ்ஜாஹ்து வஜ்ஹீ இலைக,</tspan><tspan x="200" dy="1.5em">வ ஃபவ்வால்து அம்ரீ இலைக.</tspan></text><text x="200" y="520" font-size="14" text-anchor="middle" fill="white" font-family="Arial" opacity="0.7">"பொதிந்த மனது, ஆரோக்கியம் தூங்க"</text></svg>',
+                description: 'ஆரோக்கியமான தூக்கத்திற்கு'
+            },
+            {
+                id: 5,
+                title: 'உணவு துஆ',
+                category: 'food',
+                image: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600"><defs><linearGradient id="g5" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%230F766E;stop-opacity:1" /><stop offset="100%" style="stop-color:%234C6A6A;stop-opacity:1" /></linearGradient></defs><rect fill="url(#g5)" width="400" height="600"/><text x="200" y="80" font-size="32" font-weight="bold" text-anchor="middle" fill="white" font-family="Arial">🍽️ உணவு துஆ</text><text x="200" y="150" font-size="16" text-anchor="middle" fill="white" font-family="Arial" opacity="0.9">சாப்பிடுவதற்குமுன் நன்றிசொல்லலாம்</text><text x="200" y="300" font-size="18" text-anchor="middle" fill="white" font-family="Arial" opacity="0.8" dy="1.2em"><tspan x="200">அல்லாஹும்ம, பாரிக் லனா ஃபீஹி,</tspan><tspan x="200" dy="1.5em">வ கீனா அஸாபஹு வ முஸீபஹ.</tspan></text><text x="200" y="520" font-size="14" text-anchor="middle" fill="white" font-family="Arial" opacity="0.7">"உணவுக்கு நன்றி சொல்லல் புண்ணியம்"</text></svg>',
+                description: 'உணவுக்கு நன்றி சொல்லலாம்'
+            },
+            {
+                id: 6,
+                title: 'ஞான துஆ',
+                category: 'knowledge',
+                image: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600"><defs><linearGradient id="g6" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%230F766E;stop-opacity:1" /><stop offset="100%" style="stop-color:%23164F5A;stop-opacity:1" /></linearGradient></defs><rect fill="url(#g6)" width="400" height="600"/><text x="200" y="80" font-size="32" font-weight="bold" text-anchor="middle" fill="white" font-family="Arial">📖 ஞான துஆ</text><text x="200" y="150" font-size="16" text-anchor="middle" fill="white" font-family="Arial" opacity="0.9">அறிவு கேட்டுக் கொள்ளல்</text><text x="200" y="300" font-size="18" text-anchor="middle" fill="white" font-family="Arial" opacity="0.8" dy="1.2em"><tspan x="200">அல்லாஹும்ம, இன்னீ அஸலுக,</tspan><tspan x="200" dy="1.5em">இல்மன் நாஃபியுன், வ ரிஸ்கன் தய்யிபுன்,</tspan><tspan x="200" dy="1.5em">வ அமலன் முத்கபூலுன்.</tspan></text><text x="200" y="520" font-size="14" text-anchor="middle" fill="white" font-family="Arial" opacity="0.7">"முன்னேற்றத்திற்கான அறிவைக் கேட்க"</text></svg>',
+                description: 'தர்மம் மற்றும் அறிவைக் கேட்கல்'
+            }
+        ];
+
+        const categories = [
+            { id: 'all', name: 'அனைத்து', icon: '📱' },
+            { id: 'morning', name: 'காலை', icon: '🌅' },
+            { id: 'forgiveness', name: 'மன்னிப்பு', icon: '🤲' },
+            { id: 'travel', name: 'பயணம்', icon: '✈️' },
+            { id: 'sleep', name: 'தூக்கம்', icon: '🌙' },
+            { id: 'food', name: 'உணவு', icon: '🍽️' },
+            { id: 'knowledge', name: 'ஞானம்', icon: '📖' }
+        ];
+
+        // ============= STATE =============
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        let selectedCategory = 'all';
+        let searchTerm = '';
+        let selectedDua = null;
+        let deferredPrompt = null;
+        let currentPage = 'home';
+        let notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
+        let notificationTime = localStorage.getItem('notificationTime') || '08:00';
+        let zoomLevel = 1;
+        let isAdmin = false;  // Changed to false by default
+        let selectedImageFile = null;
+        let adminPIN = localStorage.getItem('adminPIN') || null;
+        let adminAuthenticated = false;
+        let githubRepo = localStorage.getItem('githubRepo') || '';
+
+        // ============= PIN PROTECTION FUNCTIONS =============
+        // ============= ADMIN PIN PROTECTION (FINAL 4-DIGIT VERSION) =============
+        function setupAdminPIN() {
+            showPINModal(adminPIN ? 'verify' : 'setup');
+        }
+
+        function showPINModal(mode) {
+            const modal = document.getElementById('pinModal');
+            const message = document.getElementById('pinModalMessage');
+            const info = document.getElementById('pinInfo');
+            const error = document.getElementById('pinError');
+            window.pinMode = mode;
+            window.pinValue = '';
+            if (message) message.textContent = mode === 'setup'
+                ? 'Set your 4-digit Admin PIN'
+                : 'Enter your 4-digit PIN';
+            if (info) info.textContent = mode === 'setup'
+                ? '4 digits required'
+                : '';
+            if (error) error.textContent = '';
+            if (modal) {
+                modal.classList.add('show');
+                modal.style.display = 'flex';
+            }
+            updatePINDisplay();
+        }
+
+        function pinKeypress(digit) {
+            digit = String(digit);
+            if (!/^\d$/.test(digit)) return;
+            if ((window.pinValue || '').length >= 4) return;
+            window.pinValue = (window.pinValue || '') + digit;
+            updatePINDisplay();
+        }
+
+        function pinDelete() {
+            window.pinValue = (window.pinValue || '').slice(0, -1);
+            updatePINDisplay();
+        }
+
+        function updatePINDisplay() {
+            const input = document.getElementById('pinInput');
+            if (input) input.value = '•'.repeat((window.pinValue || '').length);
+        }
+
+        function pinSubmit() {
+            const pin = String(window.pinValue || '');
+            const error = document.getElementById('pinError');
+
+            if (!/^\d{4}$/.test(pin)) {
+                if (error) error.textContent = '❌ 4 digit PIN enter செய்யவும்';
+                return false;
+            }
+
+            if (window.pinMode === 'setup' || !adminPIN) {
+                adminPIN = pin;
+                localStorage.setItem('adminPIN', pin);
+                adminAuthenticated = true;
+                isAdmin = true;
+                closePINModal();
+                const nav = document.getElementById('adminNav');
+                if (nav) nav.style.display = 'flex';
+                showAdminAlert('addAlert', '✅ 4-digit Admin PIN set successfully!', 'success');
+                goToPage('admin');
+                return false;
+            }
+
+            if (pin === String(adminPIN)) {
+                adminAuthenticated = true;
+                isAdmin = true;
+                closePINModal();
+                const nav = document.getElementById('adminNav');
+                if (nav) nav.style.display = 'flex';
+                showAdminAlert('addAlert', '✅ Admin access granted!', 'success');
+                goToPage('admin');
+            } else {
+                if (error) error.textContent = '❌ Wrong PIN. Try again.';
+                window.pinValue = '';
+                updatePINDisplay();
+            }
+            return false;
+        }
+
+        function closePINModal() {
+            const modal = document.getElementById('pinModal');
+            window.pinValue = '';
+            updatePINDisplay();
+            if (modal) {
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+            }
+            const error = document.getElementById('pinError');
+            if (error) error.textContent = '';
+        }
+
+        function openPINModal() {
+            showPINModal(adminPIN ? 'verify' : 'setup');
+        }
+
+        function savePIN() { return pinSubmit(); }
+        function verifyPIN() { return pinSubmit(); }
+
+        function checkAdminAccess() {
+            if (adminPIN && !adminAuthenticated) {
+                openPINModal();
+                return false;
+            }
+            return true;
+        }
+
+        // ============= INITIALIZATION =============
+        function init() {
+            initDarkMode();
+            initPWA();
+            loadCustomDuas();
+            renderCategories();
+            renderDuas();
+            renderDaily();
+            attachEventListeners();
+            initAdminPanel();
+            
+            // Initialize admin panel
+            if (isAdmin) {
+                document.getElementById('adminNav').style.display = 'flex';
+            }
+            
+            // Load GitHub config if exists
+            const savedRepo = localStorage.getItem('githubRepo');
+            if (savedRepo) {
+                document.getElementById('githubRepoInput').value = savedRepo;
+            }
+        }
+
+        // Load custom duas from localStorage
+        function loadCustomDuas() {
+            const saved = localStorage.getItem('customDuas');
+            if (saved) {
+                try {
+                    const customDuas = JSON.parse(saved);
+                    duasData = [...duasData, ...customDuas];
+                } catch (e) {
+                    console.error('Error loading custom duas:', e);
+                }
+            }
+        }
+
+        function initDarkMode() {
+            if (darkMode) {
+                document.documentElement.classList.add('dark');
+                updateDarkModeButton();
+            }
+            updateSettingsToggle();
+            updateNotificationToggle();
+            
+            // Schedule notification if enabled
+            if (notificationsEnabled) {
+                scheduleNotification();
+            }
+        }
+
+        function initPWA() {
+            // Service Worker
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    const cacheName = 'duas-v1';
+                    self.addEventListener('install', () => self.skipWaiting());
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            caches.open(cacheName).then((cache) => {
+                                return cache.match(e.request).catch(() => fetch(e.request));
+                            }).catch(() => caches.match('/index.html'))
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(() => {});
+            }
+
+            // Install Prompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                document.getElementById('installBtn').style.display = 'flex';
+                document.getElementById('installBanner').classList.remove('hidden');
+            });
+        }
+
+        function attachEventListeners() {
+            // Search
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                searchTerm = e.target.value.toLowerCase();
+                renderDuas();
+            });
+
+            // Advanced Search
+            document.getElementById('advancedSearchBtn').addEventListener('click', () => {
+                const advanced = document.getElementById('advancedSearch');
+                advanced.classList.toggle('active');
+            });
+
+            // Render category filters for advanced search
+            const filtersContainer = document.getElementById('categoryFilters');
+            categories.slice(1).forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.textContent = cat.icon + ' ' + cat.name;
+                btn.onclick = () => {
+                    btn.classList.toggle('active');
+                };
+                filtersContainer.appendChild(btn);
+            });
+
+            // Dark Mode
+            document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
+
+            // Install
+            document.getElementById('installBtn').addEventListener('click', handleInstall);
+            document.getElementById('installBannerBtn').addEventListener('click', handleInstall);
+
+            // Navigation
+            document.getElementById('homeNav').addEventListener('click', () => goToPage('home'));
+            document.getElementById('favoritesNav').addEventListener('click', () => goToPage('favorites'));
+            document.getElementById('settingsNav').addEventListener('click', () => goToPage('settings'));
+            document.getElementById('adminNav').addEventListener('click', () => goToPage('admin'));
+
+            // Settings
+            document.getElementById('notificationToggle').addEventListener('click', toggleNotifications);
+            document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+            document.getElementById('adminToggle').addEventListener('click', toggleAdminMode);
+            document.getElementById('notificationTime').addEventListener('change', (e) => {
+                notificationTime = e.target.value;
+                localStorage.setItem('notificationTime', notificationTime);
+            });
+
+            // Zoom
+            document.getElementById('zoomIn').addEventListener('click', zoomImageIn);
+            document.getElementById('zoomOut').addEventListener('click', zoomImageOut);
+
+            // Swipe Navigation
+            document.getElementById('nextDua').addEventListener('click', showNextDua);
+            document.getElementById('prevDua').addEventListener('click', showPreviousDua);
+
+            // Touch swipe
+            let touchStartX = 0;
+            document.getElementById('modal').addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+            });
+            document.getElementById('modal').addEventListener('touchend', (e) => {
+                const touchEndX = e.changedTouches[0].clientX;
+                if (touchStartX - touchEndX > 50) showNextDua();
+                if (touchEndX - touchStartX > 50) showPreviousDua();
+            });
+
+            // Modal
+            document.getElementById('closeModal').addEventListener('click', closeModal);
+            document.getElementById('favoriteBtn').addEventListener('click', toggleFavorite);
+            document.getElementById('shareBtn').addEventListener('click', shareDua);
+            document.getElementById('modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('modal')) closeModal();
+            });
+        }
+
+        // ============= RENDERING =============
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = categories.map(cat => `
+                <button class="category-btn ${cat.id === 'all' ? 'active' : ''}" 
+                    onclick="selectCategory('${cat.id}')">
+                    <span>${cat.icon}</span>
+                    <span>${cat.name}</span>
+                </button>
+            `).join('');
+        }
+
+        function renderDuas() {
+            const filtered = duasData.filter(dua => {
+                const categoryMatch = selectedCategory === 'all' || dua.category === selectedCategory;
+                const searchMatch = dua.title.toLowerCase().includes(searchTerm) || 
+                                   dua.description.toLowerCase().includes(searchTerm);
+                return categoryMatch && searchMatch;
+            });
+            
+            filteredDuas = filtered;  // Store for swipe navigation
+
+            const grid = document.getElementById('duaGrid');
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-icon">🔍</div><p>துஆ கிடைக்கவில்லை</p></div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(dua => `
+                <div class="dua-card" onclick="openModal(${dua.id})">
+                    <div class="dua-card-header">
+                        <div class="dua-card-icon">${getCategoryIcon(dua.category)}</div>
+                        <div class="dua-card-title">${dua.title}</div>
+                    </div>
+                    <div class="dua-card-body">
+                        <div class="dua-card-desc">${dua.description}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderDaily() {
+            const today = new Date().getDate();
+            const daily = duasData[today % duasData.length];
+            document.getElementById('dailyTitle').textContent = daily.title;
+            document.getElementById('dailyDesc').textContent = daily.description;
+            document.getElementById('dailyDua').addEventListener('click', () => openModal(daily.id));
+        }
+
+        function renderFavorites() {
+            const favoriteDuas = duasData.filter(d => favorites.includes(d.id));
+            const grid = document.getElementById('favoritesGrid');
+            
+            if (favoriteDuas.length === 0) {
+                grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-icon">⭐</div><p>பிடித்த துஆவை சேர்க்கவும்</p></div>';
+                return;
+            }
+
+            grid.innerHTML = favoriteDuas.map(dua => `
+                <div class="dua-card" onclick="openModal(${dua.id})">
+                    <div class="dua-card-header">
+                        <div class="dua-card-icon">${getCategoryIcon(dua.category)}</div>
+                        <div class="dua-card-title">${dua.title}</div>
+                    </div>
+                    <div class="dua-card-body">
+                        <div class="dua-card-desc">${dua.description}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCategoryIcon(category) {
+            const cat = categories.find(c => c.id === category);
+            return cat ? cat.icon : '📖';
+        }
+
+        // ============= INTERACTIONS =============
+        function selectCategory(catId) {
+            selectedCategory = catId;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(categories.find(c => c.id === catId).name));
+            });
+            renderDuas();
+        }
+
+        function toggleDarkMode() {
+            darkMode = !darkMode;
+            localStorage.setItem('darkMode', darkMode);
+            document.documentElement.classList.toggle('dark');
+            updateDarkModeButton();
+            updateSettingsToggle();
+        }
+
+        // Notifications
+        function toggleNotifications() {
+            notificationsEnabled = !notificationsEnabled;
+            localStorage.setItem('notificationsEnabled', notificationsEnabled);
+            updateNotificationToggle();
+            
+            if (notificationsEnabled) {
+                requestNotificationPermission();
+                scheduleNotification();
+            }
+        }
+
+        function updateNotificationToggle() {
+            const toggle = document.getElementById('notificationToggle');
+            toggle.classList.toggle('active', notificationsEnabled);
+        }
+
+        function updateSettingsToggle() {
+            const darkToggle = document.getElementById('darkModeToggle');
+            darkToggle.classList.toggle('active', darkMode);
+        }
+
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
+
+        // Image Compression
+        function compressImage(file, callback, maxSize = 2 * 1024 * 1024) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Max dimensions
+                    const maxDim = 1200;
+                    if (width > height) {
+                        if (width > maxDim) {
+                            height = height * (maxDim / width);
+                            width = maxDim;
+                        }
+                    } else {
+                        if (height > maxDim) {
+                            width = width * (maxDim / height);
+                            height = maxDim;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Compress with quality
+                    let quality = 0.8;
+                    let compressedData = canvas.toDataURL('image/webp', quality);
+
+                    // If still too large, reduce quality
+                    while (compressedData.length > maxSize && quality > 0.1) {
+                        quality -= 0.1;
+                        compressedData = canvas.toDataURL('image/webp', quality);
+                    }
+
+                    const originalSize = file.size;
+                    const compressedSize = Math.round(compressedData.length * 0.75);
+                    const ratio = Math.round((1 - compressedSize / originalSize) * 100);
+
+                    callback({
+                        data: compressedData,
+                        originalSize: originalSize,
+                        compressedSize: compressedSize,
+                        ratio: ratio
+                    });
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Admin Panel Functions
+        function initAdminPanel() {
+            // Tab switching
+            document.getElementById('addDuaTab').addEventListener('click', () => switchAdminTab('addDua'));
+            document.getElementById('manageDuasTab').addEventListener('click', () => switchAdminTab('manageDuas'));
+            document.getElementById('backupTab').addEventListener('click', () => switchAdminTab('backup'));
+
+            // Image upload
+            const uploadArea = document.getElementById('imageUploadArea');
+            const imageInput = document.getElementById('duaImageInput');
+
+            uploadArea.addEventListener('click', () => imageInput.click());
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    handleImageSelect(e.dataTransfer.files[0]);
+                }
+            });
+
+            imageInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleImageSelect(e.target.files[0]);
+                }
+            });
+
+            // Form submit
+            document.getElementById('addDuaForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                addNewDua();
+            });
+
+            // Backup buttons
+            document.getElementById('backupBtn').addEventListener('click', backupData);
+            document.getElementById('restoreBtn').addEventListener('click', () => document.getElementById('restoreInput').click());
+            document.getElementById('restoreInput').addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    restoreData(e.target.files[0]);
+                }
+            });
+            document.getElementById('exportCsvBtn').addEventListener('click', exportAsCSV);
+            document.getElementById('syncGithubBtn').addEventListener('click', syncToGitHub);
+
+            updateAdminStats();
+        }
+
+        function handleImageSelect(file) {
+            if (!file.type.startsWith('image/')) {
+                showAdminAlert('addAlert', 'Please select an image file', 'error');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                showAdminAlert('addAlert', 'Image too large (max 5MB)', 'error');
+                return;
+            }
+
+            compressImage(file, (result) => {
+                selectedImageFile = result.data;
+                const preview = document.getElementById('imagePreview');
+                preview.src = result.data;
+                preview.style.display = 'block';
+
+                const info = document.getElementById('imageInfo');
+                const originalKB = (result.originalSize / 1024).toFixed(1);
+                const compressedKB = (result.compressedSize / 1024).toFixed(1);
+                info.textContent = `📦 Original: ${originalKB}KB → Compressed: ${compressedKB}KB (${result.ratio}% reduction)`;
+            });
+        }
+
+        function addNewDua() {
+            const title = document.getElementById('duaTitle').value.trim();
+            const category = document.getElementById('duaCategory').value;
+            const description = document.getElementById('duaDescription').value.trim();
+
+            if (!title || !category || !description || !selectedImageFile) {
+                showAdminAlert('addAlert', 'Please fill all fields and select image', 'error');
+                return;
+            }
+
+            const newDua = {
+                id: Math.max(...duasData.map(d => d.id), 0) + 1,
+                title: title,
+                category: category,
+                description: description,
+                image: selectedImageFile
+            };
+
+            duasData.push(newDua);
+            localStorage.setItem('customDuas', JSON.stringify(duasData));
+
+            showAdminAlert('addAlert', '✅ Dua added successfully!', 'success');
+            document.getElementById('addDuaForm').reset();
+            document.getElementById('imagePreview').style.display = 'none';
+            selectedImageFile = null;
+
+            updateAdminStats();
+            renderDuas();
+        }
+
+        function switchAdminTab(tab) {
+            // Hide all tabs
+            document.querySelectorAll('.admin-tab-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab
+            if (tab === 'addDua') {
+                document.getElementById('addDuaContent').style.display = 'block';
+                document.getElementById('addDuaTab').classList.add('active');
+            } else if (tab === 'manageDuas') {
+                document.getElementById('manageDuasContent').style.display = 'block';
+                document.getElementById('manageDuasTab').classList.add('active');
+                renderManageDuas();
+            } else if (tab === 'backup') {
+                document.getElementById('backupContent').style.display = 'block';
+                document.getElementById('backupTab').classList.add('active');
+            }
+        }
+
+        function renderManageDuas() {
+            const container = document.getElementById('duasListAdmin');
+            container.innerHTML = '';
+
+            duasData.forEach(dua => {
+                const div = document.createElement('div');
+                div.className = 'dua-card';
+                div.style.marginBottom = '1rem';
+                div.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <h3 style="margin: 0 0 0.5rem 0;">${dua.title}</h3>
+                            <p style="margin: 0 0 0.5rem 0; opacity: 0.7; font-size: 0.9rem;">${dua.description}</p>
+                            <p style="margin: 0; font-size: 0.85rem; opacity: 0.6;">Category: ${dua.category}</p>
+                        </div>
+                        <button class="btn-small" onclick="deleteDua(${dua.id})" style="background: #ef4444;">🗑️ Delete</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function deleteDua(id) {
+            if (confirm('Delete this dua?')) {
+                duasData = duasData.filter(d => d.id !== id);
+                localStorage.setItem('customDuas', JSON.stringify(duasData));
+                showAdminAlert('manageAlert', '✅ Dua deleted', 'success');
+                renderManageDuas();
+                updateAdminStats();
+                renderDuas();
+            }
+        }
+
+        function updateAdminStats() {
+            document.getElementById('totalDuas').textContent = duasData.length;
+            
+            let totalSize = 0;
+            duasData.forEach(dua => {
+                if (dua.image) {
+                    totalSize += dua.image.length;
+                }
+            });
+            
+            const sizeKB = (totalSize / 1024).toFixed(1);
+            document.getElementById('totalStorage').textContent = sizeKB + ' KB';
+        }
+
+        function backupData() {
+            const backup = {
+                version: '2.0',
+                timestamp: new Date().toISOString(),
+                duas: duasData,
+                favorites: JSON.parse(localStorage.getItem('favorites') || '[]'),
+                settings: {
+                    darkMode: darkMode,
+                    notificationsEnabled: notificationsEnabled,
+                    notificationTime: notificationTime
+                }
+            };
+
+            const json = JSON.stringify(backup, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `duas-backup-${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+
+            showAdminAlert('backupAlert', '✅ Backup downloaded!', 'success');
+        }
+
+        function restoreData(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    
+                    if (backup.duas && Array.isArray(backup.duas)) {
+                        duasData = backup.duas;
+                        localStorage.setItem('customDuas', JSON.stringify(duasData));
+                    }
+
+                    if (backup.favorites) {
+                        localStorage.setItem('favorites', JSON.stringify(backup.favorites));
+                    }
+
+                    if (backup.settings) {
+                        darkMode = backup.settings.darkMode || false;
+                        notificationsEnabled = backup.settings.notificationsEnabled || false;
+                        notificationTime = backup.settings.notificationTime || '08:00';
+                        localStorage.setItem('darkMode', darkMode);
+                        localStorage.setItem('notificationsEnabled', notificationsEnabled);
+                        localStorage.setItem('notificationTime', notificationTime);
+                    }
+
+                    showAdminAlert('backupAlert', '✅ Backup restored successfully!', 'success');
+                    updateAdminStats();
+                    renderDuas();
+                    setTimeout(() => location.reload(), 2000);
+                } catch (error) {
+                    showAdminAlert('backupAlert', '❌ Invalid backup file', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function exportAsCSV() {
+            let csv = 'ID,Title,Category,Description\\n';
+            duasData.forEach(dua => {
+                csv += `${dua.id},"${dua.title}","${dua.category}","${dua.description}"\\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `duas-${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+
+            showAdminAlert('backupAlert', '✅ CSV exported!', 'success');
+        }
+
+        function showAdminAlert(elementId, message, type) {
+            const alert = document.getElementById(elementId);
+            alert.textContent = message;
+            alert.className = `alert show ${type}`;
+            setTimeout(() => alert.classList.remove('show'), 4000);
+        }
+
+        // GitHub Sync Function
+        function syncToGitHub() {
+            const repo = document.getElementById('githubRepoInput').value.trim();
+            const token = document.getElementById('githubTokenInput').value.trim();
+
+            if (!repo || !token) {
+                showAdminAlert('backupAlert', '❌ Please enter repo and token', 'error');
+                return;
+            }
+
+            if (!repo.includes('/')) {
+                showAdminAlert('backupAlert', '❌ Repo format: username/repo', 'error');
+                return;
+            }
+
+            // Save credentials
+            localStorage.setItem('githubRepo', repo);
+            localStorage.setItem('githubToken', token);
+
+            showAdminAlert('backupAlert', '⏳ Syncing to GitHub...', 'info');
+
+            // Prepare data
+            const backup = {
+                version: '2.5',
+                timestamp: new Date().toISOString(),
+                duas: duasData,
+                favorites: JSON.parse(localStorage.getItem('favorites') || '[]')
+            };
+
+            const content = JSON.stringify(backup, null, 2);
+            const base64 = btoa(unescape(encodeURIComponent(content)));
+
+            // GitHub API call
+            syncDataToGitHub(repo, token, base64)
+                .then(() => {
+                    showAdminAlert('backupAlert', '✅ Synced to GitHub successfully!', 'success');
+                })
+                .catch(error => {
+                    showAdminAlert('backupAlert', '❌ Sync failed: ' + error.message, 'error');
+                });
+        }
+
+        function syncDataToGitHub(repo, token, base64Content) {
+            return new Promise((resolve, reject) => {
+                const [owner, repoName] = repo.split('/');
+                const filename = `duas-backup-${new Date().toISOString().slice(0, 10)}.json`;
+                const url = `https://api.github.com/repos/${owner}/${repoName}/contents/${filename}`;
+
+                // Check if file exists
+                fetch(url, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(response => {
+                    let sha = null;
+                    if (response.ok) {
+                        return response.json().then(data => ({ data, exists: true }));
+                    }
+                    return { data: null, exists: false };
+                })
+                .then(({ data, exists }) => {
+                    const sha = exists ? data.sha : undefined;
+                    
+                    const options = {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: `Backup duas - ${new Date().toISOString().slice(0, 10)}`,
+                            content: base64Content,
+                            ...(sha ? { sha } : {})
+                        })
+                    };
+
+                    return fetch(url, options);
+                })
+                .then(response => {
+                    if (response.ok) {
+                        resolve();
+                    } else {
+                        throw new Error('GitHub API error: ' + response.statusText);
+                    }
+                })
+                .catch(error => {
+                    reject(error);
+                });
+            });
+        }
+        function openPINModal() {
+            const pinModal = document.getElementById('pinModal');
+            pinModal.style.display = 'flex';
+
+            if (!adminPIN) {
+                // First time setup
+                document.getElementById('pinSetup').style.display = 'block';
+                document.getElementById('pinVerify').style.display = 'none';
+            } else {
+                // Existing PIN verification
+                document.getElementById('pinSetup').style.display = 'none';
+                document.getElementById('pinVerify').style.display = 'block';
+            }
+        }
+
+        function closePINModal() {
+            document.getElementById('pinModal').style.display = 'none';
+            document.getElementById('pinError').style.display = 'none';
+            document.getElementById('setPinInput').value = '';
+            document.getElementById('verifyPinInput').value = '';
+        }
+
+        function savePIN() {
+            const pin = document.getElementById('setPinInput').value;
+            const errorDiv = document.getElementById('pinError');
+
+            if (pin.length !== 6 || isNaN(pin)) {
+                errorDiv.textContent = '❌ 4 digit PIN enter செய்யவும்';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            adminPIN = pin;
+            localStorage.setItem('adminPIN', pin);
+            adminAuthenticated = true;
+            isAdmin = true;
+
+            showAdminAlert('addAlert', '✅ PIN set successfully! Admin access enabled.', 'success');
+            closePINModal();
+            document.getElementById('adminNav').style.display = 'flex';
+        }
+
+        function verifyPIN() {
+            const pin = document.getElementById('verifyPinInput').value;
+            const errorDiv = document.getElementById('pinError');
+
+            if (pin !== adminPIN) {
+                errorDiv.textContent = '❌ PIN incorrect!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            adminAuthenticated = true;
+            isAdmin = true;
+            closePINModal();
+            document.getElementById('adminNav').style.display = 'flex';
+            showAdminAlert('addAlert', '✅ Admin access granted!', 'success');
+        }
+
+        function checkAdminAccess() {
+            if (adminPIN && !adminAuthenticated) {
+                openPINModal();
+                return false;
+            }
+            return true;
+        }
+
+        // GitHub Sync Functions
+        function setupGitHubSync() {
+            const repo = document.getElementById('githubRepoInput').value;
+            const token = document.getElementById('githubTokenInput').value;
+
+            if (!repo || !token) {
+                showAdminAlert('backupAlert', '❌ GitHub credentials needed', 'error');
+                return;
+            }
+
+            localStorage.setItem('githubRepo', repo);
+            localStorage.setItem('githubToken', token);
+            showAdminAlert('backupAlert', '✅ GitHub credentials saved', 'success');
+        }
+
+        function syncToGitHub() {
+            if (!checkAdminAccess()) return;
+
+            const repo = localStorage.getItem('githubRepo');
+            const token = localStorage.getItem('githubToken');
+
+            if (!repo || !token) {
+                showAdminAlert('backupAlert', '❌ Setup GitHub credentials first', 'error');
+                return;
+            }
+
+            // Create backup JSON
+            const backup = {
+                version: '2.5',
+                timestamp: new Date().toISOString(),
+                duas: duasData,
+                favorites: JSON.parse(localStorage.getItem('favorites') || '[]')
+            };
+
+            const fileName = `duas-${new Date().toISOString().slice(0, 10)}.json`;
+            const content = JSON.stringify(backup, null, 2);
+
+            // GitHub API call
+            const [owner, repoName] = repo.split('/');
+            const url = `https://api.github.com/repos/${owner}/${repoName}/contents/${fileName}`;
+
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `Update duas - ${new Date().toLocaleString()}`,
+                    content: btoa(content)
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    showAdminAlert('backupAlert', '✅ Synced to GitHub successfully!', 'success');
+                } else {
+                    showAdminAlert('backupAlert', '❌ GitHub sync failed', 'error');
+                }
+            })
+            .catch(error => {
+                showAdminAlert('backupAlert', '❌ Network error: ' + error.message, 'error');
+            });
+        }
+
+        function scheduleNotification() {
+            if ('Notification' in window && Notification.permission === 'granted' && notificationsEnabled) {
+                const [hours, minutes] = notificationTime.split(':');
+                const now = new Date();
+                const notifTime = new Date();
+                notifTime.setHours(parseInt(hours), parseInt(minutes), 0);
+                
+                if (notifTime <= now) {
+                    notifTime.setDate(notifTime.getDate() + 1);
+                }
+                
+                const timeout = notifTime - now;
+                setTimeout(() => {
+                    const today = duasData[new Date().getDate() % duasData.length];
+                    new Notification('Daily Dua 🕌', {
+                        body: today.title + ' - ' + today.description,
+                        icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="75" font-size="80" text-anchor="middle">🕌</text></svg>'
+                    });
+                    if (notificationsEnabled) scheduleNotification();
+                }, timeout);
+            }
+        }
+
+        // Zoom
+        function zoomImageIn() {
+            zoomLevel = Math.min(zoomLevel + 0.5, 3);
+            updateZoom();
+        }
+
+        function zoomImageOut() {
+            zoomLevel = Math.max(zoomLevel - 0.5, 1);
+            updateZoom();
+        }
+
+        function updateZoom() {
+            const content = document.getElementById('modalContent');
+            content.style.transform = `scale(${zoomLevel})`;
+        }
+
+        // Swipe Navigation
+        let filteredDuas = [];
+
+        function showNextDua() {
+            if (!selectedDua || filteredDuas.length === 0) return;
+            const currentIndex = filteredDuas.findIndex(d => d.id === selectedDua.id);
+            const nextIndex = (currentIndex + 1) % filteredDuas.length;
+            openModal(filteredDuas[nextIndex].id);
+            zoomLevel = 1;
+            updateZoom();
+        }
+
+        function showPreviousDua() {
+            if (!selectedDua || filteredDuas.length === 0) return;
+            const currentIndex = filteredDuas.findIndex(d => d.id === selectedDua.id);
+            const nextIndex = (currentIndex - 1 + filteredDuas.length) % filteredDuas.length;
+            openModal(filteredDuas[nextIndex].id);
+            zoomLevel = 1;
+            updateZoom();
+        }
+
+        function updateDarkModeButton() {
+            const icon = document.getElementById('darkIcon');
+            const text = document.getElementById('darkText');
+            if (darkMode) {
+                icon.textContent = '☀️';
+                text.textContent = 'Light';
+            } else {
+                icon.textContent = '🌙';
+                text.textContent = 'Dark';
+            }
+        }
+
+        function openModal(duaId) {
+            selectedDua = duasData.find(d => d.id === duaId);
+            if (!selectedDua) return;
+
+            document.getElementById('modalImage').src = selectedDua.image;
+            document.getElementById('modal').classList.add('active');
+            
+            // Update favorite button
+            updateFavoriteButton();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            selectedDua = null;
+        }
+
+        function toggleFavorite() {
+            if (!selectedDua) return;
+            const index = favorites.indexOf(selectedDua.id);
+            if (index === -1) {
+                favorites.push(selectedDua.id);
+            } else {
+                favorites.splice(index, 1);
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            updateFavoriteButton();
+        }
+
+        function updateFavoriteButton() {
+            const btn = document.getElementById('favoriteBtn');
+            if (selectedDua && favorites.includes(selectedDua.id)) {
+                btn.textContent = '❤️';
+            } else {
+                btn.textContent = '🤍';
+            }
+        }
+
+        function shareDua() {
+            if (!selectedDua) return;
+            if (navigator.share) {
+                navigator.share({
+                    title: selectedDua.title,
+                    text: `${selectedDua.title}\n\n${selectedDua.description}`,
+                    url: window.location.href
+                }).catch(() => {});
+            }
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            if (page === 'home') {
+                document.getElementById('homePage').classList.add('active');
+                document.getElementById('homeNav').classList.add('active');
+            } else if (page === 'favorites') {
+                document.getElementById('favoritesPage').classList.add('active');
+                document.getElementById('favoritesNav').classList.add('active');
+                renderFavorites();
+            } else if (page === 'settings') {
+                document.getElementById('settingsPage').classList.add('active');
+                document.getElementById('settingsNav').classList.add('active');
+                updateSettingsUI();
+            } else if (page === 'admin') {
+                document.getElementById('adminPage').classList.add('active');
+                document.getElementById('adminNav').classList.add('active');
+                updateAdminStats();
+            }
+        }
+
+        function updateSettingsUI() {
+            updateNotificationToggle();
+            updateSettingsToggle();
+            updateAdminToggle();
+            document.getElementById('notificationTime').value = notificationTime;
+        }
+
+        function toggleAdminMode() {
+            isAdmin = !isAdmin;
+            localStorage.setItem('adminMode', isAdmin);
+            updateAdminToggle();
+            
+            if (isAdmin) {
+                document.getElementById('adminNav').style.display = 'flex';
+                showAdminAlert('addAlert', '✅ Admin mode enabled!', 'success');
+            } else {
+                document.getElementById('adminNav').style.display = 'none';
+                goToPage('home');
+                showAdminAlert('addAlert', '❌ Admin mode disabled', 'info');
+            }
+        }
+
+        function updateAdminToggle() {
+            const toggle = document.getElementById('adminToggle');
+            if (toggle) {
+                toggle.classList.toggle('active', isAdmin);
+            }
+        }
+
+        function handleInstall() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('installBanner').classList.add('hidden');
+                        document.getElementById('installBtn').style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', init);
+    
+/* FINAL 4-DIGIT ADMIN PIN OVERRIDE */
+(function(){
+  adminPIN = localStorage.getItem('adminPIN') || null;
+  window.pinValue = '';
+
+  window.openPINModal = function(){
+    const m=document.getElementById('pinModal');
+    const msg=document.getElementById('pinModalMessage');
+    const input=document.getElementById('pinInput');
+    const err=document.getElementById('pinError');
+    window.pinMode = adminPIN ? 'verify' : 'setup';
+    window.pinValue='';
+    if(msg) msg.textContent=adminPIN ? 'Enter your 4-digit PIN' : 'Set your 4-digit Admin PIN';
+    if(input){ input.maxLength=4; input.value=''; }
+    if(err) err.textContent='';
+    if(m){ m.style.display='flex'; m.classList.add('show'); }
+  };
+
+  window.pinKeypress=function(d){
+    d=String(d);
+    if(!/^\d$/.test(d) || (window.pinValue||'').length>=4) return;
+    window.pinValue+=d;
+    const i=document.getElementById('pinInput');
+    if(i) i.value='•'.repeat(window.pinValue.length);
+  };
+
+  window.pinDelete=function(){
+    window.pinValue=(window.pinValue||'').slice(0,-1);
+    const i=document.getElementById('pinInput');
+    if(i) i.value='•'.repeat(window.pinValue.length);
+  };
+
+  window.pinSubmit=function(){
+    const v=String(window.pinValue||'');
+    const err=document.getElementById('pinError');
+    if(!/^\d{4}$/.test(v)){
+      if(err) err.textContent='❌ 4 இலக்க PIN உள்ளிடவும்';
+      return false;
+    }
+    if(window.pinMode==='setup' || !adminPIN){
+      adminPIN=v;
+      localStorage.setItem('adminPIN',v);
+      adminAuthenticated=true; isAdmin=true;
+      const m=document.getElementById('pinModal');
+      if(m){m.style.display='none';m.classList.remove('show');}
+      const n=document.getElementById('adminNav'); if(n)n.style.display='flex';
+      goToPage('admin');
+    }else if(v===String(adminPIN)){
+      adminAuthenticated=true; isAdmin=true;
+      const m=document.getElementById('pinModal');
+      if(m){m.style.display='none';m.classList.remove('show');}
+      const n=document.getElementById('adminNav'); if(n)n.style.display='flex';
+      goToPage('admin');
+    }else{
+      if(err) err.textContent='❌ PIN incorrect!';
+      window.pinValue='';
+      const i=document.getElementById('pinInput'); if(i)i.value='';
+    }
+    return false;
+  };
+
+  window.checkAdminAccess=function(){
+    if(adminPIN && !adminAuthenticated){window.openPINModal();return false;}
+    return true;
+  };
+
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('#pinModal .pin-key.submit').forEach(function(btn){
+      btn.type='button';
+      btn.onclick=function(e){e.preventDefault();return window.pinSubmit();};
+    });
+  });
+})();
+
+
+/* ===== v17.5 ADMIN PIN FINAL FIX ===== */
+(function(){
+  // Old 6-digit/invalid PINs from previous builds must not block the new 4-digit PIN.
+  try {
+    const saved = localStorage.getItem('adminPIN');
+    if (saved && !/^\d{4}$/.test(String(saved))) {
+      localStorage.removeItem('adminPIN');
+      adminPIN = null;
+      adminAuthenticated = false;
+      isAdmin = false;
+    }
+  } catch(e) {}
+
+  window.openPINModal = function(){
+    const modal = document.getElementById('pinModal');
+    const message = document.getElementById('pinModalMessage');
+    const info = document.getElementById('pinInfo');
+    const error = document.getElementById('pinError');
+    const input = document.getElementById('pinInput');
+
+    adminPIN = localStorage.getItem('adminPIN') || null;
+    window.pinMode = adminPIN ? 'verify' : 'setup';
+    window.pinValue = '';
+
+    if (message) message.textContent = adminPIN
+      ? 'Enter your 4-digit PIN'
+      : 'Set your 4-digit Admin PIN';
+    if (info) info.textContent = adminPIN ? '' : '4 digits required';
+    if (error) error.textContent = '';
+    if (input) { input.value=''; input.maxLength=4; }
+
+    if (modal) {
+      modal.style.display='flex';
+      modal.classList.add('show');
+    }
+  };
+
+  window.pinSubmit = function(){
+    const pin = String(window.pinValue || '');
+    const error = document.getElementById('pinError');
+
+    if (!/^\d{4}$/.test(pin)) {
+      if (error) error.textContent='❌ 4 இலக்க PIN உள்ளிடவும்';
+      return false;
+    }
+
+    adminPIN = localStorage.getItem('adminPIN') || null;
+
+    // First-time setup.
+    if (!adminPIN) {
+      localStorage.setItem('adminPIN', pin);
+      adminPIN = pin;
+      adminAuthenticated = true;
+      isAdmin = true;
+    }
+    // Existing 4-digit PIN verification.
+    else if (pin === String(adminPIN)) {
+      adminAuthenticated = true;
+      isAdmin = true;
+    }
+    else {
+      if (error) error.textContent='❌ Wrong PIN. Try again.';
+      window.pinValue='';
+      const input=document.getElementById('pinInput');
+      if(input) input.value='';
+      return false;
+    }
+
+    const modal=document.getElementById('pinModal');
+    if(modal){ modal.style.display='none'; modal.classList.remove('show'); }
+
+    const nav=document.getElementById('adminNav');
+    if(nav) nav.style.display='flex';
+
+    updateAdminToggle();
+    goToPage('admin');
+    return false;
+  };
+
+  // Settings toggle must be PIN-protected.
+  window.toggleAdminMode = function(){
+    if (isAdmin && adminAuthenticated) {
+      isAdmin=false;
+      adminAuthenticated=false;
+      localStorage.setItem('adminMode','false');
+      const nav=document.getElementById('adminNav');
+      if(nav) nav.style.display='none';
+      updateAdminToggle();
+      goToPage('home');
+      return;
+    }
+    window.openPINModal();
+  };
+
+  // Admin navigation must also require authentication.
+  document.addEventListener('DOMContentLoaded', function(){
+    const nav=document.getElementById('adminNav');
+    if(nav){
+      nav.onclick=function(e){
+        e.preventDefault();
+        if(adminAuthenticated && isAdmin) goToPage('admin');
+        else window.openPINModal();
+      };
+    }
+    const btn=document.querySelector('#pinModal button.pin-key.submit');
+    if(btn){
+      btn.type='button';
+      btn.onclick=function(e){ e.preventDefault(); return window.pinSubmit(); };
+    }
+  });
+})();
+
+</script>
+</body>
+</html>
