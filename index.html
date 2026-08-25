@@ -1439,7 +1439,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.6</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.7</p>
                             </div>
                         </div>
                     </div>
@@ -2890,7 +2890,9 @@ function renderPrayerTimes(){
     const el=document.getElementById('prayer'+name);
     if(el) el.textContent=prayerFormat(prayerTimesToday[name]);
   });
+  window.prayerTimesToday=prayerTimesToday;
   updateNextPrayer();
+  if(typeof initPrayerReminders==='function') initPrayerReminders();
 }
 
 function updateNextPrayer(){
@@ -3043,6 +3045,67 @@ document.addEventListener('DOMContentLoaded',function(){
  syncPrayerHome();
  setInterval(syncPrayerHome,60000);
 });
+/* PRAYER REMINDER ENGINE v19.7 */
+(function(){
+  const names=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+  function prefs(){
+    try{return JSON.parse(localStorage.getItem('prayerReminders')||'{}')}catch(e){return{}}
+  }
+  function savePrefs(x){localStorage.setItem('prayerReminders',JSON.stringify(x));}
+  function updateButtons(){
+    const p=prefs();
+    document.querySelectorAll('.prayer-reminder').forEach(btn=>{
+      const on=p[btn.dataset.prayer]===true;
+      btn.classList.toggle('off',!on);
+      btn.textContent=on?'🔔':'🔕';
+      btn.setAttribute('aria-label',on?'Reminder ON':'Reminder OFF');
+      btn.title=on?'Reminder ON — tap to turn off':'Reminder OFF — tap to turn on';
+    });
+  }
+  function schedule(name){
+    if(window.prayerReminderTimers[name]) clearTimeout(window.prayerReminderTimers[name]);
+    const p=prefs(); if(!p[name] || !window.prayerTimesToday || !window.prayerTimesToday[name]) return;
+    const hm=String(window.prayerTimesToday[name]).slice(0,5);
+    if(!/^\d{1,2}:\d{2}$/.test(hm)) return;
+    const [hh,mm]=hm.split(':').map(Number);
+    const now=new Date(), target=new Date();
+    target.setHours(hh,mm,0,0);
+    if(target<=now) target.setDate(target.getDate()+1);
+    window.prayerReminderTimers[name]=setTimeout(async()=>{
+      try{
+        if('Notification' in window && Notification.permission==='granted'){
+          new Notification((window.PRAYER_LABELS&&PRAYER_LABELS[name])||name+' Prayer',{body:'தொழுகை நேரம்: '+prayerFormat(hm),icon:'./icon-192.png'});
+        }
+      }catch(e){}
+      schedule(name);
+    },Math.max(1000,target-now));
+  }
+  async function toggle(btn){
+    const name=btn.dataset.prayer; if(!name)return;
+    const p=prefs(); const turningOn=p[name]!==true;
+    if(turningOn && 'Notification' in window && Notification.permission==='default'){
+      try{await Notification.requestPermission();}catch(e){}
+    }
+    if(turningOn && 'Notification' in window && Notification.permission!=='granted'){
+      alert('Reminder-க்கு Notification permission Allow செய்ய வேண்டும்.');
+      return;
+    }
+    p[name]=turningOn; savePrefs(p); updateButtons();
+    if(turningOn) schedule(name);
+    else if(window.prayerReminderTimers[name]){clearTimeout(window.prayerReminderTimers[name]);delete window.prayerReminderTimers[name];}
+  }
+  window.initPrayerReminders=function(){
+    updateButtons();
+    names.forEach(schedule);
+  };
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('.prayer-reminder').forEach(btn=>{
+      btn.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();toggle(btn);});
+    });
+    initPrayerReminders();
+  });
+})();
+
 /* FINAL PRAYER UI INIT — button + next prayer time only */
 (function(){
   function refreshPrayerHome(){
