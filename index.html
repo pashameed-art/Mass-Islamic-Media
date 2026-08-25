@@ -1300,15 +1300,15 @@
 
                             <div class="form-group">
                                 <label for="duaCategory">📂 Category *</label>
-                                <select id="duaCategory" required>
-                                    <option value="">-- Select Category --</option>
-                                    <option value="morning">🌅 Morning</option>
-                                    <option value="forgiveness">🤲 Forgiveness</option>
-                                    <option value="travel">✈️ Travel</option>
-                                    <option value="sleep">🌙 Sleep</option>
-                                    <option value="food">🍽️ Food</option>
-                                    <option value="knowledge">📖 Knowledge</option>
-                                </select>
+                                <div style="display:flex;gap:.5rem;align-items:stretch;">
+                                    <select id="duaCategory" required style="flex:1;">
+                                        <option value="">-- Select Category --</option>
+                                    </select>
+                                    <button type="button" class="btn-small" id="addCategoryBtn" style="white-space:nowrap;">➕ Add</button>
+                                </div>
+                                <p style="font-size:.8rem;opacity:.65;margin:.4rem 0 0;">
+                                    புதிய Category சேர்க்கலாம்
+                                </p>
                             </div>
 
                             <div class="form-group">
@@ -1439,7 +1439,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.9</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.0</p>
                             </div>
                         </div>
                     </div>
@@ -1576,6 +1576,23 @@
             { id: 'food', name: 'உணவு', icon: '🍽️' },
             { id: 'knowledge', name: 'ஞானம்', icon: '📖' }
         ];
+
+        // Custom categories created by Admin are stored locally and reused.
+        try {
+            const savedCategories = JSON.parse(localStorage.getItem('customCategories') || '[]');
+            if (Array.isArray(savedCategories)) {
+                savedCategories.forEach(cat => {
+                    if (cat && cat.id && cat.name && !categories.some(c => c.id === cat.id)) {
+                        categories.push({
+                            id: String(cat.id),
+                            name: String(cat.name),
+                            icon: cat.icon || '📂'
+                        });
+                    }
+                });
+            }
+        } catch (e) {}
+
 
         // ============= STATE =============
         let darkMode = localStorage.getItem('darkMode') === 'true';
@@ -1758,7 +1775,7 @@
         function initPWA() {
             // Service Worker
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js?v=19.9', { scope: './' }).catch(() => {});
+                navigator.serviceWorker.register('./sw.js?v=20.0', { scope: './' }).catch(() => {});
             }
 
             // Install Prompt
@@ -1768,6 +1785,85 @@
                 document.getElementById('installBtn').style.display = 'flex';
                 document.getElementById('installBanner').classList.remove('hidden');
             });
+        }
+
+        function slugifyCategoryName(name) {
+            return name.trim().toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9\u0B80-\u0BFF_-]/g, '');
+        }
+
+        function populateDuaCategorySelect(selectedId = '') {
+            const select = document.getElementById('duaCategory');
+            if (!select) return;
+            const previous = selectedId || select.value;
+            select.innerHTML = '<option value="">-- Select Category --</option>';
+            categories.filter(c => c.id !== 'all').forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = `${cat.icon} ${cat.name}`;
+                select.appendChild(option);
+            });
+            if (previous && categories.some(c => c.id === previous)) {
+                select.value = previous;
+            }
+        }
+
+        function saveCustomCategories() {
+            const builtInIds = new Set(['all','morning','forgiveness','travel','sleep','food','knowledge']);
+            const custom = categories.filter(c => !builtInIds.has(c.id));
+            localStorage.setItem('customCategories', JSON.stringify(custom));
+        }
+
+        function addNewCategory() {
+            const name = prompt('புதிய Category பெயரை உள்ளிடுங்கள்:');
+            if (!name || !name.trim()) return;
+
+            const cleanName = name.trim();
+            if (cleanName.length > 40) {
+                alert('Category பெயர் 40 எழுத்துகளுக்குள் இருக்க வேண்டும்.');
+                return;
+            }
+
+            const id = slugifyCategoryName(cleanName) || ('category-' + Date.now());
+            if (categories.some(c => c.name.toLowerCase() === cleanName.toLowerCase() || c.id === id)) {
+                alert('இந்த Category ஏற்கனவே உள்ளது.');
+                return;
+            }
+
+            const icon = prompt('Category icon (optional):', '📂') || '📂';
+            categories.push({id, name: cleanName, icon: icon.trim() || '📂'});
+            saveCustomCategories();
+
+            populateDuaCategorySelect(id);
+            renderCategoryButtons();
+            renderDuas();
+
+            const filters = document.getElementById('categoryFilters');
+            if (filters) {
+                const existing = [...filters.querySelectorAll('.filter-btn')].some(b => b.dataset.categoryId === id);
+                if (!existing) {
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-btn';
+                    btn.dataset.categoryId = id;
+                    btn.textContent = (icon.trim() || '📂') + ' ' + cleanName;
+                    btn.onclick = () => btn.classList.toggle('active');
+                    filters.appendChild(btn);
+                }
+            }
+
+            showAdminAlert('addAlert', `✅ "${cleanName}" Category added!`, 'success');
+        }
+
+        function renderCategoryButtons() {
+            const container = document.getElementById('categoryTabs');
+            if (!container) return;
+            container.innerHTML = categories.map(cat => `
+                <button class="category-btn ${cat.id === selectedCategory ? 'active' : ''}" 
+                    onclick="selectCategory('${cat.id}')">
+                    ${cat.icon} ${cat.name}
+                </button>
+            `).join('');
         }
 
         function attachEventListeners() {
@@ -1785,15 +1881,18 @@
 
             // Render category filters for advanced search
             const filtersContainer = document.getElementById('categoryFilters');
-            categories.slice(1).forEach(cat => {
-                const btn = document.createElement('button');
-                btn.className = 'filter-btn';
-                btn.textContent = cat.icon + ' ' + cat.name;
-                btn.onclick = () => {
-                    btn.classList.toggle('active');
-                };
-                filtersContainer.appendChild(btn);
-            });
+            if (filtersContainer) {
+                filtersContainer.innerHTML = '';
+                categories.slice(1).forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-btn';
+                    btn.dataset.categoryId = cat.id;
+                    btn.textContent = cat.icon + ' ' + cat.name;
+                    btn.onclick = () => btn.classList.toggle('active');
+                    filtersContainer.appendChild(btn);
+                });
+            }
+            populateDuaCategorySelect();
 
             // Dark Mode
             document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
@@ -2026,6 +2125,7 @@
         function initAdminPanel() {
             // Tab switching
             document.getElementById('addDuaTab').addEventListener('click', () => switchAdminTab('addDua'));
+            document.getElementById('addCategoryBtn')?.addEventListener('click', addNewCategory);
             document.getElementById('manageDuasTab').addEventListener('click', () => switchAdminTab('manageDuas'));
             document.getElementById('backupTab').addEventListener('click', () => switchAdminTab('backup'));
 
