@@ -1439,7 +1439,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.8</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.9</p>
                             </div>
                         </div>
                     </div>
@@ -1758,7 +1758,7 @@
         function initPWA() {
             // Service Worker
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js?v=19.8', { scope: './' }).catch(() => {});
+                navigator.serviceWorker.register('./sw.js?v=19.9', { scope: './' }).catch(() => {});
             }
 
             // Install Prompt
@@ -2911,7 +2911,7 @@ function updateNextPrayer(){
   const now=new Date();
   let next=null;
   for(const name of PRAYER_NAMES){
-    const hm=String(prayerTimesToday[name]||'').slice(0,5);
+    const hm=String(prayerTimesToday[name]||'').trim().slice(0,5);
     if(!/^\d{1,2}:\d{2}$/.test(hm)) continue;
     if(prayerTimeToDate(hm,now)>now){
       next={name:name,time:hm};
@@ -3045,109 +3045,102 @@ document.addEventListener('DOMContentLoaded',function(){
  syncPrayerHome();
  setInterval(syncPrayerHome,60000);
 });
-/* PRAYER REMINDER ENGINE v19.8 - direct tap handler */
-window.togglePrayerReminder = async function(name, btn){
-  try {
-    const key='prayerReminders';
-    let p={};
-    try { p=JSON.parse(localStorage.getItem(key)||'{}')||{}; } catch(e) {}
-    const turningOn=p[name]!==true;
-    if(turningOn && 'Notification' in window){
-      if(Notification.permission==='default'){
-        try { await Notification.requestPermission(); } catch(e) {}
-      }
-      if(Notification.permission!=='granted'){
-        alert('Reminder ON செய்ய Notification permission → Allow செய்யுங்கள்.');
-        return false;
-      }
-    }
-    p[name]=turningOn;
-    localStorage.setItem(key,JSON.stringify(p));
-    if(btn){
-      btn.textContent=turningOn?'🔔':'🔕';
-      btn.classList.toggle('off',!turningOn);
-      btn.setAttribute('aria-label',turningOn?'Reminder ON':'Reminder OFF');
-    }
-    if(typeof window.initPrayerReminders==='function') window.initPrayerReminders();
-    if(turningOn && window.prayerReminderTimers && window.prayerTimesToday && window.prayerTimesToday[name]){
-      if(window.prayerReminderTimers[name]) clearTimeout(window.prayerReminderTimers[name]);
-      const hm=String(window.prayerTimesToday[name]).slice(0,5);
-      const [hh,mm]=hm.split(':').map(Number);
-      const now=new Date(), target=new Date(); target.setHours(hh,mm,0,0);
-      if(target<=now) target.setDate(target.getDate()+1);
-      window.prayerReminderTimers[name]=setTimeout(function(){
-        if('Notification' in window && Notification.permission==='granted'){
-          new Notification((window.PRAYER_LABELS&&PRAYER_LABELS[name])||name+' Prayer',{body:'தொழுகை நேரம்: '+prayerFormat(hm)});
-        }
-        if(typeof window.togglePrayerReminder==='function' && p[name]===true){
-          window.initPrayerReminders();
-        }
-      },Math.max(1000,target-now));
-    }
-    return false;
-  } catch(e){
-    console.error('Prayer reminder error',e);
-    return false;
-  }
-};
-/* PRAYER REMINDER ENGINE v19.8 */
+/* PRAYER REMINDER ENGINE v19.9 - single robust handler */
 (function(){
   const names=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+
   function prefs(){
-    try{return JSON.parse(localStorage.getItem('prayerReminders')||'{}')}catch(e){return{}}
+    try { return JSON.parse(localStorage.getItem('prayerReminders')||'{}') || {}; }
+    catch(e){ return {}; }
   }
-  function savePrefs(x){localStorage.setItem('prayerReminders',JSON.stringify(x));}
+  function savePrefs(p){ localStorage.setItem('prayerReminders',JSON.stringify(p)); }
+
   function updateButtons(){
     const p=prefs();
-    document.querySelectorAll('.prayer-reminder').forEach(btn=>{
+    document.querySelectorAll('.prayer-reminder').forEach(function(btn){
       const on=p[btn.dataset.prayer]===true;
-      btn.classList.toggle('off',!on);
       btn.textContent=on?'🔔':'🔕';
+      btn.classList.toggle('off',!on);
       btn.setAttribute('aria-label',on?'Reminder ON':'Reminder OFF');
       btn.title=on?'Reminder ON — tap to turn off':'Reminder OFF — tap to turn on';
     });
   }
+
   function schedule(name){
-    if(window.prayerReminderTimers[name]) clearTimeout(window.prayerReminderTimers[name]);
-    const p=prefs(); if(!p[name] || !window.prayerTimesToday || !window.prayerTimesToday[name]) return;
-    const hm=String(window.prayerTimesToday[name]).slice(0,5);
-    if(!/^\d{1,2}:\d{2}$/.test(hm)) return;
-    const [hh,mm]=hm.split(':').map(Number);
-    const now=new Date(), target=new Date();
-    target.setHours(hh,mm,0,0);
-    if(target<=now) target.setDate(target.getDate()+1);
-    window.prayerReminderTimers[name]=setTimeout(async()=>{
+    window.prayerReminderTimers=window.prayerReminderTimers||{};
+    if(window.prayerReminderTimers[name]){
+      clearTimeout(window.prayerReminderTimers[name]);
+      delete window.prayerReminderTimers[name];
+    }
+    const p=prefs();
+    const hm=window.prayerTimesToday && String(window.prayerTimesToday[name]||'').slice(0,5);
+    if(p[name]!==true || !/^\d{1,2}:\d{2}$/.test(hm)) return;
+
+    const parts=hm.split(':').map(Number);
+    const target=new Date();
+    target.setHours(parts[0],parts[1],0,0);
+    if(target<=new Date()) target.setDate(target.getDate()+1);
+
+    window.prayerReminderTimers[name]=setTimeout(function(){
       try{
         if('Notification' in window && Notification.permission==='granted'){
-          new Notification((window.PRAYER_LABELS&&PRAYER_LABELS[name])||name+' Prayer',{body:'தொழுகை நேரம்: '+prayerFormat(hm),icon:'./icon-192.png'});
+          new Notification((window.PRAYER_LABELS&&window.PRAYER_LABELS[name])||name,{
+            body:'தொழுகை நேரம்: '+(window.prayerFormat?window.prayerFormat(hm):hm),
+            icon:'./icon-192.png'
+          });
         }
       }catch(e){}
       schedule(name);
-    },Math.max(1000,target-now));
+    },Math.max(1000,target-Date.now()));
   }
-  async function toggle(btn){
-    const name=btn.dataset.prayer; if(!name)return;
-    const p=prefs(); const turningOn=p[name]!==true;
+
+  window.togglePrayerReminder=async function(name,btn){
+    const p=prefs();
+    const turningOn=p[name]!==true;
+
     if(turningOn && 'Notification' in window && Notification.permission==='default'){
-      try{await Notification.requestPermission();}catch(e){}
+      try{ await Notification.requestPermission(); }catch(e){}
     }
-    if(turningOn && 'Notification' in window && Notification.permission!=='granted'){
-      alert('Reminder-க்கு Notification permission Allow செய்ய வேண்டும்.');
-      return;
+
+    /* Save the user's choice even when notification permission is unavailable.
+       This makes the button visibly clickable; notification delivery depends on
+       Android/browser permission. */
+    p[name]=turningOn;
+    savePrefs(p);
+    updateButtons();
+
+    if(turningOn){
+      schedule(name);
+      if('Notification' in window && Notification.permission!=='granted'){
+        setTimeout(function(){
+          alert('Reminder ON ஆகிவிட்டது. Notification permission Allow செய்தால் தொழுகை நேரத்தில் அறிவிப்பு வரும்.');
+        },50);
+      }
+    }else{
+      window.prayerReminderTimers=window.prayerReminderTimers||{};
+      if(window.prayerReminderTimers[name]){
+        clearTimeout(window.prayerReminderTimers[name]);
+        delete window.prayerReminderTimers[name];
+      }
     }
-    p[name]=turningOn; savePrefs(p); updateButtons();
-    if(turningOn) schedule(name);
-    else if(window.prayerReminderTimers[name]){clearTimeout(window.prayerReminderTimers[name]);delete window.prayerReminderTimers[name];}
-  }
+    return false;
+  };
+
   window.initPrayerReminders=function(){
     updateButtons();
     names.forEach(schedule);
   };
+
+  document.addEventListener('click',function(e){
+    const btn=e.target.closest && e.target.closest('.prayer-reminder');
+    if(!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    window.togglePrayerReminder(btn.dataset.prayer,btn);
+  },true);
+
   document.addEventListener('DOMContentLoaded',function(){
-    document.querySelectorAll('.prayer-reminder').forEach(btn=>{
-      btn.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();toggle(btn);});
-    });
-    initPrayerReminders();
+    window.initPrayerReminders();
   });
 })();
 
