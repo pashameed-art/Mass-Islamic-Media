@@ -1439,7 +1439,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.3</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.4</p>
                             </div>
                         </div>
                     </div>
@@ -2879,11 +2879,61 @@
 /* Prayer Times - Kadayanallur */
 const PRAYER_CITY='Kadayanallur',PRAYER_COUNTRY='India',PRAYER_METHOD=1,PRAYER_NAMES=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
 const PRAYER_LABELS={Fajr:'Fajr / சுப்ஹ்',Dhuhr:'Dhuhr / லுஹர்',Asr:'Asr / அஸர்',Maghrib:'Maghrib / மக்ரிப்',Isha:'Isha / இஷா'};
-let prayerTimesToday=null,prayerCountdownTimer=null,prayerReminderTimers={};
+let prayerTimesToday=null,prayerReminderTimers={};
 function prayerDateKey(d=new Date()){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function prayerTimeToDate(hm,d=new Date()){let[h,m]=hm.split(':').map(Number),x=new Date(d);x.setHours(h,m,0,0);return x}
 function prayerFormat(hm){if(!hm)return'--:--';let[h,m]=hm.split(':').map(Number),ap=h>=12?'PM':'AM';return`${h%12||12}:${String(m).padStart(2,'0')} ${ap}`}
 function prayerPrefs(){try{return JSON.parse(localStorage.getItem('prayerReminders')||'{}')}catch(e){return{}}}
+function renderPrayerTimes(){
+  if(!prayerTimesToday) return;
+  PRAYER_NAMES.forEach(function(name){
+    const el=document.getElementById('prayer'+name);
+    if(el) el.textContent=prayerFormat(prayerTimesToday[name]);
+  });
+  updateNextPrayer();
+}
+
+function updateNextPrayer(){
+  const homeName=document.getElementById('prayerHomeNext');
+  const homeTime=document.getElementById('prayerHomeNextTime');
+  const detailName=document.getElementById('prayerDetailNext');
+  const detailTime=document.getElementById('prayerDetailNextTime');
+  if(!prayerTimesToday){
+    if(homeName) homeName.textContent='—';
+    if(homeTime) homeTime.textContent='--:--';
+    if(detailName) detailName.textContent='—';
+    if(detailTime) detailTime.textContent='--:--';
+    return;
+  }
+
+  const now=new Date();
+  let next=null;
+  for(const name of PRAYER_NAMES){
+    const hm=String(prayerTimesToday[name]||'').slice(0,5);
+    if(!/^\d{1,2}:\d{2}$/.test(hm)) continue;
+    if(prayerTimeToDate(hm,now)>now){
+      next={name:name,time:hm};
+      break;
+    }
+  }
+  if(!next && prayerTimesToday.Fajr){
+    next={name:'Fajr',time:String(prayerTimesToday.Fajr).slice(0,5)};
+  }
+
+  const label=next ? (PRAYER_LABELS[next.name]||next.name) : '—';
+  const time=next ? prayerFormat(next.time) : '--:--';
+  if(homeName) homeName.textContent=label;
+  if(homeTime) homeTime.textContent=time;
+  if(detailName) detailName.textContent=label;
+  if(detailTime) detailTime.textContent=time;
+
+  document.querySelectorAll('.prayer-row').forEach(function(row){row.classList.remove('active');});
+  if(next){
+    const row=document.getElementById('prayer'+next.name);
+    if(row && row.closest('.prayer-row')) row.closest('.prayer-row').classList.add('active');
+  }
+}
+
 async function loadPrayerTimes(force=false){
   const status=document.getElementById('prayerStatus');
   const loc=getPrayerLocation();
