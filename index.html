@@ -1439,7 +1439,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.5</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.6</p>
                             </div>
                         </div>
                     </div>
@@ -2877,7 +2877,7 @@
 })();
 
 /* Prayer Times - Kadayanallur */
-const PRAYER_CITY='Kadayanallur',PRAYER_COUNTRY='India',PRAYER_METHOD=1,PRAYER_NAMES=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+const PRAYER_CITY='Kadayanallur',PRAYER_COUNTRY='India',PRAYER_METHOD=4,PRAYER_NAMES=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
 const PRAYER_LABELS={Fajr:'Fajr / சுப்ஹ்',Dhuhr:'Dhuhr / லுஹர்',Asr:'Asr / அஸர்',Maghrib:'Maghrib / மக்ரிப்',Isha:'Isha / இஷா'};
 let prayerTimesToday=null,prayerReminderTimers={};
 function prayerDateKey(d=new Date()){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
@@ -2962,7 +2962,7 @@ async function loadPrayerTimes(force=false){
     '?city='+encodeURIComponent(loc.city)+
     '&country='+encodeURIComponent(loc.country||'India')+
     '&state='+encodeURIComponent(loc.state||'Tamil Nadu')+
-    '&method='+PRAYER_METHOD+'&school=1&iso8601=false';
+    '&method='+PRAYER_METHOD+'&school=0&iso8601=false';
 
   try{
     const response=await fetch(url,{cache:'no-store',headers:{'Accept':'application/json'}});
