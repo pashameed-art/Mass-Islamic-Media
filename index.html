@@ -1439,7 +1439,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.4</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 19.5</p>
                             </div>
                         </div>
                     </div>
@@ -1758,7 +1758,7 @@
         function initPWA() {
             // Service Worker
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
+                navigator.serviceWorker.register('./sw.js?v=19.5', { scope: './' }).catch(() => {});
             }
 
             // Install Prompt
