@@ -1304,7 +1304,7 @@
                                     <select id="duaCategory" required style="flex:1;">
                                         <option value="">-- Select Category --</option>
                                     </select>
-                                    <button type="button" class="btn-small" id="addCategoryBtn" style="white-space:nowrap;">➕ Add</button>
+                                    <button type="button" class="btn-small" id="addCategoryBtn" type="button" onclick="addNewCategory(); return false;" style="white-space:nowrap;">➕ Add</button>
                                 </div>
                                 <p style="font-size:.8rem;opacity:.65;margin:.4rem 0 0;">
                                     புதிய Category சேர்க்கலாம்
@@ -1440,7 +1440,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.1</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.2</p>
                             </div>
                         </div>
                     </div>
@@ -1776,7 +1776,7 @@
         function initPWA() {
             // Service Worker
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js?v=20.1', { scope: './' }).catch(() => {});
+                navigator.serviceWorker.register('./sw.js?v=20.2', { scope: './' }).catch(() => {});
             }
 
             // Install Prompt
@@ -1817,43 +1817,82 @@
         }
 
         function addNewCategory() {
-            const name = prompt('புதிய Category பெயரை உள்ளிடுங்கள்:');
-            if (!name || !name.trim()) return;
+            // Use an in-app dialog instead of window.prompt(). Some Android/PWA
+            // environments block or silently fail prompt(), which made the Add
+            // button appear to do nothing.
+            let modal = document.getElementById('categoryAddModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'categoryAddModal';
+                modal.innerHTML = `
+                    <div style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;">
+                      <div style="width:min(420px,100%);background:var(--card-bg,#fff);color:var(--text-dark,#263238);border-radius:20px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+                        <div style="font-size:1.25rem;font-weight:800;margin-bottom:16px;">📂 புதிய Category</div>
+                        <label for="newCategoryName" style="display:block;margin-bottom:7px;font-weight:700;">Category பெயர்</label>
+                        <input id="newCategoryName" type="text" maxlength="40" autocomplete="off" placeholder="உதா: மாலை துஆ" style="width:100%;box-sizing:border-box;padding:14px;border:1px solid #ccc;border-radius:12px;font-size:1rem;background:transparent;color:inherit;">
+                        <label for="newCategoryIcon" style="display:block;margin:14px 0 7px;font-weight:700;">Icon (optional)</label>
+                        <input id="newCategoryIcon" type="text" maxlength="4" value="📂" style="width:100%;box-sizing:border-box;padding:14px;border:1px solid #ccc;border-radius:12px;font-size:1rem;background:transparent;color:inherit;">
+                        <div style="display:flex;gap:10px;margin-top:18px;">
+                          <button type="button" id="cancelCategoryBtn" style="flex:1;padding:13px;border:1px solid #ccc;border-radius:12px;background:transparent;font-weight:700;">Cancel</button>
+                          <button type="button" id="saveCategoryBtn" style="flex:1;padding:13px;border:0;border-radius:12px;background:#0f766e;color:white;font-weight:800;">Save Category</button>
+                        </div>
+                      </div>
+                    </div>`;
+                document.body.appendChild(modal);
 
-            const cleanName = name.trim();
-            if (cleanName.length > 40) {
-                alert('Category பெயர் 40 எழுத்துகளுக்குள் இருக்க வேண்டும்.');
-                return;
+                const close = () => modal.remove();
+                modal.querySelector('#cancelCategoryBtn').addEventListener('click', close);
+                modal.querySelector('#saveCategoryBtn').addEventListener('click', () => {
+                    const nameEl = modal.querySelector('#newCategoryName');
+                    const iconEl = modal.querySelector('#newCategoryIcon');
+                    const cleanName = (nameEl.value || '').trim();
+                    const icon = (iconEl.value || '📂').trim() || '📂';
+
+                    if (!cleanName) {
+                        nameEl.focus();
+                        return;
+                    }
+                    if (cleanName.length > 40) {
+                        alert('Category பெயர் 40 எழுத்துகளுக்குள் இருக்க வேண்டும்.');
+                        return;
+                    }
+
+                    const id = slugifyCategoryName(cleanName) || ('category-' + Date.now());
+                    if (categories.some(c => c.name.toLowerCase() === cleanName.toLowerCase() || c.id === id)) {
+                        alert('இந்த Category ஏற்கனவே உள்ளது.');
+                        return;
+                    }
+
+                    categories.push({id, name: cleanName, icon});
+                    saveCustomCategories();
+                    populateDuaCategorySelect(id);
+                    renderCategoryButtons();
+                    renderDuas();
+
+                    const filters = document.getElementById('categoryFilters');
+                    if (filters) {
+                        const existing = [...filters.querySelectorAll('.filter-btn')].some(b => b.dataset.categoryId === id);
+                        if (!existing) {
+                            const btn = document.createElement('button');
+                            btn.className = 'filter-btn';
+                            btn.dataset.categoryId = id;
+                            btn.textContent = icon + ' ' + cleanName;
+                            btn.onclick = () => btn.classList.toggle('active');
+                            filters.appendChild(btn);
+                        }
+                    }
+
+                    showAdminAlert('addAlert', `✅ "${cleanName}" Category added!`, 'success');
+                    close();
+                });
+                modal.querySelector('#newCategoryName').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') modal.querySelector('#saveCategoryBtn').click();
+                    if (e.key === 'Escape') close();
+                });
             }
-
-            const id = slugifyCategoryName(cleanName) || ('category-' + Date.now());
-            if (categories.some(c => c.name.toLowerCase() === cleanName.toLowerCase() || c.id === id)) {
-                alert('இந்த Category ஏற்கனவே உள்ளது.');
-                return;
-            }
-
-            const icon = prompt('Category icon (optional):', '📂') || '📂';
-            categories.push({id, name: cleanName, icon: icon.trim() || '📂'});
-            saveCustomCategories();
-
-            populateDuaCategorySelect(id);
-            renderCategoryButtons();
-            renderDuas();
-
-            const filters = document.getElementById('categoryFilters');
-            if (filters) {
-                const existing = [...filters.querySelectorAll('.filter-btn')].some(b => b.dataset.categoryId === id);
-                if (!existing) {
-                    const btn = document.createElement('button');
-                    btn.className = 'filter-btn';
-                    btn.dataset.categoryId = id;
-                    btn.textContent = (icon.trim() || '📂') + ' ' + cleanName;
-                    btn.onclick = () => btn.classList.toggle('active');
-                    filters.appendChild(btn);
-                }
-            }
-
-            showAdminAlert('addAlert', `✅ "${cleanName}" Category added!`, 'success');
+            const nameEl = modal.querySelector('#newCategoryName');
+            modal.style.display = 'block';
+            setTimeout(() => nameEl.focus(), 50);
         }
 
         function renderCategoryButtons() {
