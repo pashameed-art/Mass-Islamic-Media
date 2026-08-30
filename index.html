@@ -1318,14 +1318,15 @@
 
                             <div class="form-group">
                                 <label>🖼️ Upload Image *</label>
-                                <div class="image-upload-area" id="imageUploadArea">
+                                <div class="image-upload-area" id="imageUploadArea" style="position:relative;overflow:hidden;cursor:pointer;">
                                     <p style="margin: 0; font-size: 1rem; color: var(--text-dark);">
                                         📁 Click or drag image here
                                     </p>
                                     <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; opacity: 0.7;">
                                         Supported: PNG, JPG, WebP | Max: 2MB
                                     </p>
-                                    <input type="file" id="duaImageInput" accept="image/*" style="display: none;">
+                                    <input type="file" id="duaImageInput" accept="image/png,image/jpeg,image/webp"
+                                           style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;">
                                 </div>
                                 <img id="imagePreview" class="image-preview" style="display: none;">
                                 <div class="image-info" id="imageInfo"></div>
@@ -1439,7 +1440,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.0</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.1</p>
                             </div>
                         </div>
                     </div>
@@ -1775,7 +1776,7 @@
         function initPWA() {
             // Service Worker
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js?v=20.0', { scope: './' }).catch(() => {});
+                navigator.serviceWorker.register('./sw.js?v=20.1', { scope: './' }).catch(() => {});
             }
 
             // Install Prompt
@@ -2133,7 +2134,18 @@
             const uploadArea = document.getElementById('imageUploadArea');
             const imageInput = document.getElementById('duaImageInput');
 
-            uploadArea.addEventListener('click', () => imageInput.click());
+            // Mobile-safe upload: the real file input covers the upload card.
+            // Keep a click fallback for browsers that do not activate transparent inputs.
+            uploadArea.addEventListener('click', (e) => {
+                if (e.target !== imageInput) {
+                    try { imageInput.click(); } catch (_) {}
+                }
+            });
+            uploadArea.addEventListener('touchend', (e) => {
+                if (e.target !== imageInput) {
+                    try { imageInput.click(); } catch (_) {}
+                }
+            }, {passive:true});
             uploadArea.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 uploadArea.classList.add('dragover');
@@ -2148,9 +2160,8 @@
             });
 
             imageInput.addEventListener('change', (e) => {
-                if (e.target.files.length > 0) {
-                    handleImageSelect(e.target.files[0]);
-                }
+                const file = e.target.files && e.target.files[0];
+                if (file) handleImageSelect(file);
             });
 
             // Form submit
