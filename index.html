@@ -1259,6 +1259,7 @@
                     <div class="admin-tabs">
                         <button class="admin-tab-btn active" id="addDuaTab">➕ புதிய துஆ</button>
                         <button class="admin-tab-btn" id="manageDuasTab">📋 Manage</button>
+                        <button class="admin-tab-btn" id="categoriesTab">📂 Category</button>
                         <button class="admin-tab-btn" id="backupTab">💾 Backup</button>
                     </div>
 
@@ -1328,6 +1329,31 @@
                     <div class="admin-tab-content" id="manageDuasContent" style="display: none;">
                         <div class="alert" id="manageAlert"></div>
                         <div id="duasListAdmin" style="margin-top: 1rem;"></div>
+                    </div>
+
+                    <!-- Category Management Tab -->
+                    <div class="admin-tab-content" id="categoriesContent" style="display: none;">
+                        <div class="alert" id="categoryAlert"></div>
+                        <div class="admin-form">
+                            <h3 style="margin-bottom: 1rem;">📂 Category Management</h3>
+                            <div class="form-group">
+                                <label for="newCategoryName">Category Name</label>
+                                <input type="text" id="newCategoryName" placeholder="e.g., Morning">
+                            </div>
+                            <div class="form-group">
+                                <label for="newCategoryIcon">Icon (optional)</label>
+                                <input type="text" id="newCategoryIcon" placeholder="e.g., 🌅" maxlength="4">
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn-save" id="addCategoryBtn">➕ Add Category</button>
+                                <button type="button" class="btn-cancel" id="cancelCategoryEditBtn" style="display:none;">Cancel Edit</button>
+                            </div>
+                            <input type="hidden" id="editingCategoryId" value="">
+                        </div>
+                        <div class="admin-form">
+                            <h3 style="margin-bottom: 1rem;">📋 Categories</h3>
+                            <div id="categoriesListAdmin"></div>
+                        </div>
                     </div>
 
                     <!-- Backup Tab -->
@@ -1528,7 +1554,7 @@
 
     <script>
         // ============= DATA =============
-        const duasData = [
+        let duasData = [
             {
                 id: 1,
                 title: 'காலை துஆ',
@@ -1573,14 +1599,14 @@
             }
         ];
 
-        const categories = [
-            { id: 'all', name: 'அனைத்து', icon: '📱' },
-            { id: 'morning', name: 'காலை', icon: '🌅' },
-            { id: 'forgiveness', name: 'மன்னிப்பு', icon: '🤲' },
-            { id: 'travel', name: 'பயணம்', icon: '✈️' },
-            { id: 'sleep', name: 'தூக்கம்', icon: '🌙' },
-            { id: 'food', name: 'உணவு', icon: '🍽️' },
-            { id: 'knowledge', name: 'ஞானம்', icon: '📖' }
+        let categories = [
+            { id: 'all', name: 'அனைத்து', icon: '📱', system: true },
+            { id: 'morning', name: 'காலை', icon: '🌅', system: true },
+            { id: 'forgiveness', name: 'மன்னிப்பு', icon: '🤲', system: true },
+            { id: 'travel', name: 'பயணம்', icon: '✈️', system: true },
+            { id: 'sleep', name: 'தூக்கம்', icon: '🌙', system: true },
+            { id: 'food', name: 'உணவு', icon: '🍽️', system: true },
+            { id: 'knowledge', name: 'ஞானம்', icon: '📖', system: true }
         ];
 
         // ============= STATE =============
@@ -1692,7 +1718,10 @@
             initDarkMode();
             initPWA();
             loadCustomDuas();
+            loadCategories();
             renderCategories();
+            refreshDuaCategorySelect();
+            renderCategoryManager();
             renderDuas();
             renderDaily();
             attachEventListeners();
@@ -1708,6 +1737,145 @@
             if (savedRepo) {
                 document.getElementById('githubRepoInput').value = savedRepo;
             }
+        }
+
+        // ============= CATEGORY MANAGEMENT =============
+        function loadCategories() {
+            const saved = localStorage.getItem('customCategories');
+            if (!saved) return;
+            try {
+                const customCategories = JSON.parse(saved);
+                if (Array.isArray(customCategories)) {
+                    customCategories.forEach(cat => {
+                        if (cat && cat.id && cat.id !== 'all' && !categories.some(c => c.id === cat.id)) {
+                            categories.push({ id: cat.id, name: cat.name || cat.id, icon: cat.icon || '📂', system: false });
+                        }
+                    });
+                }
+            } catch (e) { console.error('Error loading categories:', e); }
+        }
+
+        function saveCategories() {
+            localStorage.setItem('customCategories', JSON.stringify(
+                categories.filter(cat => !cat.system && cat.id !== 'all')
+            ));
+        }
+
+        function slugifyCategory(name) {
+            const base = name.toLowerCase().trim()
+                .replace(/[^a-z0-9\u0B80-\u0BFF]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+            return base || ('category-' + Date.now());
+        }
+
+        function renderCategoryManager() {
+            const container = document.getElementById('categoriesListAdmin');
+            if (!container) return;
+            const editable = categories.filter(cat => cat.id !== 'all');
+            container.innerHTML = editable.map(cat => `
+                <div class="backup-item" style="gap:0.75rem;">
+                    <div style="flex:1;min-width:0;">
+                        <strong>${cat.icon} ${cat.name}</strong>
+                        <div style="font-size:0.8rem;opacity:0.6;">${cat.system ? 'Default Category' : 'Custom Category'}</div>
+                    </div>
+                    <div class="backup-buttons">
+                        <button class="btn-small secondary" onclick="editCategory('${cat.id}')">✏️ Edit</button>
+                        ${cat.system ? '' : `<button class="btn-small" style="background:#ef4444;" onclick="deleteCategory('${cat.id}')">🗑️ Delete</button>`}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addOrUpdateCategory() {
+            const nameEl = document.getElementById('newCategoryName');
+            const iconEl = document.getElementById('newCategoryIcon');
+            const editingEl = document.getElementById('editingCategoryId');
+            const name = nameEl.value.trim();
+            const icon = iconEl.value.trim() || '📂';
+            const editingId = editingEl.value;
+
+            if (!name) {
+                showAdminAlert('categoryAlert', '❌ Category name is required.', 'error');
+                return;
+            }
+
+            if (editingId) {
+                const cat = categories.find(c => c.id === editingId);
+                if (!cat) return;
+                if (categories.some(c => c.id !== editingId && c.name.toLowerCase() === name.toLowerCase())) {
+                    showAdminAlert('categoryAlert', '❌ Category already exists.', 'error');
+                    return;
+                }
+                cat.name = name;
+                cat.icon = icon;
+                saveCategories();
+                showAdminAlert('categoryAlert', '✅ Category updated successfully.', 'success');
+            } else {
+                if (categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+                    showAdminAlert('categoryAlert', '❌ Category already exists.', 'error');
+                    return;
+                }
+                let id = slugifyCategory(name);
+                while (categories.some(c => c.id === id)) id += '-' + Date.now();
+                categories.push({ id, name, icon, system: false });
+                saveCategories();
+                showAdminAlert('categoryAlert', '✅ Category added successfully.', 'success');
+            }
+
+            cancelCategoryEdit();
+            renderCategoryManager();
+            renderCategories();
+            renderCategoryFilters();
+            refreshDuaCategorySelect();
+        }
+
+        function editCategory(id) {
+            const cat = categories.find(c => c.id === id);
+            if (!cat || id === 'all') return;
+            document.getElementById('newCategoryName').value = cat.name;
+            document.getElementById('newCategoryIcon').value = cat.icon || '';
+            document.getElementById('editingCategoryId').value = id;
+            document.getElementById('addCategoryBtn').textContent = '💾 Update Category';
+            document.getElementById('cancelCategoryEditBtn').style.display = 'block';
+        }
+
+        function cancelCategoryEdit() {
+            document.getElementById('newCategoryName').value = '';
+            document.getElementById('newCategoryIcon').value = '';
+            document.getElementById('editingCategoryId').value = '';
+            document.getElementById('addCategoryBtn').textContent = '➕ Add Category';
+            document.getElementById('cancelCategoryEditBtn').style.display = 'none';
+        }
+
+        function deleteCategory(id) {
+            const cat = categories.find(c => c.id === id);
+            if (!cat || cat.system || id === 'all') return;
+            const linked = duasData.filter(dua => dua.category === id).length;
+            const msg = linked
+                ? `Delete "${cat.name}"?\n\n${linked} Dua(s) use this category. They will be moved to "அனைத்து".`
+                : `Delete "${cat.name}"?`;
+            if (!confirm(msg)) return;
+
+            duasData.forEach(dua => { if (dua.category === id) dua.category = 'all'; });
+            categories = categories.filter(c => c.id !== id);
+            saveCategories();
+            localStorage.setItem('customDuas', JSON.stringify(duasData));
+            if (selectedCategory === id) selectedCategory = 'all';
+            renderCategoryManager();
+            renderCategories();
+            renderCategoryFilters();
+            refreshDuaCategorySelect();
+            renderDuas();
+            showAdminAlert('categoryAlert', '✅ Category deleted.', 'success');
+        }
+
+        function refreshDuaCategorySelect() {
+            const select = document.getElementById('duaCategory');
+            if (!select) return;
+            const current = select.value;
+            select.innerHTML = '<option value="">-- Select Category --</option>' +
+                categories.slice(1).map(cat => `<option value="${cat.id}">${cat.icon} ${cat.name}</option>`).join('');
+            if (categories.some(c => c.id === current)) select.value = current;
         }
 
         // Load custom duas from localStorage
@@ -1779,16 +1947,7 @@
             });
 
             // Render category filters for advanced search
-            const filtersContainer = document.getElementById('categoryFilters');
-            categories.slice(1).forEach(cat => {
-                const btn = document.createElement('button');
-                btn.className = 'filter-btn';
-                btn.textContent = cat.icon + ' ' + cat.name;
-                btn.onclick = () => {
-                    btn.classList.toggle('active');
-                };
-                filtersContainer.appendChild(btn);
-            });
+            renderCategoryFilters();
 
             // Dark Mode
             document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
@@ -1844,12 +2003,25 @@
         function renderCategories() {
             const container = document.getElementById('categoriesContainer');
             container.innerHTML = categories.map(cat => `
-                <button class="category-btn ${cat.id === 'all' ? 'active' : ''}" 
+                <button class="category-btn ${cat.id === selectedCategory ? 'active' : ''}" 
                     onclick="selectCategory('${cat.id}')">
                     <span>${cat.icon}</span>
                     <span>${cat.name}</span>
                 </button>
             `).join('');
+        }
+
+        function renderCategoryFilters() {
+            const container = document.getElementById('categoryFilters');
+            if (!container) return;
+            container.innerHTML = '';
+            categories.slice(1).forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.textContent = cat.icon + ' ' + cat.name;
+                btn.onclick = () => btn.classList.toggle('active');
+                container.appendChild(btn);
+            });
         }
 
         function renderDuas() {
@@ -2022,7 +2194,10 @@
             // Tab switching
             document.getElementById('addDuaTab').addEventListener('click', () => switchAdminTab('addDua'));
             document.getElementById('manageDuasTab').addEventListener('click', () => switchAdminTab('manageDuas'));
+            document.getElementById('categoriesTab').addEventListener('click', () => switchAdminTab('categories'));
             document.getElementById('backupTab').addEventListener('click', () => switchAdminTab('backup'));
+            document.getElementById('addCategoryBtn').addEventListener('click', addOrUpdateCategory);
+            document.getElementById('cancelCategoryEditBtn').addEventListener('click', cancelCategoryEdit);
 
             // Image upload
             const uploadArea = document.getElementById('imageUploadArea');
@@ -2152,6 +2327,11 @@
                 document.getElementById('manageDuasContent').style.display = 'block';
                 document.getElementById('manageDuasTab').classList.add('active');
                 renderManageDuas();
+            } else if (tab === 'categories') {
+                document.getElementById('categoriesContent').style.display = 'block';
+                document.getElementById('categoriesTab').classList.add('active');
+                renderCategoryManager();
+                refreshDuaCategorySelect();
             } else if (tab === 'backup') {
                 document.getElementById('backupContent').style.display = 'block';
                 document.getElementById('backupTab').classList.add('active');
@@ -2210,6 +2390,7 @@
                 version: '2.0',
                 timestamp: new Date().toISOString(),
                 duas: duasData,
+                categories: categories.filter(cat => !cat.system && cat.id !== 'all'),
                 favorites: JSON.parse(localStorage.getItem('favorites') || '[]'),
                 settings: {
                     darkMode: darkMode,
@@ -2238,6 +2419,27 @@
                     if (backup.duas && Array.isArray(backup.duas)) {
                         duasData = backup.duas;
                         localStorage.setItem('customDuas', JSON.stringify(duasData));
+                    }
+
+                    if (backup.categories && Array.isArray(backup.categories)) {
+                        const defaults = [
+                            { id: 'all', name: 'அனைத்து', icon: '📱', system: true },
+                            { id: 'morning', name: 'காலை', icon: '🌅', system: true },
+                            { id: 'forgiveness', name: 'மன்னிப்பு', icon: '🤲', system: true },
+                            { id: 'travel', name: 'பயணம்', icon: '✈️', system: true },
+                            { id: 'sleep', name: 'தூக்கம்', icon: '🌙', system: true },
+                            { id: 'food', name: 'உணவு', icon: '🍽️', system: true },
+                            { id: 'knowledge', name: 'ஞானம்', icon: '📖', system: true }
+                        ];
+                        categories = defaults.concat(
+                            backup.categories.filter(cat => cat && cat.id && cat.id !== 'all')
+                                .map(cat => ({ id: cat.id, name: cat.name || cat.id, icon: cat.icon || '📂', system: false }))
+                        );
+                        saveCategories();
+                        renderCategories();
+                        renderCategoryFilters();
+                        refreshDuaCategorySelect();
+                        renderCategoryManager();
                     }
 
                     if (backup.favorites) {
@@ -2313,6 +2515,7 @@
                 version: '2.5',
                 timestamp: new Date().toISOString(),
                 duas: duasData,
+                categories: categories.filter(cat => !cat.system && cat.id !== 'all'),
                 favorites: JSON.parse(localStorage.getItem('favorites') || '[]')
             };
 
