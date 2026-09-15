@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="தினசரி துஆ - தினமும் ஒரு துஆ, தினமும் ஒரு நன்மை">
     <meta name="theme-color" content="#0F766E">
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="தினசரி துஆ">
     
-    <link rel="manifest" href="./manifest.json">
-    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='75' font-size='80' text-anchor='middle'>🕌</text></svg>">
     
     <title>தினசரி துஆ - Daily Duas</title>
     
@@ -1175,7 +1173,7 @@
                 aspect-ratio: auto;
             }
         }
-    .prayer-card{margin:1rem 0;padding:1rem;border-radius:18px;background:var(--bg-card);border:1px solid var(--border-light);box-shadow:var(--shadow)}.prayer-head{display:flex;align-items:center;justify-content:space-between;gap:1rem}.prayer-title{font-weight:800;font-size:1.05rem}.prayer-location{font-size:.78rem;opacity:.7;margin-top:.2rem}.prayer-refresh,.prayer-reminder{border:0;background:transparent;cursor:pointer;font-size:1.05rem;padding:.4rem;border-radius:10px}.next-prayer{margin:.9rem 0;padding:.75rem;border-radius:14px;background:rgba(15,118,110,.10);display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:.65rem}.next-prayer span{font-size:.75rem;opacity:.75}.next-prayer b{font-variant-numeric:tabular-nums}.prayer-grid{display:grid;gap:.35rem}.prayer-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:.5rem;padding:.55rem .35rem;border-bottom:1px solid var(--border-light)}.prayer-row:last-child{border-bottom:0}.prayer-row b{font-variant-numeric:tabular-nums;min-width:58px;text-align:right}.prayer-reminder.off{opacity:.35}.prayer-note{font-size:.72rem;opacity:.65;text-align:center;margin-top:.65rem}.prayer-row.active{font-weight:800}.prayer-home-button{width:100%;margin:1rem 0;padding:.85rem 1rem;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:.75rem;text-align:left;border:1px solid var(--border-light);border-radius:16px;background:var(--bg-card);color:inherit;box-shadow:var(--shadow);cursor:pointer}.prayer-home-icon{font-size:1.5rem}.prayer-home-title{font-weight:800;font-size:1rem}.prayer-home-location{font-size:.72rem;opacity:.7;margin-top:.2rem}.prayer-home-next{text-align:right;min-width:105px}.prayer-home-next span{display:block;font-size:.62rem;opacity:.65}.prayer-home-next strong,.prayer-home-next b{display:block;font-size:.78rem;font-variant-numeric:tabular-nums}.prayer-home-arrow{font-size:1.6rem;opacity:.55}.prayer-details-container{padding:1rem}.prayer-details-head{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}.prayer-details-head h2{margin:0;font-size:1.2rem}.prayer-location-box{padding:.9rem;border:1px solid var(--border-light);border-radius:14px;background:var(--bg-card);display:grid;gap:.35rem}.prayer-location-box span{font-size:.75rem;opacity:.65}.prayer-location-box strong{font-size:.95rem}.prayer-detail-grid{display:grid;gap:.35rem;margin-top:1rem}.prayer-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:.5rem;padding:.65rem .35rem;border-bottom:1px solid var(--border-light)}.prayer-row b{font-variant-numeric:tabular-nums}.prayer-reminder{border:0;background:transparent;cursor:pointer;font-size:1.35rem;min-width:48px;min-height:48px;padding:10px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.next-prayer{margin:.9rem 0;padding:.75rem;border-radius:14px;background:rgba(15,118,110,.10);display:grid;grid-template-columns:1fr auto auto;gap:.65rem;align-items:center}.next-prayer span{font-size:.75rem;opacity:.7}.next-prayer b{font-variant-numeric:tabular-nums}</style>
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -1211,20 +1209,7 @@
         <div class="content">
             <!-- Home Page -->
             <div class="page active" id="homePage">
-                                <button type="button" class="prayer-home-button" id="prayerHomeButton" aria-label="தொழுகை நேரங்கள்">
-  <div class="prayer-home-icon">🕌</div>
-  <div class="prayer-home-main">
-    <div class="prayer-home-title">தொழுகை நேரங்கள்</div>
-    <div class="prayer-home-location" id="prayerHomeLocation">📍 Kadayanallur</div>
-  </div>
-  <div class="prayer-home-next">
-    <span>அடுத்த தொழுகை</span>
-    <strong id="prayerHomeNext">—</strong>
-    <b id="prayerHomeNextTime">--:--</b>
-  </div>
-  <span class="prayer-home-arrow">›</span>
-</button>
-<!-- Daily Dua -->
+                <!-- Daily Dua -->
                 <div class="daily-section">
                     <h3 class="daily-label">🌟 இன்றைய துஆ</h3>
                     <div class="daily-card" id="dailyDua">
@@ -1300,15 +1285,15 @@
 
                             <div class="form-group">
                                 <label for="duaCategory">📂 Category *</label>
-                                <div style="display:flex;gap:.5rem;align-items:stretch;">
-                                    <select id="duaCategory" required style="flex:1;">
-                                        <option value="">-- Select Category --</option>
-                                    </select>
-                                    <button type="button" class="btn-small" id="addCategoryBtn" type="button" onclick="addNewCategory(); return false;" style="white-space:nowrap;">➕ Add</button>
-                                </div>
-                                <p style="font-size:.8rem;opacity:.65;margin:.4rem 0 0;">
-                                    புதிய Category சேர்க்கலாம்
-                                </p>
+                                <select id="duaCategory" required>
+                                    <option value="">-- Select Category --</option>
+                                    <option value="morning">🌅 Morning</option>
+                                    <option value="forgiveness">🤲 Forgiveness</option>
+                                    <option value="travel">✈️ Travel</option>
+                                    <option value="sleep">🌙 Sleep</option>
+                                    <option value="food">🍽️ Food</option>
+                                    <option value="knowledge">📖 Knowledge</option>
+                                </select>
                             </div>
 
                             <div class="form-group">
@@ -1318,25 +1303,17 @@
 
                             <div class="form-group">
                                 <label for="duaImageInput">🖼️ Upload Image *</label>
-                                <div class="image-upload-area" id="imageUploadArea"
-                                     style="position:relative;cursor:default;">
-                                    <p style="margin:0;font-size:1rem;color:var(--text-dark);">
-                                        📁 Select an image
+                                <div class="image-upload-area" id="imageUploadArea">
+                                    <p style="margin: 0; font-size: 1rem; color: var(--text-dark);">
+                                        📁 Click or drag image here
                                     </p>
-                                    <p style="margin:.5rem 0 0;font-size:.85rem;opacity:.7;">
+                                    <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; opacity: 0.7;">
                                         Supported: PNG, JPG, WebP | Max: 5MB
                                     </p>
-                                    <label for="duaImageInput"
-                                           class="btn-small"
-                                           style="display:inline-flex;align-items:center;justify-content:center;margin-top:.8rem;cursor:pointer;min-height:44px;padding:.7rem 1rem;">
-                                        📷 Choose Image
-                                    </label>
-                                    <input type="file" id="duaImageInput"
-                                           accept="image/*,.png,.jpg,.jpeg,.webp"
-                                           style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;"
-                                           tabindex="-1">
+                                    <input type="file" id="duaImageInput" accept="image/*,.png,.jpg,.jpeg,.webp" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
                                 </div>
-                                <img id="imagePreview class="image-preview" style="display: none;">
+                                <div id="selectedImageName" class="image-info" style="display:none;font-weight:600;"></div>
+                                <img id="imagePreview" class="image-preview" style="display:none;visibility:hidden;opacity:0;max-width:100%;max-height:220px;object-fit:contain;">
                                 <div class="image-info" id="imageInfo"></div>
                             </div>
 
@@ -1402,18 +1379,7 @@
             </div>
 
             <!-- Settings Page -->
-            <div class="page" id="prayerDetailsPage"><div class="prayer-details-container">
-<div class="prayer-details-head"><button type="button" class="btn-small" id="prayerBackBtn">← Back</button><h2>🕌 தொழுகை நேரங்கள்</h2></div>
-<div class="prayer-location-box"><span>📍 Location</span><strong id="prayerDetailLocation">Kadayanallur, Tenkasi</strong><button type="button" class="btn-small" id="prayerLocationBtn">Change Location</button></div>
-<div class="next-prayer detail-next"><span>அடுத்த தொழுகை</span><strong id="prayerDetailNext">—</strong><b id="prayerDetailNextTime">--:--</b></div>
-<div class="prayer-detail-grid">
-<div class="prayer-row"><span>Fajr</span><b id="prayerFajr">--:--</b><button type="button" class="prayer-reminder" data-prayer="Fajr" onclick="togglePrayerReminder('Fajr', this); return false;">🔕</button></div>
-<div class="prayer-row"><span>Dhuhr</span><b id="prayerDhuhr">--:--</b><button type="button" class="prayer-reminder" data-prayer="Dhuhr" onclick="togglePrayerReminder('Dhuhr', this); return false;">🔕</button></div>
-<div class="prayer-row"><span>Asr</span><b id="prayerAsr">--:--</b><button type="button" class="prayer-reminder" data-prayer="Asr" onclick="togglePrayerReminder('Asr', this); return false;">🔕</button></div>
-<div class="prayer-row"><span>Maghrib</span><b id="prayerMaghrib">--:--</b><button type="button" class="prayer-reminder" data-prayer="Maghrib" onclick="togglePrayerReminder('Maghrib', this); return false;">🔕</button></div>
-<div class="prayer-row"><span>Isha</span><b id="prayerIsha">--:--</b><button type="button" class="prayer-reminder" data-prayer="Isha" onclick="togglePrayerReminder('Isha', this); return false;">🔕</button></div>
-</div><div class="prayer-note" id="prayerStatus">நேரங்கள் தானாக update ஆகும்</div></div></div>
-<div class="page" id="settingsPage">
+            <div class="page" id="settingsPage">
                 <div class="settings-container">
                     <h2 style="margin-bottom: 2rem;">⚙️ Settings</h2>
 
@@ -1427,6 +1393,15 @@
                         <div class="settings-item">
                             <span>Notification Time</span>
                             <input type="time" id="notificationTime" value="08:00" style="border: none; background: none; color: var(--text-dark);">
+                        </div>
+                    </div>
+
+                    <!-- Display -->
+                    <div class="settings-group">
+                        <h3>🎨 Display</h3>
+                        <div class="settings-item">
+                            <span>Dark Mode</span>
+                            <div class="toggle-switch" id="darkModeToggle"></div>
                         </div>
                     </div>
 
@@ -1448,7 +1423,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.3</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.4</p>
                             </div>
                         </div>
                     </div>
@@ -1461,10 +1436,10 @@
     <div class="pin-modal" id="pinModal">
         <div class="pin-container">
             <div class="pin-title">🔐 Admin PIN</div>
-            <p id="pinModalMessage" style="margin-bottom: 1rem; font-size: 0.9rem;">Enter your 4-digit PIN</p>
+            <p id="pinModalMessage" style="margin-bottom: 1rem; font-size: 0.9rem;">Enter your 6-digit PIN</p>
             
             <div class="pin-input-group">
-                <input type="text" id="pinInput" class="pin-input" maxlength="4" placeholder="••••" readonly>
+                <input type="text" id="pinInput" class="pin-input" maxlength="6" placeholder="••••••" readonly>
             </div>
 
             <div class="pin-keypad">
@@ -1479,7 +1454,7 @@
                 <button class="pin-key" onclick="pinKeypress('9')">9</button>
                 <button class="pin-key delete" onclick="pinDelete()">🔙 Delete</button>
                 <button class="pin-key" onclick="pinKeypress('0')">0</button>
-                <button type="button" class="pin-key submit" onclick="return pinSubmit()">✓ Submit</button>
+                <button class="pin-key submit" onclick="pinSubmit()">✓ Submit</button>
             </div>
 
             <div class="pin-error" id="pinError"></div>
@@ -1506,6 +1481,28 @@
                 <button class="icon-btn" id="favoriteBtn">🤍</button>
                 <button class="icon-btn" id="shareBtn">📤</button>
             </div>
+        </div>
+    </div>
+
+    <!-- PIN Verification Modal -->
+    <div class="modal" id="pinModal" style="background: rgba(0, 0, 0, 0.7);">
+        <div class="modal-content" style="width: 90%; max-width: 400px; aspect-ratio: auto; padding: 2rem;">
+            <h2 style="margin-bottom: 1.5rem; text-align: center;">🔐 Admin PIN</h2>
+            
+            <div id="pinSetup" style="display: none;">
+                <p style="margin-bottom: 1rem; opacity: 0.9;">முதல் முறை - 6 இலக்க PIN அமைக்கவும்:</p>
+                <input type="password" id="setPinInput" placeholder="6 digit PIN" maxlength="6" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
+                <button class="btn-save" onclick="savePIN()" style="width: 100%;">✅ Set PIN</button>
+            </div>
+
+            <div id="pinVerify" style="display: none;">
+                <p style="margin-bottom: 1rem; opacity: 0.9;">உங்க் PIN உள்ளிடவும்:</p>
+                <input type="password" id="verifyPinInput" placeholder="6 digit PIN" maxlength="6" style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
+                <button class="btn-save" onclick="verifyPIN()" style="width: 100%; margin-bottom: 0.5rem;">✅ Verify</button>
+                <button class="btn-cancel" onclick="closePINModal()" style="width: 100%;">Cancel</button>
+            </div>
+
+            <div id="pinError" style="display: none; background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 1rem; border-radius: 6px; margin-top: 1rem; text-align: center;"></div>
         </div>
     </div>
 
@@ -1586,23 +1583,6 @@
             { id: 'knowledge', name: 'ஞானம்', icon: '📖' }
         ];
 
-        // Custom categories created by Admin are stored locally and reused.
-        try {
-            const savedCategories = JSON.parse(localStorage.getItem('customCategories') || '[]');
-            if (Array.isArray(savedCategories)) {
-                savedCategories.forEach(cat => {
-                    if (cat && cat.id && cat.name && !categories.some(c => c.id === cat.id)) {
-                        categories.push({
-                            id: String(cat.id),
-                            name: String(cat.name),
-                            icon: cat.icon || '📂'
-                        });
-                    }
-                });
-            }
-        } catch (e) {}
-
-
         // ============= STATE =============
         let darkMode = localStorage.getItem('darkMode') === 'true';
         let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
@@ -1621,113 +1601,90 @@
         let githubRepo = localStorage.getItem('githubRepo') || '';
 
         // ============= PIN PROTECTION FUNCTIONS =============
-        // ============= ADMIN PIN PROTECTION (FINAL 4-DIGIT VERSION) =============
         function setupAdminPIN() {
-            showPINModal(adminPIN ? 'verify' : 'setup');
+            if (!adminPIN) {
+                // First time setup - create PIN
+                showPINModal('setup');
+            } else {
+                // Verify PIN
+                showPINModal('verify');
+            }
         }
 
         function showPINModal(mode) {
             const modal = document.getElementById('pinModal');
             const message = document.getElementById('pinModalMessage');
             const info = document.getElementById('pinInfo');
-            const error = document.getElementById('pinError');
+            
+            modal.classList.add('show');
+            
+            if (mode === 'setup') {
+                message.textContent = 'Set your 6-digit Admin PIN';
+                info.textContent = 'You can change this later in settings';
+            } else {
+                message.textContent = 'Enter your 6-digit PIN to access Admin Panel';
+                info.textContent = '';
+            }
+            
             window.pinMode = mode;
             window.pinValue = '';
-            if (message) message.textContent = mode === 'setup'
-                ? 'Set your 4-digit Admin PIN'
-                : 'Enter your 4-digit PIN';
-            if (info) info.textContent = mode === 'setup'
-                ? '4 digits required'
-                : '';
-            if (error) error.textContent = '';
-            if (modal) {
-                modal.classList.add('show');
-                modal.style.display = 'flex';
-            }
             updatePINDisplay();
         }
 
         function pinKeypress(digit) {
-            digit = String(digit);
-            if (!/^\d$/.test(digit)) return;
-            if ((window.pinValue || '').length >= 4) return;
-            window.pinValue = (window.pinValue || '') + digit;
-            updatePINDisplay();
+            if (window.pinValue.length < 6) {
+                window.pinValue += digit;
+                updatePINDisplay();
+                
+                // Auto-submit when 6 digits entered
+                if (window.pinValue.length === 6) {
+                    setTimeout(pinSubmit, 300);
+                }
+            }
         }
 
         function pinDelete() {
-            window.pinValue = (window.pinValue || '').slice(0, -1);
-            updatePINDisplay();
+            if (window.pinValue.length > 0) {
+                window.pinValue = window.pinValue.slice(0, -1);
+                updatePINDisplay();
+            }
         }
 
         function updatePINDisplay() {
             const input = document.getElementById('pinInput');
-            if (input) input.value = '•'.repeat((window.pinValue || '').length);
+            input.value = '•'.repeat(window.pinValue.length);
         }
 
         function pinSubmit() {
-            const pin = String(window.pinValue || '');
             const error = document.getElementById('pinError');
-
-            if (!/^\d{4}$/.test(pin)) {
-                if (error) error.textContent = '❌ 4 digit PIN enter செய்யவும்';
-                return false;
+            
+            if (window.pinValue.length !== 6) {
+                error.textContent = 'PIN must be 6 digits';
+                return;
             }
 
-            if (window.pinMode === 'setup' || !adminPIN) {
-                adminPIN = pin;
-                localStorage.setItem('adminPIN', pin);
+            if (window.pinMode === 'setup') {
+                // Save new PIN
+                adminPIN = window.pinValue;
+                localStorage.setItem('adminPIN', adminPIN);
                 adminAuthenticated = true;
-                isAdmin = true;
-                closePINModal();
-                const nav = document.getElementById('adminNav');
-                if (nav) nav.style.display = 'flex';
-                showAdminAlert('addAlert', '✅ 4-digit Admin PIN set successfully!', 'success');
-                goToPage('admin');
-                return false;
-            }
-
-            if (pin === String(adminPIN)) {
-                adminAuthenticated = true;
-                isAdmin = true;
-                closePINModal();
-                const nav = document.getElementById('adminNav');
-                if (nav) nav.style.display = 'flex';
-                showAdminAlert('addAlert', '✅ Admin access granted!', 'success');
+                error.textContent = '';
+                document.getElementById('pinModal').classList.remove('show');
+                showAdminAlert('addAlert', '✅ Admin PIN set successfully!', 'success');
                 goToPage('admin');
             } else {
-                if (error) error.textContent = '❌ Wrong PIN. Try again.';
-                window.pinValue = '';
-                updatePINDisplay();
+                // Verify PIN
+                if (window.pinValue === adminPIN) {
+                    adminAuthenticated = true;
+                    error.textContent = '';
+                    document.getElementById('pinModal').classList.remove('show');
+                    goToPage('admin');
+                } else {
+                    error.textContent = '❌ Wrong PIN. Try again.';
+                    window.pinValue = '';
+                    updatePINDisplay();
+                }
             }
-            return false;
-        }
-
-        function closePINModal() {
-            const modal = document.getElementById('pinModal');
-            window.pinValue = '';
-            updatePINDisplay();
-            if (modal) {
-                modal.classList.remove('show');
-                modal.style.display = 'none';
-            }
-            const error = document.getElementById('pinError');
-            if (error) error.textContent = '';
-        }
-
-        function openPINModal() {
-            showPINModal(adminPIN ? 'verify' : 'setup');
-        }
-
-        function savePIN() { return pinSubmit(); }
-        function verifyPIN() { return pinSubmit(); }
-
-        function checkAdminAccess() {
-            if (adminPIN && !adminAuthenticated) {
-                openPINModal();
-                return false;
-            }
-            return true;
         }
 
         // ============= INITIALIZATION =============
@@ -1739,7 +1696,6 @@
             renderDuas();
             renderDaily();
             attachEventListeners();
-            initPrayerTimes();
             initAdminPanel();
             
             // Initialize admin panel
@@ -1784,7 +1740,20 @@
         function initPWA() {
             // Service Worker
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js?v=20.3', { scope: './' }).catch(() => {});
+                const swCode = `
+                    const cacheName = 'duas-v1';
+                    self.addEventListener('install', () => self.skipWaiting());
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            caches.open(cacheName).then((cache) => {
+                                return cache.match(e.request).catch(() => fetch(e.request));
+                            }).catch(() => caches.match('/index.html'))
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(() => {});
             }
 
             // Install Prompt
@@ -1794,124 +1763,6 @@
                 document.getElementById('installBtn').style.display = 'flex';
                 document.getElementById('installBanner').classList.remove('hidden');
             });
-        }
-
-        function slugifyCategoryName(name) {
-            return name.trim().toLowerCase()
-                .replace(/\s+/g, '-')
-                .replace(/[^a-z0-9\u0B80-\u0BFF_-]/g, '');
-        }
-
-        function populateDuaCategorySelect(selectedId = '') {
-            const select = document.getElementById('duaCategory');
-            if (!select) return;
-            const previous = selectedId || select.value;
-            select.innerHTML = '<option value="">-- Select Category --</option>';
-            categories.filter(c => c.id !== 'all').forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat.id;
-                option.textContent = `${cat.icon} ${cat.name}`;
-                select.appendChild(option);
-            });
-            if (previous && categories.some(c => c.id === previous)) {
-                select.value = previous;
-            }
-        }
-
-        function saveCustomCategories() {
-            const builtInIds = new Set(['all','morning','forgiveness','travel','sleep','food','knowledge']);
-            const custom = categories.filter(c => !builtInIds.has(c.id));
-            localStorage.setItem('customCategories', JSON.stringify(custom));
-        }
-
-        function addNewCategory() {
-            // Use an in-app dialog instead of window.prompt(). Some Android/PWA
-            // environments block or silently fail prompt(), which made the Add
-            // button appear to do nothing.
-            let modal = document.getElementById('categoryAddModal');
-            if (!modal) {
-                modal = document.createElement('div');
-                modal.id = 'categoryAddModal';
-                modal.innerHTML = `
-                    <div style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;">
-                      <div style="width:min(420px,100%);background:var(--card-bg,#fff);color:var(--text-dark,#263238);border-radius:20px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.3);">
-                        <div style="font-size:1.25rem;font-weight:800;margin-bottom:16px;">📂 புதிய Category</div>
-                        <label for="newCategoryName" style="display:block;margin-bottom:7px;font-weight:700;">Category பெயர்</label>
-                        <input id="newCategoryName" type="text" maxlength="40" autocomplete="off" placeholder="உதா: மாலை துஆ" style="width:100%;box-sizing:border-box;padding:14px;border:1px solid #ccc;border-radius:12px;font-size:1rem;background:transparent;color:inherit;">
-                        <label for="newCategoryIcon" style="display:block;margin:14px 0 7px;font-weight:700;">Icon (optional)</label>
-                        <input id="newCategoryIcon" type="text" maxlength="4" value="📂" style="width:100%;box-sizing:border-box;padding:14px;border:1px solid #ccc;border-radius:12px;font-size:1rem;background:transparent;color:inherit;">
-                        <div style="display:flex;gap:10px;margin-top:18px;">
-                          <button type="button" id="cancelCategoryBtn" style="flex:1;padding:13px;border:1px solid #ccc;border-radius:12px;background:transparent;font-weight:700;">Cancel</button>
-                          <button type="button" id="saveCategoryBtn" style="flex:1;padding:13px;border:0;border-radius:12px;background:#0f766e;color:white;font-weight:800;">Save Category</button>
-                        </div>
-                      </div>
-                    </div>`;
-                document.body.appendChild(modal);
-
-                const close = () => modal.remove();
-                modal.querySelector('#cancelCategoryBtn').addEventListener('click', close);
-                modal.querySelector('#saveCategoryBtn').addEventListener('click', () => {
-                    const nameEl = modal.querySelector('#newCategoryName');
-                    const iconEl = modal.querySelector('#newCategoryIcon');
-                    const cleanName = (nameEl.value || '').trim();
-                    const icon = (iconEl.value || '📂').trim() || '📂';
-
-                    if (!cleanName) {
-                        nameEl.focus();
-                        return;
-                    }
-                    if (cleanName.length > 40) {
-                        alert('Category பெயர் 40 எழுத்துகளுக்குள் இருக்க வேண்டும்.');
-                        return;
-                    }
-
-                    const id = slugifyCategoryName(cleanName) || ('category-' + Date.now());
-                    if (categories.some(c => c.name.toLowerCase() === cleanName.toLowerCase() || c.id === id)) {
-                        alert('இந்த Category ஏற்கனவே உள்ளது.');
-                        return;
-                    }
-
-                    categories.push({id, name: cleanName, icon});
-                    saveCustomCategories();
-                    populateDuaCategorySelect(id);
-                    renderCategoryButtons();
-                    renderDuas();
-
-                    const filters = document.getElementById('categoryFilters');
-                    if (filters) {
-                        const existing = [...filters.querySelectorAll('.filter-btn')].some(b => b.dataset.categoryId === id);
-                        if (!existing) {
-                            const btn = document.createElement('button');
-                            btn.className = 'filter-btn';
-                            btn.dataset.categoryId = id;
-                            btn.textContent = icon + ' ' + cleanName;
-                            btn.onclick = () => btn.classList.toggle('active');
-                            filters.appendChild(btn);
-                        }
-                    }
-
-                    showAdminAlert('addAlert', `✅ "${cleanName}" Category added!`, 'success');
-                    close();
-                });
-                modal.querySelector('#newCategoryName').addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') modal.querySelector('#saveCategoryBtn').click();
-                    if (e.key === 'Escape') close();
-                });
-            }
-            const nameEl = modal.querySelector('#newCategoryName');
-            modal.style.display = 'block';
-            setTimeout(() => nameEl.focus(), 50);
-        }
-
-        function renderCategoryButtons() {
-            const container = document.getElementById('categoryTabs');
-            if (!container) return;
-            container.innerHTML = categories.map(cat => `
-                <button class="category-btn ${cat.id === selectedCategory ? 'active' : ''}" 
-                    onclick="selectCategory('${cat.id}')">
-                    ${cat.icon} ${cat.name}
-                </button>
-            `).join('');
         }
 
         function attachEventListeners() {
@@ -1929,18 +1780,15 @@
 
             // Render category filters for advanced search
             const filtersContainer = document.getElementById('categoryFilters');
-            if (filtersContainer) {
-                filtersContainer.innerHTML = '';
-                categories.slice(1).forEach(cat => {
-                    const btn = document.createElement('button');
-                    btn.className = 'filter-btn';
-                    btn.dataset.categoryId = cat.id;
-                    btn.textContent = cat.icon + ' ' + cat.name;
-                    btn.onclick = () => btn.classList.toggle('active');
-                    filtersContainer.appendChild(btn);
-                });
-            }
-            populateDuaCategorySelect();
+            categories.slice(1).forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.textContent = cat.icon + ' ' + cat.name;
+                btn.onclick = () => {
+                    btn.classList.toggle('active');
+                };
+                filtersContainer.appendChild(btn);
+            });
 
             // Dark Mode
             document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
@@ -1957,7 +1805,7 @@
 
             // Settings
             document.getElementById('notificationToggle').addEventListener('click', toggleNotifications);
-            
+            document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
             document.getElementById('adminToggle').addEventListener('click', toggleAdminMode);
             document.getElementById('notificationTime').addEventListener('change', (e) => {
                 notificationTime = e.target.value;
@@ -2103,8 +1951,8 @@
         }
 
         function updateSettingsToggle() {
-            const toggle = document.getElementById('darkModeToggle');
-            if (toggle) toggle.classList.toggle('active', !!darkMode);
+            const darkToggle = document.getElementById('darkModeToggle');
+            darkToggle.classList.toggle('active', darkMode);
         }
 
         function requestNotificationPermission() {
@@ -2173,30 +2021,34 @@
         function initAdminPanel() {
             // Tab switching
             document.getElementById('addDuaTab').addEventListener('click', () => switchAdminTab('addDua'));
-            document.getElementById('addCategoryBtn')?.addEventListener('click', addNewCategory);
             document.getElementById('manageDuasTab').addEventListener('click', () => switchAdminTab('manageDuas'));
             document.getElementById('backupTab').addEventListener('click', () => switchAdminTab('backup'));
-            // Image upload — native label/file-input flow for Android Chrome/PWA.
+
+            // Image upload
             const uploadArea = document.getElementById('imageUploadArea');
             const imageInput = document.getElementById('duaImageInput');
 
-            imageInput?.addEventListener('change', (e) => {
-                const file = e.target.files && e.target.files[0];
-                if (file) handleImageSelect(file);
-            });
-
-            uploadArea?.addEventListener('dragover', (e) => {
+            uploadArea.addEventListener('click', (e) => { if (e.target !== imageInput) imageInput.click(); });
+            uploadArea.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 uploadArea.classList.add('dragover');
             });
-            uploadArea?.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
-            uploadArea?.addEventListener('drop', (e) => {
+            uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+            uploadArea.addEventListener('drop', (e) => {
                 e.preventDefault();
                 uploadArea.classList.remove('dragover');
-                const file = e.dataTransfer?.files?.[0];
-                if (file) handleImageSelect(file);
+                if (e.dataTransfer.files.length > 0) {
+                    handleImageSelect(e.dataTransfer.files[0]);
+                }
             });
-// Form submit
+
+            imageInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleImageSelect(e.target.files[0]);
+                }
+            });
+
+            // Form submit
             document.getElementById('addDuaForm').addEventListener('submit', (e) => {
                 e.preventDefault();
                 addNewDua();
@@ -2216,37 +2068,45 @@
             updateAdminStats();
         }
 
-
-        // Global fallback: catches the file selection even after Admin tab re-render.
-        document.addEventListener('change', function(e) {
-            if (e.target && e.target.id === 'duaImageInput') {
-                const file = e.target.files && e.target.files[0];
-                if (file) handleImageSelect(file);
-            }
-        }, true);
-
         function handleImageSelect(file) {
-            if (!file.type.startsWith('image/')) {
+            const preview = document.getElementById('imagePreview');
+            const info = document.getElementById('imageInfo');
+            const nameEl = document.getElementById('selectedImageName');
+            if (!file) return;
+            if (!file.type || !file.type.startsWith('image/')) {
                 showAdminAlert('addAlert', 'Please select a PNG, JPG or WebP image.', 'error');
                 return;
             }
-
             if (file.size > 5 * 1024 * 1024) {
                 showAdminAlert('addAlert', 'Image too large (max 5MB).', 'error');
                 return;
             }
-
-            compressImage(file, (result) => {
-                selectedImageFile = result.data;
-                const preview = document.getElementById('imagePreview');
-                preview.src = result.data;
-                preview.style.display = 'block';
-
-                const info = document.getElementById('imageInfo');
-                const originalKB = (result.originalSize / 1024).toFixed(1);
-                const compressedKB = (result.compressedSize / 1024).toFixed(1);
-                info.textContent = `📦 Original: ${originalKB}KB → Compressed: ${compressedKB}KB (${result.ratio}% reduction)`;
-            });
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = e.target.result;
+                selectedImageFile = data;
+                if (preview) {
+                    preview.onload = function() {
+                        preview.style.display = 'block';
+                        preview.style.visibility = 'visible';
+                        preview.style.opacity = '1';
+                    };
+                    preview.src = data;
+                    preview.style.display = 'block';
+                    preview.style.visibility = 'visible';
+                    preview.style.opacity = '1';
+                }
+                if (nameEl) {
+                    nameEl.textContent = '✅ ' + file.name;
+                    nameEl.style.display = 'block';
+                }
+                if (info) info.textContent = `📦 ${(file.size / 1024).toFixed(1)} KB`;
+                showAdminAlert('addAlert', '✅ Image selected successfully.', 'success');
+            };
+            reader.onerror = function() {
+                showAdminAlert('addAlert', 'Unable to read this image. Please try another image.', 'error');
+            };
+            reader.readAsDataURL(file);
         }
 
         function addNewDua() {
@@ -2547,7 +2407,7 @@
             const errorDiv = document.getElementById('pinError');
 
             if (pin.length !== 6 || isNaN(pin)) {
-                errorDiv.textContent = '❌ 4 digit PIN enter செய்யவும்';
+                errorDiv.textContent = '❌ 6 digit PIN enter செய்யவும்';
                 errorDiv.style.display = 'block';
                 return;
             }
@@ -2783,8 +2643,6 @@
                 document.getElementById('favoritesPage').classList.add('active');
                 document.getElementById('favoritesNav').classList.add('active');
                 renderFavorites();
-            } else if (page === 'prayerDetails') {
-                document.getElementById('prayerDetailsPage').classList.add('active');
             } else if (page === 'settings') {
                 document.getElementById('settingsPage').classList.add('active');
                 document.getElementById('settingsNav').classList.add('active');
@@ -2840,496 +2698,6 @@
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', init);
-    
-/* FINAL 4-DIGIT ADMIN PIN OVERRIDE */
-(function(){
-  adminPIN = localStorage.getItem('adminPIN') || null;
-  window.pinValue = '';
-
-  window.openPINModal = function(){
-    const m=document.getElementById('pinModal');
-    const msg=document.getElementById('pinModalMessage');
-    const input=document.getElementById('pinInput');
-    const err=document.getElementById('pinError');
-    window.pinMode = adminPIN ? 'verify' : 'setup';
-    window.pinValue='';
-    if(msg) msg.textContent=adminPIN ? 'Enter your 4-digit PIN' : 'Set your 4-digit Admin PIN';
-    if(input){ input.maxLength=4; input.value=''; }
-    if(err) err.textContent='';
-    if(m){ m.style.display='flex'; m.classList.add('show'); }
-  };
-
-  window.pinKeypress=function(d){
-    d=String(d);
-    if(!/^\d$/.test(d) || (window.pinValue||'').length>=4) return;
-    window.pinValue+=d;
-    const i=document.getElementById('pinInput');
-    if(i) i.value='•'.repeat(window.pinValue.length);
-  };
-
-  window.pinDelete=function(){
-    window.pinValue=(window.pinValue||'').slice(0,-1);
-    const i=document.getElementById('pinInput');
-    if(i) i.value='•'.repeat(window.pinValue.length);
-  };
-
-  window.pinSubmit=function(){
-    const v=String(window.pinValue||'');
-    const err=document.getElementById('pinError');
-    if(!/^\d{4}$/.test(v)){
-      if(err) err.textContent='❌ 4 இலக்க PIN உள்ளிடவும்';
-      return false;
-    }
-    if(window.pinMode==='setup' || !adminPIN){
-      adminPIN=v;
-      localStorage.setItem('adminPIN',v);
-      adminAuthenticated=true; isAdmin=true;
-      const m=document.getElementById('pinModal');
-      if(m){m.style.display='none';m.classList.remove('show');}
-      const n=document.getElementById('adminNav'); if(n)n.style.display='flex';
-      goToPage('admin');
-    }else if(v===String(adminPIN)){
-      adminAuthenticated=true; isAdmin=true;
-      const m=document.getElementById('pinModal');
-      if(m){m.style.display='none';m.classList.remove('show');}
-      const n=document.getElementById('adminNav'); if(n)n.style.display='flex';
-      goToPage('admin');
-    }else{
-      if(err) err.textContent='❌ PIN incorrect!';
-      window.pinValue='';
-      const i=document.getElementById('pinInput'); if(i)i.value='';
-    }
-    return false;
-  };
-
-  window.checkAdminAccess=function(){
-    if(adminPIN && !adminAuthenticated){window.openPINModal();return false;}
-    return true;
-  };
-
-  document.addEventListener('DOMContentLoaded',function(){
-    document.querySelectorAll('#pinModal .pin-key.submit').forEach(function(btn){
-      btn.type='button';
-      btn.onclick=function(e){e.preventDefault();return window.pinSubmit();};
-    });
-  });
-})();
-
-
-/* ===== v17.5 ADMIN PIN FINAL FIX ===== */
-(function(){
-  // Old 6-digit/invalid PINs from previous builds must not block the new 4-digit PIN.
-  try {
-    const saved = localStorage.getItem('adminPIN');
-    if (saved && !/^\d{4}$/.test(String(saved))) {
-      localStorage.removeItem('adminPIN');
-      adminPIN = null;
-      adminAuthenticated = false;
-      isAdmin = false;
-    }
-  } catch(e) {}
-
-  window.openPINModal = function(){
-    const modal = document.getElementById('pinModal');
-    const message = document.getElementById('pinModalMessage');
-    const info = document.getElementById('pinInfo');
-    const error = document.getElementById('pinError');
-    const input = document.getElementById('pinInput');
-
-    adminPIN = localStorage.getItem('adminPIN') || null;
-    window.pinMode = adminPIN ? 'verify' : 'setup';
-    window.pinValue = '';
-
-    if (message) message.textContent = adminPIN
-      ? 'Enter your 4-digit PIN'
-      : 'Set your 4-digit Admin PIN';
-    if (info) info.textContent = adminPIN ? '' : '4 digits required';
-    if (error) error.textContent = '';
-    if (input) { input.value=''; input.maxLength=4; }
-
-    if (modal) {
-      modal.style.display='flex';
-      modal.classList.add('show');
-    }
-  };
-
-  window.pinSubmit = function(){
-    const pin = String(window.pinValue || '');
-    const error = document.getElementById('pinError');
-
-    if (!/^\d{4}$/.test(pin)) {
-      if (error) error.textContent='❌ 4 இலக்க PIN உள்ளிடவும்';
-      return false;
-    }
-
-    adminPIN = localStorage.getItem('adminPIN') || null;
-
-    // First-time setup.
-    if (!adminPIN) {
-      localStorage.setItem('adminPIN', pin);
-      adminPIN = pin;
-      adminAuthenticated = true;
-      isAdmin = true;
-    }
-    // Existing 4-digit PIN verification.
-    else if (pin === String(adminPIN)) {
-      adminAuthenticated = true;
-      isAdmin = true;
-    }
-    else {
-      if (error) error.textContent='❌ Wrong PIN. Try again.';
-      window.pinValue='';
-      const input=document.getElementById('pinInput');
-      if(input) input.value='';
-      return false;
-    }
-
-    const modal=document.getElementById('pinModal');
-    if(modal){ modal.style.display='none'; modal.classList.remove('show'); }
-
-    const nav=document.getElementById('adminNav');
-    if(nav) nav.style.display='flex';
-
-    updateAdminToggle();
-    goToPage('admin');
-    return false;
-  };
-
-  // Settings toggle must be PIN-protected.
-  window.toggleAdminMode = function(){
-    if (isAdmin && adminAuthenticated) {
-      isAdmin=false;
-      adminAuthenticated=false;
-      localStorage.setItem('adminMode','false');
-      const nav=document.getElementById('adminNav');
-      if(nav) nav.style.display='none';
-      updateAdminToggle();
-      goToPage('home');
-      return;
-    }
-    window.openPINModal();
-  };
-
-  // Admin navigation must also require authentication.
-  document.addEventListener('DOMContentLoaded', function(){
-    const nav=document.getElementById('adminNav');
-    if(nav){
-      nav.onclick=function(e){
-        e.preventDefault();
-        if(adminAuthenticated && isAdmin) goToPage('admin');
-        else window.openPINModal();
-      };
-    }
-    const btn=document.querySelector('#pinModal button.pin-key.submit');
-    if(btn){
-      btn.type='button';
-      btn.onclick=function(e){ e.preventDefault(); return window.pinSubmit(); };
-    }
-  });
-})();
-
-/* Prayer Times - Kadayanallur */
-const PRAYER_CITY='Kadayanallur',PRAYER_COUNTRY='India',PRAYER_METHOD=4,PRAYER_NAMES=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
-const PRAYER_LABELS={Fajr:'Fajr / சுப்ஹ்',Dhuhr:'Dhuhr / லுஹர்',Asr:'Asr / அஸர்',Maghrib:'Maghrib / மக்ரிப்',Isha:'Isha / இஷா'};
-let prayerTimesToday=null,prayerReminderTimers={};
-function prayerDateKey(d=new Date()){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
-function prayerTimeToDate(hm,d=new Date()){let[h,m]=hm.split(':').map(Number),x=new Date(d);x.setHours(h,m,0,0);return x}
-function prayerFormat(hm){if(!hm)return'--:--';let[h,m]=hm.split(':').map(Number),ap=h>=12?'PM':'AM';return`${h%12||12}:${String(m).padStart(2,'0')} ${ap}`}
-function prayerPrefs(){try{return JSON.parse(localStorage.getItem('prayerReminders')||'{}')}catch(e){return{}}}
-function renderPrayerTimes(){
-  if(!prayerTimesToday) return;
-  PRAYER_NAMES.forEach(function(name){
-    const el=document.getElementById('prayer'+name);
-    if(el) el.textContent=prayerFormat(prayerTimesToday[name]);
-  });
-  window.prayerTimesToday=prayerTimesToday;
-  updateNextPrayer();
-  if(typeof initPrayerReminders==='function') initPrayerReminders();
-}
-
-function updateNextPrayer(){
-  const homeName=document.getElementById('prayerHomeNext');
-  const homeTime=document.getElementById('prayerHomeNextTime');
-  const detailName=document.getElementById('prayerDetailNext');
-  const detailTime=document.getElementById('prayerDetailNextTime');
-  if(!prayerTimesToday){
-    if(homeName) homeName.textContent='—';
-    if(homeTime) homeTime.textContent='--:--';
-    if(detailName) detailName.textContent='—';
-    if(detailTime) detailTime.textContent='--:--';
-    return;
-  }
-
-  const now=new Date();
-  let next=null;
-  for(const name of PRAYER_NAMES){
-    const hm=String(prayerTimesToday[name]||'').trim().slice(0,5);
-    if(!/^\d{1,2}:\d{2}$/.test(hm)) continue;
-    if(prayerTimeToDate(hm,now)>now){
-      next={name:name,time:hm};
-      break;
-    }
-  }
-  if(!next && prayerTimesToday.Fajr){
-    next={name:'Fajr',time:String(prayerTimesToday.Fajr).slice(0,5)};
-  }
-
-  const label=next ? (PRAYER_LABELS[next.name]||next.name) : '—';
-  const time=next ? prayerFormat(next.time) : '--:--';
-  if(homeName) homeName.textContent=label;
-  if(homeTime) homeTime.textContent=time;
-  if(detailName) detailName.textContent=label;
-  if(detailTime) detailTime.textContent=time;
-
-  document.querySelectorAll('.prayer-row').forEach(function(row){row.classList.remove('active');});
-  if(next){
-    const row=document.getElementById('prayer'+next.name);
-    if(row && row.closest('.prayer-row')) row.closest('.prayer-row').classList.add('active');
-  }
-}
-
-async function loadPrayerTimes(force=false){
-  const status=document.getElementById('prayerStatus');
-  const loc=getPrayerLocation();
-  const now=new Date();
-  const dateKey=prayerDateKey(now);
-  const apiDate=`${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`;
-
-  const homeLoc=document.getElementById('prayerHomeLocation');
-  const detailLoc=document.getElementById('prayerDetailLocation');
-  if(homeLoc) homeLoc.textContent='📍 '+loc.city;
-  if(detailLoc) detailLoc.textContent=loc.city+', '+loc.state;
-
-  try{
-    const cache=JSON.parse(localStorage.getItem('prayerTimesCache')||'null');
-    if(!force && cache && cache.date===dateKey && cache.city===loc.city && cache.timings){
-      prayerTimesToday=cache.timings;
-      renderPrayerTimes();
-      if(status) status.textContent='📍 '+loc.city+' • இன்று';
-      return;
-    }
-  }catch(e){}
-
-  if(status) status.textContent='⏳ தொழுகை நேரங்கள் பெறப்படுகிறது...';
-
-  const url='https://api.aladhan.com/v1/timingsByCity/'+apiDate+
-    '?city='+encodeURIComponent(loc.city)+
-    '&country='+encodeURIComponent(loc.country||'India')+
-    '&state='+encodeURIComponent(loc.state||'Tamil Nadu')+
-    '&method='+PRAYER_METHOD+'&school=0&iso8601=false';
-
-  try{
-    const response=await fetch(url,{cache:'no-store',headers:{'Accept':'application/json'}});
-    if(!response.ok) throw new Error('HTTP '+response.status);
-    const data=await response.json();
-    if(!data || data.code!==200 || !data.data || !data.data.timings) throw new Error('Invalid prayer data');
-
-    prayerTimesToday={};
-    PRAYER_NAMES.forEach(name=>{
-      prayerTimesToday[name]=String(data.data.timings[name]||'').slice(0,5);
-    });
-
-    localStorage.setItem('prayerTimesCache',JSON.stringify({
-      date:dateKey, city:loc.city, state:loc.state, timings:prayerTimesToday
-    }));
-
-    renderPrayerTimes();
-    if(status) status.textContent='📍 '+loc.city+' • இன்று';
-  }catch(error){
-    console.error('Prayer times error:',error);
-    try{
-      const cache=JSON.parse(localStorage.getItem('prayerTimesCache')||'null');
-      if(cache && cache.timings && cache.city===loc.city){
-        prayerTimesToday=cache.timings;
-        renderPrayerTimes();
-        if(status) status.textContent='📍 '+loc.city+' • Saved times';
-        return;
-      }
-    }catch(e){}
-    prayerTimesToday=null;
-    if(status) status.textContent='⚠️ நேரங்களை பெற முடியவில்லை. Internet சரிபார்த்து மீண்டும் திறக்கவும்.';
-    updateNextPrayer();
-  }
-}
-function getPrayerLocation(){
-  try{
-    const x=JSON.parse(localStorage.getItem('prayerLocation')||'null');
-    if(x&&x.city){
-      const city=String(x.city).trim();
-      const state=String(x.state||'Tamil Nadu').trim();
-      if(city && city.toLowerCase()!=='kerala'){
-        return {city,state,country:String(x.country||'India').trim()};
-      }
-    }
-  }catch(e){}
-  return {city:'Kadayanallur',state:'Tamil Nadu',country:'India'};
-}
-function savePrayerLocation(city,state,country){
-  localStorage.setItem('prayerLocation',JSON.stringify({city:city.trim(),state:state.trim(),country:country.trim()}));
-  localStorage.removeItem('prayerTimesCache');
-}
-function syncPrayerHome(){
- const loc=getPrayerLocation();
- const l=document.getElementById('prayerHomeLocation'),d=document.getElementById('prayerDetailLocation');
- if(l)l.textContent='📍 '+loc.city;
- if(d)d.textContent=loc.city+', '+loc.state;
- if(typeof updateNextPrayer==='function')updateNextPrayer();
-}
-window.openPrayerDetails=function(){
-  if(typeof goToPage==='function') goToPage('prayerDetails');
-  if(typeof loadPrayerTimes==='function') loadPrayerTimes(false);
-};
-window.changePrayerLocation=function(){
- const loc=getPrayerLocation();
- const city=prompt('City / Town',loc.city);
- if(!city) return;
- const state=prompt('State',loc.state);
- if(!state) return;
- const country=prompt('Country',loc.country)||loc.country;
- savePrayerLocation(city,state,country);
- syncPrayerHome();
- if(typeof loadPrayerTimes==='function') loadPrayerTimes(true);
-};
-document.addEventListener('DOMContentLoaded',function(){
- document.getElementById('prayerHomeButton')?.addEventListener('click',openPrayerDetails);
- document.getElementById('prayerBackBtn')?.addEventListener('click',()=>goToPage('home'));
- document.getElementById('prayerLocationBtn')?.addEventListener('click',changePrayerLocation);
- syncPrayerHome();
- setInterval(syncPrayerHome,60000);
-});
-/* PRAYER REMINDER ENGINE v19.9 - single robust handler */
-(function(){
-  const names=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
-
-  function prefs(){
-    try { return JSON.parse(localStorage.getItem('prayerReminders')||'{}') || {}; }
-    catch(e){ return {}; }
-  }
-  function savePrefs(p){ localStorage.setItem('prayerReminders',JSON.stringify(p)); }
-
-  function updateButtons(){
-    const p=prefs();
-    document.querySelectorAll('.prayer-reminder').forEach(function(btn){
-      const on=p[btn.dataset.prayer]===true;
-      btn.textContent=on?'🔔':'🔕';
-      btn.classList.toggle('off',!on);
-      btn.setAttribute('aria-label',on?'Reminder ON':'Reminder OFF');
-      btn.title=on?'Reminder ON — tap to turn off':'Reminder OFF — tap to turn on';
-    });
-  }
-
-  function schedule(name){
-    window.prayerReminderTimers=window.prayerReminderTimers||{};
-    if(window.prayerReminderTimers[name]){
-      clearTimeout(window.prayerReminderTimers[name]);
-      delete window.prayerReminderTimers[name];
-    }
-    const p=prefs();
-    const hm=window.prayerTimesToday && String(window.prayerTimesToday[name]||'').slice(0,5);
-    if(p[name]!==true || !/^\d{1,2}:\d{2}$/.test(hm)) return;
-
-    const parts=hm.split(':').map(Number);
-    const target=new Date();
-    target.setHours(parts[0],parts[1],0,0);
-    if(target<=new Date()) target.setDate(target.getDate()+1);
-
-    window.prayerReminderTimers[name]=setTimeout(function(){
-      try{
-        if('Notification' in window && Notification.permission==='granted'){
-          new Notification((window.PRAYER_LABELS&&window.PRAYER_LABELS[name])||name,{
-            body:'தொழுகை நேரம்: '+(window.prayerFormat?window.prayerFormat(hm):hm),
-            icon:'./icon-192.png'
-          });
-        }
-      }catch(e){}
-      schedule(name);
-    },Math.max(1000,target-Date.now()));
-  }
-
-  window.togglePrayerReminder=async function(name,btn){
-    const p=prefs();
-    const turningOn=p[name]!==true;
-
-    if(turningOn && 'Notification' in window && Notification.permission==='default'){
-      try{ await Notification.requestPermission(); }catch(e){}
-    }
-
-    /* Save the user's choice even when notification permission is unavailable.
-       This makes the button visibly clickable; notification delivery depends on
-       Android/browser permission. */
-    p[name]=turningOn;
-    savePrefs(p);
-    updateButtons();
-
-    if(turningOn){
-      schedule(name);
-      if('Notification' in window && Notification.permission!=='granted'){
-        setTimeout(function(){
-          alert('Reminder ON ஆகிவிட்டது. Notification permission Allow செய்தால் தொழுகை நேரத்தில் அறிவிப்பு வரும்.');
-        },50);
-      }
-    }else{
-      window.prayerReminderTimers=window.prayerReminderTimers||{};
-      if(window.prayerReminderTimers[name]){
-        clearTimeout(window.prayerReminderTimers[name]);
-        delete window.prayerReminderTimers[name];
-      }
-    }
-    return false;
-  };
-
-  window.initPrayerReminders=function(){
-    updateButtons();
-    names.forEach(schedule);
-  };
-
-  document.addEventListener('click',function(e){
-    const btn=e.target.closest && e.target.closest('.prayer-reminder');
-    if(!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    window.togglePrayerReminder(btn.dataset.prayer,btn);
-  },true);
-
-  document.addEventListener('DOMContentLoaded',function(){
-    window.initPrayerReminders();
-  });
-})();
-
-/* FINAL PRAYER UI INIT — button + next prayer time only */
-(function(){
-  function refreshPrayerHome(){
-    if(typeof syncPrayerHome==='function') syncPrayerHome();
-    if(typeof updateNextPrayer==='function') updateNextPrayer();
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    const prayerBtn=document.getElementById('prayerHomeButton');
-    if(prayerBtn){
-      prayerBtn.onclick=function(e){
-        e.preventDefault();
-        if(typeof goToPage==='function') goToPage('prayerDetails');
-        if(typeof loadPrayerTimes==='function') loadPrayerTimes(false);
-      };
-    }
-
-    const back=document.getElementById('prayerBackBtn');
-    if(back) back.onclick=function(){
-      if(typeof goToPage==='function') goToPage('home');
-    };
-
-    const locBtn=document.getElementById('prayerLocationBtn');
-    if(locBtn) locBtn.onclick=function(){
-      if(typeof changePrayerLocation==='function') changePrayerLocation();
-    };
-
-    refreshPrayerHome();
-    if(typeof loadPrayerTimes==='function') loadPrayerTimes(false);
-    setInterval(function(){
-      if(typeof updateNextPrayer==='function') updateNextPrayer();
-    },60000);
-  });
-})();
-</script>
+    </script>
 </body>
 </html>
