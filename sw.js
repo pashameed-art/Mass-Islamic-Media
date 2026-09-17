@@ -1,5 +1,44 @@
-const CACHE_NAME = 'mass-islamic-media-v20-4';
-const ASSETS = ['./','./index.html','./manifest.json'];
-self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())); });
-self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
-self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(res => { const copy=res.clone(); caches.open(CACHE_NAME).then(c=>c.put(e.request,copy)); return res; }).catch(()=>caches.match('./index.html')))); });
+const CACHE_NAME = 'sale-profit-book-v8.08-20260917';
+const APP_URL = './index.html';
+
+self.addEventListener('install', event => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    try { await cache.add(new Request(APP_URL, {cache: 'reload'})); } catch (e) {}
+    await self.skipWaiting();
+  })());
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(k => k.startsWith('sale-profit-book-') && k !== CACHE_NAME).map(k => caches.delete(k)));
+    await self.clients.claim();
+  })());
+});
+
+self.addEventListener('fetch', event => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+
+  event.respondWith((async () => {
+    try {
+      const fresh = await fetch(req, {cache: 'no-store'});
+      if (fresh && fresh.ok) {
+        const cache = await caches.open(CACHE_NAME);
+        cache.put(req, fresh.clone()).catch(() => {});
+      }
+      return fresh;
+    } catch (e) {
+      const cached = await caches.match(req);
+      if (cached) return cached;
+      if (req.mode === 'navigate') {
+        const app = await caches.match(APP_URL);
+        if (app) return app;
+      }
+      throw e;
+    }
+  })());
+});
