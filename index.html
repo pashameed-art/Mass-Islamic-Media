@@ -1173,7 +1173,36 @@
                 aspect-ratio: auto;
             }
         }
-    </style>
+    
+/* v20.7 - Compact Home Cards */
+.dua-card .dua-title,.dua-card h3,.dua-card .card-title{
+  font-size:clamp(.92rem,2.8vw,1.08rem)!important;
+  line-height:1.28!important;
+  margin:.45rem 0!important;
+  font-weight:700!important;
+}
+.dua-card .dua-description,.dua-card p,.dua-card .card-description{
+  font-size:clamp(.78rem,2.45vw,.92rem)!important;
+  line-height:1.42!important;
+  margin:0!important;
+}
+.dua-card .dua-content,.dua-card .card-content{padding:.72rem .68rem!important}
+.dua-card .dua-header,.dua-card .card-header{
+  padding:.72rem .55rem!important;
+  min-height:88px!important;
+}
+@media(max-width:480px){
+  .dua-card .dua-title,.dua-card h3,.dua-card .card-title{
+    font-size:.98rem!important;line-height:1.25!important;
+  }
+  .dua-card .dua-description,.dua-card p,.dua-card .card-description{
+    font-size:.82rem!important;line-height:1.38!important;
+  }
+  .dua-card .dua-header,.dua-card .card-header{min-height:82px!important}
+}
+/* end v20.7 */
+
+</style>
 </head>
 <body>
     <div class="app-container">
@@ -1454,7 +1483,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.6</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.7</p>
                             </div>
                         </div>
                     </div>
