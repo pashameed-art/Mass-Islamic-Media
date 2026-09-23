@@ -1316,6 +1316,11 @@
                                 <div id="selectedImageName" class="image-info" style="display:none;font-weight:600;"></div>
                                 <img id="imagePreview" class="image-preview" style="display:none;visibility:hidden;opacity:0;max-width:100%;max-height:220px;object-fit:contain;">
                                 <div class="image-info" id="imageInfo"></div>
+                                <div style="margin-top:0.9rem; display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center;">
+                                    <button type="button" class="btn-small" id="aiAutoFillBtn" style="display:none;">🤖 AI Auto Fill</button>
+                                    <button type="button" class="btn-small secondary" id="aiSetupBtn">⚙️ AI Setup</button>
+                                </div>
+                                <div id="aiStatus" class="image-info" style="margin-top:0.5rem;"></div>
                             </div>
 
                             <div class="form-actions">
@@ -1449,7 +1454,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.4</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.6</p>
                             </div>
                         </div>
                     </div>
@@ -2223,6 +2228,14 @@
                 }
             });
 
+            document.getElementById('aiAutoFillBtn').addEventListener('click', () => {
+                autoFillDuaFromImage(true);
+            });
+            document.getElementById('aiSetupBtn').addEventListener('click', () => {
+                setupGeminiAI();
+            });
+            updateAIControls();
+
             // Form submit
             document.getElementById('addDuaForm').addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -2277,11 +2290,205 @@
                 }
                 if (info) info.textContent = `📦 ${(file.size / 1024).toFixed(1)} KB`;
                 showAdminAlert('addAlert', '✅ Image selected successfully.', 'success');
+                updateAIControls();
+                if (localStorage.getItem('geminiApiKey')) {
+                    setTimeout(() => autoFillDuaFromImage(false), 150);
+                }
             };
             reader.onerror = function() {
                 showAdminAlert('addAlert', 'Unable to read this image. Please try another image.', 'error');
             };
             reader.readAsDataURL(file);
+        }
+
+        // ============= AI AUTO-FILL (Gemini) =============
+        function updateAIControls() {
+            const btn = document.getElementById('aiAutoFillBtn');
+            const status = document.getElementById('aiStatus');
+            if (!btn || !status) return;
+
+            const hasKey = !!localStorage.getItem('geminiApiKey');
+            btn.style.display = selectedImageFile ? 'inline-flex' : 'none';
+
+            if (hasKey) {
+                status.textContent = '🤖 AI ready — image upload will auto-fill Title, Category & Description.';
+            } else {
+                status.textContent = 'ℹ️ First time: tap “⚙️ AI Setup” and enter your Gemini API key. After that, image upload can auto-fill the 3 fields.';
+            }
+        }
+
+        function setupGeminiAI() {
+            const currentKey = localStorage.getItem('geminiApiKey') || '';
+            const message = currentKey
+                ? 'Enter your new Gemini API key. Leave blank to keep the current key.'
+                : 'Enter your Gemini API key. It will be stored only on this device/browser.';
+            const key = prompt(message, currentKey);
+
+            if (key === null) return;
+
+            const trimmed = key.trim();
+            if (!trimmed) {
+                if (!currentKey) {
+                    showAdminAlert('addAlert', 'ℹ️ AI key not set. AI Auto Fill is optional.', 'success');
+                }
+                updateAIControls();
+                return;
+            }
+
+            localStorage.setItem('geminiApiKey', trimmed);
+            updateAIControls();
+            showAdminAlert('addAlert', '✅ Gemini AI key saved on this device.', 'success');
+
+            if (selectedImageFile) {
+                setTimeout(() => autoFillDuaFromImage(true), 150);
+            }
+        }
+
+        function getCategoryOptionsForAI() {
+            return categories.map(cat => ({
+                id: cat.id,
+                name: cat.name,
+                icon: cat.icon || ''
+            }));
+        }
+
+        async function autoFillDuaFromImage(manualRequest = false) {
+            if (!selectedImageFile) {
+                showAdminAlert('addAlert', '❌ முதலில் ஒரு படத்தை upload செய்யவும்.', 'error');
+                return;
+            }
+
+            let apiKey = localStorage.getItem('geminiApiKey') || '';
+            if (!apiKey) {
+                if (manualRequest) {
+                    setupGeminiAI();
+                } else {
+                    showAdminAlert('addAlert', 'ℹ️ AI Setup செய்ய Gemini API key தேவை.', 'success');
+                }
+                return;
+            }
+
+            const status = document.getElementById('aiStatus');
+            const btn = document.getElementById('aiAutoFillBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = '⏳ AI Reading...';
+            }
+            if (status) status.textContent = '🤖 படத்தை AI ஆய்வு செய்து Title, Category, Description உருவாக்குகிறது...';
+
+            try {
+                const commaIndex = selectedImageFile.indexOf(',');
+                const base64 = commaIndex >= 0 ? selectedImageFile.slice(commaIndex + 1) : selectedImageFile;
+                const mimeMatch = selectedImageFile.match(/^data:([^;]+);base64,/i);
+                const mimeType = mimeMatch ? mimeMatch[1] : 'image/webp';
+
+                const categoryList = getCategoryOptionsForAI();
+                const prompt = `
+You are assisting an Islamic media admin form.
+Analyze the uploaded Islamic poster/image carefully.
+
+Return:
+1) A concise, natural Tamil Title suitable for the poster.
+2) The best matching categoryId ONLY from this existing category list.
+3) A concise Tamil Description based only on what is visible/readable in the image. Do not invent Quran verses, hadith, names, claims, or religious facts that are not supported by the image.
+
+Existing categories:
+${JSON.stringify(categoryList)}
+
+Category rules:
+- Prefer the most specific existing category.
+- If no category is a reasonable match, use "all".
+- Never invent a new categoryId.
+- Output Tamil text for title and description.
+`;
+
+                const schema = {
+                    type: "object",
+                    properties: {
+                        title: { type: "string", description: "Concise Tamil title for the image." },
+                        categoryId: { type: "string", description: "One exact id from the supplied category list." },
+                        description: { type: "string", description: "Concise Tamil description based only on visible image content." }
+                    },
+                    required: ["title", "categoryId", "description"],
+                    additionalProperties: false
+                };
+
+                const response = await fetch(
+                    'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-goog-api-key': apiKey
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [
+                                    { text: prompt },
+                                    {
+                                        inlineData: {
+                                            mimeType: mimeType,
+                                            data: base64
+                                        }
+                                    }
+                                ]
+                            }],
+                            responseFormat: {
+                                text: {
+                                    mimeType: 'application/json',
+                                    schema: schema
+                                }
+                            }
+                        })
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    const apiMessage = data?.error?.message || `HTTP ${response.status}`;
+                    throw new Error(apiMessage);
+                }
+
+                const rawText =
+                    data?.candidates?.[0]?.content?.parts
+                        ?.map(part => part.text || '')
+                        .join('')
+                        .trim();
+
+                if (!rawText) {
+                    throw new Error('AI returned an empty response.');
+                }
+
+                const result = JSON.parse(rawText);
+
+                const validCategoryIds = categories.map(cat => cat.id);
+                const chosenCategory = validCategoryIds.includes(result.categoryId) ? result.categoryId : 'all';
+
+                if (result.title) document.getElementById('duaTitle').value = result.title.trim();
+                document.getElementById('duaCategory').value = chosenCategory;
+                if (result.description) document.getElementById('duaDescription').value = result.description.trim();
+
+                if (status) status.textContent = '✅ AI Auto Fill முடிந்தது. Save Dua அழுத்தி சேமிக்கலாம்.';
+                showAdminAlert('addAlert', '✅ Title, Category & Description தானாக நிரப்பப்பட்டது.', 'success');
+            } catch (error) {
+                console.error('Gemini AI Auto Fill error:', error);
+                if (status) status.textContent = '⚠️ AI Auto Fill failed. You can enter the fields manually.';
+                showAdminAlert('addAlert', '❌ AI Auto Fill: ' + (error.message || 'Unknown error'), 'error');
+
+                // A bad key is common; offer a quick replacement.
+                if (/api key|permission|unauthorized|forbidden|401|403/i.test(error.message || '')) {
+                    if (confirm('Gemini API key வேலை செய்யவில்லை. புதிய API key அமைக்கவா?')) {
+                        setupGeminiAI();
+                    }
+                }
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = '🤖 AI Auto Fill';
+                }
+                updateAIControls();
+            }
         }
 
         function addNewDua() {
@@ -2309,6 +2516,9 @@
             document.getElementById('addDuaForm').reset();
             document.getElementById('imagePreview').style.display = 'none';
             selectedImageFile = null;
+            const aiStatus = document.getElementById('aiStatus');
+            if (aiStatus) aiStatus.textContent = '';
+            updateAIControls();
 
             updateAdminStats();
             renderDuas();
