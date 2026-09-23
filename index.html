@@ -2405,9 +2405,11 @@ Category rules:
                 // Try stable Gemini Flash models in order. If one model is temporarily
                 // at capacity, automatically try the next stable model.
                 const models = [
+                    'gemini-3.5-flash-lite',
                     'gemini-3.8-flash',
                     'gemini-3.7-flash',
-                    'gemini-3.6-flash'
+                    'gemini-3.6-flash',
+                    'gemini-2.5-flash'
                 ];
 
                 let data = null;
@@ -2475,7 +2477,7 @@ Category rules:
                 }
 
                 if (status) {
-                    status.textContent = `🤖 AI analysis complete using ${usedModel}.`;
+                    status.textContent = `🤖 AI analysis complete using ${usedModel}. Title, Category & Description filled.`;
                 }
 
                 const rawText =
@@ -2510,8 +2512,11 @@ Category rules:
                 showAdminAlert('addAlert', '✅ Title, Category & Description தானாக நிரப்பப்பட்டது.', 'success');
             } catch (error) {
                 console.error('Gemini AI Auto Fill error:', error);
-                if (status) status.textContent = '⚠️ Gemini servers are busy right now. Please try AI Auto Fill again in a few minutes.';
-                showAdminAlert('addAlert', '❌ AI Auto Fill: ' + (error.message || 'Unknown error'), 'error');
+                if (status) status.textContent = '⚠️ AI service is temporarily busy. Please try again in a few minutes.';
+                const finalMessage = /high demand|overloaded|capacity|temporarily unavailable|try again later/i.test(error.message || '')
+                    ? 'AI service is temporarily busy. Please try again in a few minutes.'
+                    : (error.message || 'Unknown error');
+                showAdminAlert('addAlert', '❌ AI Auto Fill: ' + finalMessage, 'error');
 
                 // A bad key is common; offer a quick replacement.
                 if (/api key|permission|unauthorized|forbidden|401|403/i.test(error.message || '')) {
