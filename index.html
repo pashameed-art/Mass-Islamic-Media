@@ -1489,7 +1489,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.14</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.15</p>
                             </div>
                         </div>
                     </div>
@@ -2563,7 +2563,16 @@ Category rules:
                                     }],
                                     generationConfig: {
                                         temperature: 0.2,
-                                        responseMimeType: 'application/json'
+                                        responseMimeType: 'application/json',
+                                        responseSchema: {
+                                            type: 'OBJECT',
+                                            properties: {
+                                                title: { type: 'STRING' },
+                                                categoryId: { type: 'STRING' },
+                                                description: { type: 'STRING' }
+                                            },
+                                            required: ['title', 'categoryId', 'description']
+                                        }
                                     }
                                 })
                             }
@@ -2687,15 +2696,54 @@ Category rules:
                     throw new Error('AI JSON response could not be read. Please tap AI Auto Fill again.');
                 }
 
-                const validCategoryIds = categories.map(cat => cat.id);
-                const chosenCategory = validCategoryIds.includes(result.categoryId) ? result.categoryId : 'all';
+                // Accept the expected object, but also tolerate a wrapped/array response.
+                if (Array.isArray(result)) result = result[0] || {};
+                if (result && result.result && typeof result.result === 'object') result = result.result;
+                if (result && result.data && typeof result.data === 'object') result = result.data;
 
-                const compactTitle = normalizeAITitle(result.title);
-                const compactDescription = normalizeAIDescription(result.description);
+                const pickField = (obj, names) => {
+                    if (!obj || typeof obj !== 'object') return '';
+                    for (const name of names) {
+                        if (obj[name] !== undefined && obj[name] !== null) return String(obj[name]).trim();
+                    }
+                    const wanted = names.map(n => n.toLowerCase());
+                    for (const key of Object.keys(obj)) {
+                        if (wanted.includes(String(key).toLowerCase())) return String(obj[key] ?? '').trim();
+                    }
+                    return '';
+                };
 
-                if (compactTitle) document.getElementById('duaTitle').value = compactTitle;
+                const aiTitleRaw = pickField(result, ['title', 'Title', 'name', 'headline']);
+                const aiCategoryRaw = pickField(result, ['categoryId', 'category_id', 'category', 'Category']);
+                const aiDescriptionRaw = pickField(result, ['description', 'Description', 'desc', 'text']);
+
+                const compactTitle = normalizeAITitle(aiTitleRaw);
+                const compactDescription = normalizeAIDescription(aiDescriptionRaw);
+
+                if (!compactTitle || !compactDescription) {
+                    throw new Error('AI response did not contain a usable Title and Description. Please tap AI Auto Fill again.');
+                }
+
+                const validCategoryIds = categories.map(cat => String(cat.id));
+                let chosenCategory = validCategoryIds.includes(String(aiCategoryRaw)) ? String(aiCategoryRaw) : '';
+
+                // If Gemini returns the category name instead of its ID, match it safely.
+                if (!chosenCategory && aiCategoryRaw) {
+                    const wantedCategory = aiCategoryRaw.toLowerCase().trim();
+                    const matched = categories.find(cat =>
+                        String(cat.name || '').toLowerCase().trim() === wantedCategory
+                    );
+                    if (matched) chosenCategory = matched.id;
+                }
+
+                // Never select an unavailable option.
+                if (!chosenCategory || !document.querySelector(`#duaCategory option[value="${CSS.escape(chosenCategory)}"]`)) {
+                    chosenCategory = categories.find(c => c.id !== 'all')?.id || '';
+                }
+
+                document.getElementById('duaTitle').value = compactTitle;
                 document.getElementById('duaCategory').value = chosenCategory;
-                if (compactDescription) document.getElementById('duaDescription').value = compactDescription;
+                document.getElementById('duaDescription').value = compactDescription;
 
                 if (status) status.textContent = '✅ AI Auto Fill முடிந்தது. Save Dua அழுத்தி சேமிக்கலாம்.';
                 showAdminAlert('addAlert', '✅ Title, Category & Description தானாக நிரப்பப்பட்டது.', 'success');
