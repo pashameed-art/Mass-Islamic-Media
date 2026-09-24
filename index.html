@@ -1352,7 +1352,7 @@
                                 <img id="imagePreview" class="image-preview" style="display:none;visibility:hidden;opacity:0;max-width:100%;max-height:220px;object-fit:contain;">
                                 <div class="image-info" id="imageInfo"></div>
                                 <div style="margin-top:0.9rem; display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center;">
-                                    <button type="button" class="btn-small" id="aiAutoFillBtn" style="display:none;">🤖 AI Auto Fill</button>
+                                    <span id="aiAutoFillBtn" style="display:none;"></span>
                                     <button type="button" class="btn-small secondary" id="aiSetupBtn">⚙️ AI Setup</button>
                                 </div>
                                 <div id="aiStatus" class="image-info" style="margin-top:0.5rem;"></div>
@@ -1489,7 +1489,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.8</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.10</p>
                             </div>
                         </div>
                     </div>
@@ -2334,7 +2334,7 @@
                     nameEl.style.display = 'block';
                 }
                 if (info) info.textContent = `📦 ${(file.size / 1024).toFixed(1)} KB`;
-                showAdminAlert('addAlert', '✅ Image selected successfully.', 'success');
+                showAdminAlert('addAlert', '✅ படம் upload செய்யப்பட்டது. AI Auto Fill தொடங்குகிறது...', 'success');
                 updateAIControls();
                 if (localStorage.getItem('geminiApiKey')) {
                     setTimeout(() => autoFillDuaFromImage(false), 150);
@@ -2356,9 +2356,9 @@
             btn.style.display = selectedImageFile ? 'inline-flex' : 'none';
 
             if (hasKey) {
-                status.textContent = '🤖 AI ready — image upload will auto-fill Title, Category & Description.';
+                status.textContent = '🤖 AI ready — படம் upload செய்தவுடன் Title, Category & Description தானாக நிரப்பப்படும்.';
             } else {
-                status.textContent = 'ℹ️ First time: tap “⚙️ AI Setup” and enter your Gemini API key. After that, image upload can auto-fill the 3 fields.';
+                status.textContent = 'ℹ️ முதலில் “⚙️ AI Setup” மூலம் Gemini API key அமைக்கவும். அதன் பிறகு படம் upload செய்தவுடன் 3 fields தானாக நிரப்பப்படும்.';
             }
         }
 
@@ -2397,6 +2397,47 @@
             }));
         }
 
+        function normalizeAITitle(value) {
+            let title = String(value || '').replace(/\s+/g, ' ').trim();
+            if (!title) return '';
+            let words = title.split(' ').filter(Boolean);
+            if (words.length > 3) words = words.slice(0, 3);
+            if (words.length === 1) words.push('துஆ');
+            return words.join(' ');
+        }
+
+        function normalizeAIDescription(value) {
+            let text = String(value || '')
+                .replace(/\r\n/g, '\n')
+                .replace(/\r/g, '\n')
+                .replace(/^```(?:text|txt)?\s*/i, '')
+                .replace(/\s*```$/i, '')
+                .trim();
+
+            let lines = text.split('\n')
+                .map(line => line.replace(/^\s*[-•*]\s*/, '').trim())
+                .filter(Boolean);
+
+            if (lines.length >= 2) return lines.slice(0, 2).join('\n');
+
+            const one = (lines[0] || text).replace(/\s+/g, ' ').trim();
+            if (!one) return '';
+
+            const sentenceParts = one.split(/(?<=[.!?。！？])\s+/).filter(Boolean);
+            if (sentenceParts.length >= 2) return sentenceParts.slice(0, 2).join('\n');
+
+            const commaParts = one.split(/[,，;；]\s*/).map(s => s.trim()).filter(Boolean);
+            if (commaParts.length >= 2) return commaParts.slice(0, 2).join('\n');
+
+            const words = one.split(' ').filter(Boolean);
+            if (words.length >= 6) {
+                const cut = Math.ceil(words.length / 2);
+                return words.slice(0, cut).join(' ') + '\n' + words.slice(cut).join(' ');
+            }
+
+            return one + '\n';
+        }
+
         async function autoFillDuaFromImage(manualRequest = false) {
             if (!selectedImageFile) {
                 showAdminAlert('addAlert', '❌ முதலில் ஒரு படத்தை upload செய்யவும்.', 'error');
@@ -2433,9 +2474,9 @@ You are assisting an Islamic media admin form.
 Analyze the uploaded Islamic poster/image carefully.
 
 Return:
-1) A concise, natural Tamil Title suitable for the poster.
-2) The best matching categoryId ONLY from this existing category list.
-3) A concise Tamil Description based only on what is visible/readable in the image. Do not invent Quran verses, hadith, names, claims, or religious facts that are not supported by the image.
+1) Title: Tamil only, EXACTLY 2 or 3 words. Keep it short and natural. Do not use a long sentence.
+2) categoryId: The best matching categoryId ONLY from this existing category list.
+3) Description: Tamil only, EXACTLY 2 short lines. Put ONE newline between line 1 and line 2. Each line should be concise and suitable for the poster. Base it only on what is visible/readable in the image. Do not invent Quran verses, hadith, names, claims, or religious facts that are not supported by the image.
 
 Existing categories:
 ${JSON.stringify(categoryList)}
@@ -2450,10 +2491,9 @@ Category rules:
                 // Try stable Gemini Flash models in order. If one model is temporarily
                 // at capacity, automatically try the next stable model.
                 const models = [
-                    'gemini-3.5-flash-lite',
                     'gemini-3.8-flash',
-                    'gemini-3.7-flash',
                     'gemini-3.6-flash',
+                    'gemini-2.5-flash-lite',
                     'gemini-2.5-flash'
                 ];
 
@@ -2549,9 +2589,12 @@ Category rules:
                 const validCategoryIds = categories.map(cat => cat.id);
                 const chosenCategory = validCategoryIds.includes(result.categoryId) ? result.categoryId : 'all';
 
-                if (result.title) document.getElementById('duaTitle').value = result.title.trim();
+                const compactTitle = normalizeAITitle(result.title);
+                const compactDescription = normalizeAIDescription(result.description);
+
+                if (compactTitle) document.getElementById('duaTitle').value = compactTitle;
                 document.getElementById('duaCategory').value = chosenCategory;
-                if (result.description) document.getElementById('duaDescription').value = result.description.trim();
+                if (compactDescription) document.getElementById('duaDescription').value = compactDescription;
 
                 if (status) status.textContent = '✅ AI Auto Fill முடிந்தது. Save Dua அழுத்தி சேமிக்கலாம்.';
                 showAdminAlert('addAlert', '✅ Title, Category & Description தானாக நிரப்பப்பட்டது.', 'success');
