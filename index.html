@@ -1202,6 +1202,12 @@
 }
 /* end v20.7 */
 
+
+/* v20.8 - exact compact card selectors */
+.dua-card-title{font-size:.96rem!important;line-height:1.28!important;font-weight:600!important;}
+.dua-card-desc{font-size:.80rem!important;line-height:1.38!important;}
+@media(max-width:480px){.dua-card-title{font-size:.92rem!important}.dua-card-desc{font-size:.78rem!important;line-height:1.35!important}}
+/* end v20.8 */
 </style>
 </head>
 <body>
@@ -1483,7 +1489,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.7</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.8</p>
                             </div>
                         </div>
                     </div>
@@ -1912,13 +1918,23 @@
             if (categories.some(c => c.id === current)) select.value = current;
         }
 
-        // Load custom duas from localStorage
+        // Load saved duas without duplicating built-in entries.
+        // Saved entries with the same id replace the built-in copy; genuinely
+        // new entries are appended. This preserves existing data.
         function loadCustomDuas() {
             const saved = localStorage.getItem('customDuas');
             if (saved) {
                 try {
-                    const customDuas = JSON.parse(saved);
-                    duasData = [...duasData, ...customDuas];
+                    const savedDuas = JSON.parse(saved);
+                    if (Array.isArray(savedDuas)) {
+                        const byId = new Map(duasData.map(dua => [String(dua.id), dua]));
+                        savedDuas.forEach(dua => {
+                            if (!dua || dua.id === undefined || dua.id === null) return;
+                            const key = String(dua.id);
+                            byId.set(key, dua);
+                        });
+                        duasData = Array.from(byId.values());
+                    }
                 } catch (e) {
                     console.error('Error loading custom duas:', e);
                 }
