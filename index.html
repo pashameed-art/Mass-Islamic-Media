@@ -1489,7 +1489,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.13</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.14</p>
                             </div>
                         </div>
                     </div>
@@ -2562,7 +2562,8 @@ Category rules:
                                         ]
                                     }],
                                     generationConfig: {
-                                        temperature: 0.2
+                                        temperature: 0.2,
+                                        responseMimeType: 'application/json'
                                     }
                                 })
                             }
@@ -2617,27 +2618,73 @@ Category rules:
                     throw new Error('AI returned an empty response.');
                 }
 
-                let result;
-                try {
-                    result = JSON.parse(rawText);
-                } catch (parseError) {
-                    const cleaned = rawText
-                        .replace(/^```(?:json)?\s*/i, '')
-                        .replace(/\s*```$/i, '')
+                function parseGeminiJSON(text) {
+                    let cleaned = String(text || '')
+                        .replace(/^\uFEFF/, '')
+                        .replace(/^\s*```(?:json)?\s*/i, '')
+                        .replace(/\s*```\s*$/i, '')
                         .trim();
-                    try {
-                        result = JSON.parse(cleaned);
-                    } catch (secondParseError) {
-                        // If Gemini adds a short sentence around the JSON,
-                        // extract the JSON object instead of failing.
-                        const start = cleaned.indexOf('{');
-                        const end = cleaned.lastIndexOf('}');
-                        if (start >= 0 && end > start) {
-                            result = JSON.parse(cleaned.slice(start, end + 1));
-                        } else {
-                            throw secondParseError;
+
+                    // First try the response exactly as returned.
+                    try { return JSON.parse(cleaned); } catch (_) {}
+
+                    // Find the first complete JSON object while respecting quoted strings.
+                    const start = cleaned.indexOf('{');
+                    if (start < 0) throw new Error('AI returned invalid JSON.');
+
+                    let depth = 0;
+                    let inString = false;
+                    let escaped = false;
+                    let end = -1;
+
+                    for (let i = start; i < cleaned.length; i++) {
+                        const ch = cleaned[i];
+                        if (inString) {
+                            if (escaped) { escaped = false; continue; }
+                            if (ch === '\\') { escaped = true; continue; }
+                            if (ch === '"') { inString = false; continue; }
+                            continue;
+                        }
+                        if (ch === '"') { inString = true; continue; }
+                        if (ch === '{') depth++;
+                        else if (ch === '}') {
+                            depth--;
+                            if (depth === 0) { end = i; break; }
                         }
                     }
+
+                    if (end < 0) throw new Error('AI returned incomplete JSON.');
+                    let candidate = cleaned.slice(start, end + 1);
+
+                    // Gemini can occasionally put a literal line break/control character
+                    // inside a JSON string. Escape those controls before parsing.
+                    let repaired = '';
+                    inString = false;
+                    escaped = false;
+                    for (let i = 0; i < candidate.length; i++) {
+                        const ch = candidate[i];
+                        if (inString) {
+                            if (escaped) { repaired += ch; escaped = false; continue; }
+                            if (ch === '\\') { repaired += ch; escaped = true; continue; }
+                            if (ch === '"') { repaired += ch; inString = false; continue; }
+                            if (ch === '\n') { repaired += '\\n'; continue; }
+                            if (ch === '\r') { continue; }
+                            if (ch === '\t') { repaired += '\\t'; continue; }
+                            repaired += ch;
+                        } else {
+                            repaired += ch;
+                            if (ch === '"') inString = true;
+                        }
+                    }
+
+                    return JSON.parse(repaired);
+                }
+
+                let result;
+                try {
+                    result = parseGeminiJSON(rawText);
+                } catch (parseError) {
+                    throw new Error('AI JSON response could not be read. Please tap AI Auto Fill again.');
                 }
 
                 const validCategoryIds = categories.map(cat => cat.id);
