@@ -1352,7 +1352,7 @@
                                 <img id="imagePreview" class="image-preview" style="display:none;visibility:hidden;opacity:0;max-width:100%;max-height:220px;object-fit:contain;">
                                 <div class="image-info" id="imageInfo"></div>
                                 <div style="margin-top:0.9rem; display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center;">
-                                    <span id="aiAutoFillBtn" style="display:none;"></span>
+                                    <button type="button" class="btn-small secondary" id="aiAutoFillBtn" style="display:none;">🤖 AI Auto Fill</button>
                                     <button type="button" class="btn-small secondary" id="aiSetupBtn">⚙️ AI Setup</button>
                                 </div>
                                 <div id="aiStatus" class="image-info" style="margin-top:0.5rem;"></div>
@@ -1489,7 +1489,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.11</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.12</p>
                             </div>
                         </div>
                     </div>
@@ -2336,8 +2336,16 @@
                 if (info) info.textContent = `📦 ${(file.size / 1024).toFixed(1)} KB`;
                 showAdminAlert('addAlert', '✅ படம் upload செய்யப்பட்டது. AI Auto Fill தொடங்குகிறது...', 'success');
                 updateAIControls();
+
+                // Start AI only after FileReader has completely finished.
+                // Capture this exact upload so an old/stale image cannot trigger AI.
+                const uploadedImage = data;
                 if (localStorage.getItem('geminiApiKey')) {
-                    setTimeout(() => autoFillDuaFromImage(false), 150);
+                    setTimeout(() => {
+                        if (selectedImageFile === uploadedImage) {
+                            autoFillDuaFromImage(false);
+                        }
+                    }, 300);
                 }
             };
             reader.onerror = function() {
@@ -2491,9 +2499,9 @@ Category rules:
                 // Try stable Gemini Flash models in order. If one model is temporarily
                 // at capacity, automatically try the next stable model.
                 const models = [
+                    'gemini-3.8-flash',
                     'gemini-3.5-flash-lite',
                     'gemini-3.6-flash',
-                    'gemini-3.8-flash',
                     'gemini-3.5-flash'
                 ];
 
@@ -2583,7 +2591,19 @@ Category rules:
                         .replace(/^```(?:json)?\s*/i, '')
                         .replace(/\s*```$/i, '')
                         .trim();
-                    result = JSON.parse(cleaned);
+                    try {
+                        result = JSON.parse(cleaned);
+                    } catch (secondParseError) {
+                        // If Gemini adds a short sentence around the JSON,
+                        // extract the JSON object instead of failing.
+                        const start = cleaned.indexOf('{');
+                        const end = cleaned.lastIndexOf('}');
+                        if (start >= 0 && end > start) {
+                            result = JSON.parse(cleaned.slice(start, end + 1));
+                        } else {
+                            throw secondParseError;
+                        }
+                    }
                 }
 
                 const validCategoryIds = categories.map(cat => cat.id);
