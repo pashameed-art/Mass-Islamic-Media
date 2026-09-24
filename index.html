@@ -1489,7 +1489,7 @@
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">🕌 Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.12</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.13</p>
                             </div>
                         </div>
                     </div>
@@ -2496,14 +2496,44 @@ Category rules:
 - Output Tamil text for title and description.
 `;
 
-                // Try stable Gemini Flash models in order. If one model is temporarily
-                // at capacity, automatically try the next stable model.
-                const models = [
+                // Try the preferred current Flash models first. If a model is
+                // unavailable to this API key (404/400), or temporarily busy,
+                // automatically continue with the next model.
+                const preferredModels = [
                     'gemini-3.8-flash',
                     'gemini-3.5-flash-lite',
                     'gemini-3.6-flash',
                     'gemini-3.5-flash'
                 ];
+
+                let models = [...preferredModels];
+
+                // Ask Gemini which models this API key can currently see.
+                // This prevents a hard-coded model name from blocking Auto Fill.
+                try {
+                    const listResponse = await fetch(
+                        'https://generativelanguage.googleapis.com/v1beta/models',
+                        {
+                            method: 'GET',
+                            headers: { 'x-goog-api-key': apiKey }
+                        }
+                    );
+                    if (listResponse.ok) {
+                        const listData = await listResponse.json();
+                        const available = (listData.models || [])
+                            .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+                            .map(m => String(m.name || '').replace(/^models\//, ''))
+                            .filter(name => /^gemini-/i.test(name));
+
+                        const preferredAvailable = preferredModels.filter(m => available.includes(m));
+                        const otherFlash = available.filter(m => /flash/i.test(m) && !preferredModels.includes(m));
+                        models = [...preferredAvailable, ...otherFlash];
+                    }
+                } catch (listError) {
+                    // If model discovery fails, continue with the known fallback list.
+                }
+
+                if (!models.length) models = [...preferredModels];
 
                 let data = null;
                 let lastError = null;
@@ -2532,7 +2562,7 @@ Category rules:
                                         ]
                                     }],
                                     generationConfig: {
-                                        responseMimeType: 'application/json'
+                                        temperature: 0.2
                                     }
                                 })
                             }
@@ -2548,18 +2578,22 @@ Category rules:
                         const apiMessage = data?.error?.message || `HTTP ${response.status}`;
                         lastError = new Error(apiMessage);
 
+                        const retryableModel =
+                            response.status === 400 ||
+                            response.status === 404 ||
+                            /not found|not supported|does not exist|invalid model|unsupported/i.test(apiMessage);
                         const retryableCapacity =
                             response.status === 429 ||
                             response.status === 503 ||
                             /high demand|overloaded|capacity|temporarily unavailable|try again later/i.test(apiMessage);
 
-                        if (!retryableCapacity) {
+                        if (!retryableModel && !retryableCapacity) {
                             throw lastError;
                         }
                     } catch (modelError) {
                         lastError = modelError;
 
-                        if (!/high demand|overloaded|capacity|temporarily unavailable|try again later|429|503/i.test(modelError.message || '')) {
+                        if (!/high demand|overloaded|capacity|temporarily unavailable|try again later|not found|not supported|does not exist|invalid model|unsupported|400|404|429|503/i.test(modelError.message || '')) {
                             throw modelError;
                         }
                     }
@@ -2637,7 +2671,7 @@ Category rules:
                     btn.disabled = false;
                     btn.textContent = '🤖 AI Auto Fill';
                 }
-                updateAIControls();
+                // Keep the final success/error message visible.
             }
         }
 
