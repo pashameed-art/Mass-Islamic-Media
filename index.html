@@ -1211,6 +1211,14 @@
 @media(max-width:480px){.dua-card-title{font-size:.92rem!important}.dua-card-desc{font-size:.78rem!important;line-height:1.35!important}}
 /* end v20.8 */
 
+.pin-container { padding: 1.2rem; }
+.pin-title { font-size: 1.25rem; margin-bottom: 0.5rem; }
+.pin-input-group { margin: 0.8rem 0; }
+.pin-input { padding: 0.7rem; }
+.pin-key { padding: 0.8rem; }
+.pin-key.delete, .pin-key.submit { grid-column: auto; }
+.pin-info { margin-top: 0.5rem; }
+
 /* ===== Fixes ===== */
 .app-container { min-height: 100vh; min-height: 100dvh; }
 .pin-modal { z-index: 3000; }
@@ -1520,23 +1528,10 @@
             <p id="pinModalMessage" style="margin-bottom: 1rem; font-size: 0.9rem;">Enter your 6-digit PIN</p>
             
             <div class="pin-input-group">
-                <input type="text" id="pinInput" class="pin-input" maxlength="6" placeholder="••••••" readonly>
+                <input type="text" id="pinInput" class="pin-input" maxlength="4" placeholder="••••" readonly>
             </div>
 
-            <div class="pin-keypad">
-                <button class="pin-key" onclick="pinKeypress('1')">1</button>
-                <button class="pin-key" onclick="pinKeypress('2')">2</button>
-                <button class="pin-key" onclick="pinKeypress('3')">3</button>
-                <button class="pin-key" onclick="pinKeypress('4')">4</button>
-                <button class="pin-key" onclick="pinKeypress('5')">5</button>
-                <button class="pin-key" onclick="pinKeypress('6')">6</button>
-                <button class="pin-key" onclick="pinKeypress('7')">7</button>
-                <button class="pin-key" onclick="pinKeypress('8')">8</button>
-                <button class="pin-key" onclick="pinKeypress('9')">9</button>
-                <button class="pin-key delete" onclick="pinDelete()">🔙 Delete</button>
-                <button class="pin-key" onclick="pinKeypress('0')">0</button>
-                <button class="pin-key submit" onclick="pinSubmit()">✓ Submit</button>
-            </div>
+            <div class="pin-keypad"><button class="pin-key" onclick="pinKeypress('1')">1</button><button class="pin-key" onclick="pinKeypress('2')">2</button><button class="pin-key" onclick="pinKeypress('3')">3</button><button class="pin-key" onclick="pinKeypress('4')">4</button><button class="pin-key" onclick="pinKeypress('5')">5</button><button class="pin-key" onclick="pinKeypress('6')">6</button><button class="pin-key" onclick="pinKeypress('7')">7</button><button class="pin-key" onclick="pinKeypress('8')">8</button><button class="pin-key" onclick="pinKeypress('9')">9</button><button class="pin-key delete" onclick="pinDelete()">⌫</button><button class="pin-key" onclick="pinKeypress('0')">0</button><button class="pin-key submit" onclick="pinSubmit()">✓</button></div>
 
             <div class="pin-error" id="pinError"></div>
             <div class="pin-info" id="pinInfo"></div>
@@ -2551,10 +2546,10 @@ Category rules:
             const info = document.getElementById('pinInfo');
             document.getElementById('pinError').textContent = '';
             if (mode === 'setup') {
-                msg.textContent = 'புதிய 6 இலக்க Admin PIN அமைக்கவும்';
+                msg.textContent = 'புதிய 4 இலக்க Admin PIN அமைக்கவும்';
                 info.textContent = 'இந்த PIN-ஐ மறக்காதீர்கள்';
             } else {
-                msg.textContent = 'Admin PIN உள்ளிடவும் (6 இலக்கம்)';
+                msg.textContent = 'Admin PIN உள்ளிடவும் (4 இலக்கம்)';
                 info.textContent = '';
             }
             modal.classList.add('show');
@@ -2569,10 +2564,10 @@ Category rules:
         }
 
         function pinKeypress(digit) {
-            if (pinBuffer.length >= 6) return;
+            if (pinBuffer.length >= 4) return;
             pinBuffer += digit;
             updatePINDisplay();
-            if (pinBuffer.length === 6) setTimeout(pinSubmit, 200);
+            if (pinBuffer.length === 4) setTimeout(pinSubmit, 200);
         }
 
         function pinDelete() {
@@ -2587,8 +2582,8 @@ Category rules:
         async function pinSubmit() {
             const error = document.getElementById('pinError');
             const msg = document.getElementById('pinModalMessage');
-            if (pinBuffer.length !== 6) {
-                error.textContent = '6 இலக்கம் உள்ளிடவும்';
+            if (pinBuffer.length !== 4) {
+                error.textContent = '4 இலக்கம் உள்ளிடவும்';
                 return;
             }
             const entered = pinBuffer;
@@ -2612,6 +2607,7 @@ Category rules:
                 }
                 adminPIN = await hashPIN(entered);
                 safeSetItem('adminPIN', adminPIN);
+                safeSetItem('pinLen', '4');
                 closePINModal();
                 enableAdminMode();
                 return;
@@ -2673,6 +2669,11 @@ Category rules:
 
         // ---------- Init ----------
         function init() {
+            // an older 6-digit PIN is dropped: set a new 4-digit one
+            if (adminPIN && localStorage.getItem('pinLen') !== '4') {
+                adminPIN = null;
+                try { localStorage.removeItem('adminPIN'); } catch (_) {}
+            }
             initDarkMode();
             initPWA();
             loadCustomDuas();
