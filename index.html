@@ -1956,14 +1956,6 @@
             }));
         }
 
-        function normalizeAITitle(value) {
-            let title = String(value || '').replace(/\s+/g, ' ').trim();
-            if (!title) return '';
-            let words = title.split(' ').filter(Boolean);
-            if (words.length > 3) words = words.slice(0, 3);
-            if (words.length === 1) words.push('துஆ');
-            return words.join(' ');
-        }
 
         function normalizeAIDescription(value) {
             let text = String(value || '')
@@ -1997,329 +1989,6 @@
             return one + '\n';
         }
 
-        async function autoFillDuaFromImage(manualRequest = false) {
-            if (!selectedImageFile) {
-                showAdminAlert('addAlert', '❌ முதலில் ஒரு படத்தை upload செய்யவும்.', 'error');
-                return;
-            }
-
-            let apiKey = localStorage.getItem('geminiApiKey') || '';
-            if (!apiKey) {
-                if (manualRequest) {
-                    setupGeminiAI();
-                } else {
-                    showAdminAlert('addAlert', 'ℹ️ AI Setup செய்ய Gemini API key தேவை.', 'success');
-                }
-                return;
-            }
-
-            const status = document.getElementById('aiStatus');
-            const btn = document.getElementById('aiAutoFillBtn');
-            if (btn) {
-                btn.disabled = true;
-                btn.textContent = '⏳ AI Reading...';
-            }
-            if (status) status.textContent = '🤖 படத்தை AI ஆய்வு செய்து Title, Category, Description உருவாக்குகிறது...';
-
-            try {
-                const commaIndex = selectedImageFile.indexOf(',');
-                const base64 = commaIndex >= 0 ? selectedImageFile.slice(commaIndex + 1) : selectedImageFile;
-                const mimeMatch = selectedImageFile.match(/^data:([^;]+);base64,/i);
-                const mimeType = mimeMatch ? mimeMatch[1] : 'image/webp';
-
-                const categoryList = getCategoryOptionsForAI();
-                const prompt = `
-You are assisting an Islamic media admin form.
-Analyze the uploaded Islamic poster/image carefully.
-
-Return:
-1) Title: Tamil only, EXACTLY 2 or 3 words. Keep it short and natural. Do not use a long sentence.
-2) categoryId: The best matching categoryId ONLY from this existing category list.
-3) Description: Tamil only, EXACTLY 2 short lines. Put ONE newline between line 1 and line 2. Each line should be concise and suitable for the poster. Base it only on what is visible/readable in the image. Do not invent Quran verses, hadith, names, claims, or religious facts that are not supported by the image.
-
-Existing categories:
-${JSON.stringify(categoryList)}
-
-Category rules:
-- Prefer the most specific existing category.
-- If no category is a reasonable match, use "all".
-- Never invent a new categoryId.
-- Output Tamil text for title and description.
-`;
-
-                // Try the preferred current Flash models first. If a model is
-                // unavailable to this API key (404/400), or temporarily busy,
-                // automatically continue with the next model.
-                const preferredModels = [
-                    'gemini-3.8-flash',
-                    'gemini-3.5-flash-lite',
-                    'gemini-3.6-flash',
-                    'gemini-3.5-flash'
-                ];
-
-                let models = [...preferredModels];
-
-                // Ask Gemini which models this API key can currently see.
-                // This prevents a hard-coded model name from blocking Auto Fill.
-                try {
-                    const listResponse = await fetch(
-                        'https://generativelanguage.googleapis.com/v1beta/models',
-                        {
-                            method: 'GET',
-                            headers: { 'x-goog-api-key': apiKey }
-                        }
-                    );
-                    if (listResponse.ok) {
-                        const listData = await listResponse.json();
-                        const available = (listData.models || [])
-                            .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
-                            .map(m => String(m.name || '').replace(/^models\//, ''))
-                            .filter(name => /^gemini-/i.test(name));
-
-                        const preferredAvailable = preferredModels.filter(m => available.includes(m));
-                        const otherFlash = available.filter(m => /flash/i.test(m) && !preferredModels.includes(m));
-                        models = [...preferredAvailable, ...otherFlash];
-                    }
-                } catch (listError) {
-                    // If model discovery fails, continue with the known fallback list.
-                }
-
-                if (!models.length) models = [...preferredModels];
-
-                let data = null;
-                let lastError = null;
-                let usedModel = '';
-
-                for (const model of models) {
-                    try {
-                        const response = await fetch(
-                            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-                            {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'x-goog-api-key': apiKey
-                                },
-                                body: JSON.stringify({
-                                    contents: [{
-                                        parts: [
-                                            { text: prompt },
-                                            {
-                                                inlineData: {
-                                                    mimeType: mimeType,
-                                                    data: base64
-                                                }
-                                            }
-                                        ]
-                                    }],
-                                    generationConfig: {
-                                        temperature: 0.2,
-                                        responseMimeType: 'application/json',
-                                        responseSchema: {
-                                            type: 'OBJECT',
-                                            properties: {
-                                                title: { type: 'STRING' },
-                                                categoryId: { type: 'STRING' },
-                                                description: { type: 'STRING' }
-                                            },
-                                            required: ['title', 'categoryId', 'description']
-                                        }
-                                    }
-                                })
-                            }
-                        );
-
-                        data = await response.json();
-
-                        if (response.ok) {
-                            usedModel = model;
-                            break;
-                        }
-
-                        const apiMessage = data?.error?.message || `HTTP ${response.status}`;
-                        lastError = new Error(apiMessage);
-
-                        const retryableModel =
-                            response.status === 400 ||
-                            response.status === 404 ||
-                            /not found|not supported|does not exist|invalid model|unsupported/i.test(apiMessage);
-                        const retryableCapacity =
-                            response.status === 429 ||
-                            response.status === 503 ||
-                            /high demand|overloaded|capacity|temporarily unavailable|try again later/i.test(apiMessage);
-
-                        if (!retryableModel && !retryableCapacity) {
-                            throw lastError;
-                        }
-                    } catch (modelError) {
-                        lastError = modelError;
-
-                        if (!/high demand|overloaded|capacity|temporarily unavailable|try again later|not found|not supported|does not exist|invalid model|unsupported|400|404|429|503/i.test(modelError.message || '')) {
-                            throw modelError;
-                        }
-                    }
-                }
-
-                if (!usedModel) {
-                    throw lastError || new Error('All Gemini Flash models are temporarily unavailable.');
-                }
-
-                if (status) {
-                    status.textContent = `🤖 AI analysis complete using ${usedModel}. Title, Category & Description filled.`;
-                }
-
-                const rawText =
-                    data?.candidates?.[0]?.content?.parts
-                        ?.map(part => part.text || '')
-                        .join('')
-                        .trim();
-
-                if (!rawText) {
-                    throw new Error('AI returned an empty response.');
-                }
-
-                function parseGeminiJSON(text) {
-                    let cleaned = String(text || '')
-                        .replace(/^\uFEFF/, '')
-                        .replace(/^\s*```(?:json)?\s*/i, '')
-                        .replace(/\s*```\s*$/i, '')
-                        .trim();
-
-                    // First try the response exactly as returned.
-                    try { return JSON.parse(cleaned); } catch (_) {}
-
-                    // Find the first complete JSON object while respecting quoted strings.
-                    const start = cleaned.indexOf('{');
-                    if (start < 0) throw new Error('AI returned invalid JSON.');
-
-                    let depth = 0;
-                    let inString = false;
-                    let escaped = false;
-                    let end = -1;
-
-                    for (let i = start; i < cleaned.length; i++) {
-                        const ch = cleaned[i];
-                        if (inString) {
-                            if (escaped) { escaped = false; continue; }
-                            if (ch === '\\') { escaped = true; continue; }
-                            if (ch === '"') { inString = false; continue; }
-                            continue;
-                        }
-                        if (ch === '"') { inString = true; continue; }
-                        if (ch === '{') depth++;
-                        else if (ch === '}') {
-                            depth--;
-                            if (depth === 0) { end = i; break; }
-                        }
-                    }
-
-                    if (end < 0) throw new Error('AI returned incomplete JSON.');
-                    let candidate = cleaned.slice(start, end + 1);
-
-                    // Gemini can occasionally put a literal line break/control character
-                    // inside a JSON string. Escape those controls before parsing.
-                    let repaired = '';
-                    inString = false;
-                    escaped = false;
-                    for (let i = 0; i < candidate.length; i++) {
-                        const ch = candidate[i];
-                        if (inString) {
-                            if (escaped) { repaired += ch; escaped = false; continue; }
-                            if (ch === '\\') { repaired += ch; escaped = true; continue; }
-                            if (ch === '"') { repaired += ch; inString = false; continue; }
-                            if (ch === '\n') { repaired += '\\n'; continue; }
-                            if (ch === '\r') { continue; }
-                            if (ch === '\t') { repaired += '\\t'; continue; }
-                            repaired += ch;
-                        } else {
-                            repaired += ch;
-                            if (ch === '"') inString = true;
-                        }
-                    }
-
-                    return JSON.parse(repaired);
-                }
-
-                let result;
-                try {
-                    result = parseGeminiJSON(rawText);
-                } catch (parseError) {
-                    throw new Error('AI JSON response could not be read. Please tap AI Auto Fill again.');
-                }
-
-                // Accept the expected object, but also tolerate a wrapped/array response.
-                if (Array.isArray(result)) result = result[0] || {};
-                if (result && result.result && typeof result.result === 'object') result = result.result;
-                if (result && result.data && typeof result.data === 'object') result = result.data;
-
-                const pickField = (obj, names) => {
-                    if (!obj || typeof obj !== 'object') return '';
-                    for (const name of names) {
-                        if (obj[name] !== undefined && obj[name] !== null) return String(obj[name]).trim();
-                    }
-                    const wanted = names.map(n => n.toLowerCase());
-                    for (const key of Object.keys(obj)) {
-                        if (wanted.includes(String(key).toLowerCase())) return String(obj[key] ?? '').trim();
-                    }
-                    return '';
-                };
-
-                const aiTitleRaw = pickField(result, ['title', 'Title', 'name', 'headline']);
-                const aiCategoryRaw = pickField(result, ['categoryId', 'category_id', 'category', 'Category']);
-                const aiDescriptionRaw = pickField(result, ['description', 'Description', 'desc', 'text']);
-
-                const compactTitle = normalizeAITitle(aiTitleRaw);
-                const compactDescription = normalizeAIDescription(aiDescriptionRaw);
-
-                if (!compactTitle || !compactDescription) {
-                    throw new Error('AI response did not contain a usable Title and Description. Please tap AI Auto Fill again.');
-                }
-
-                const validCategoryIds = categories.map(cat => String(cat.id));
-                let chosenCategory = validCategoryIds.includes(String(aiCategoryRaw)) ? String(aiCategoryRaw) : '';
-
-                // If Gemini returns the category name instead of its ID, match it safely.
-                if (!chosenCategory && aiCategoryRaw) {
-                    const wantedCategory = aiCategoryRaw.toLowerCase().trim();
-                    const matched = categories.find(cat =>
-                        String(cat.name || '').toLowerCase().trim() === wantedCategory
-                    );
-                    if (matched) chosenCategory = matched.id;
-                }
-
-                // Never select an unavailable option.
-                if (!chosenCategory || !document.querySelector(`#duaCategory option[value="${CSS.escape(chosenCategory)}"]`)) {
-                    chosenCategory = categories.find(c => c.id !== 'all')?.id || '';
-                }
-
-                document.getElementById('duaTitle').value = compactTitle;
-                document.getElementById('duaCategory').value = chosenCategory;
-                document.getElementById('duaDescription').value = compactDescription;
-
-                if (status) status.textContent = '✅ AI Auto Fill முடிந்தது. Save Dua அழுத்தி சேமிக்கலாம்.';
-                showAdminAlert('addAlert', '✅ Title, Category & Description தானாக நிரப்பப்பட்டது.', 'success');
-            } catch (error) {
-                console.error('Gemini AI Auto Fill error:', error);
-                if (status) status.textContent = '⚠️ AI service is temporarily busy. Please try again in a few minutes.';
-                const finalMessage = /high demand|overloaded|capacity|temporarily unavailable|try again later/i.test(error.message || '')
-                    ? 'AI service is temporarily busy. Please try again in a few minutes.'
-                    : (error.message || 'Unknown error');
-                showAdminAlert('addAlert', '❌ AI Auto Fill: ' + finalMessage, 'error');
-
-                // A bad key is common; offer a quick replacement.
-                if (/api key|permission|unauthorized|forbidden|401|403/i.test(error.message || '')) {
-                    if (confirm('Gemini API key வேலை செய்யவில்லை. புதிய API key அமைக்கவா?')) {
-                        setupGeminiAI();
-                    }
-                }
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.textContent = '🤖 AI Auto Fill';
-                }
-                // Keep the final success/error message visible.
-            }
-        }
 
 
         function switchAdminTab(tab) {
@@ -3088,6 +2757,7 @@ Category rules:
         function resetImageSelection() {
             imageToken++;
             selectedImageFile = null;
+            aiImageData = null;
             const preview = document.getElementById('imagePreview');
             if (preview) { preview.removeAttribute('src'); preview.style.display = 'none'; preview.style.visibility = 'hidden'; preview.style.opacity = '0'; }
             const nameEl = document.getElementById('selectedImageName');
@@ -3135,12 +2805,11 @@ Category rules:
                 const hasKey = !!localStorage.getItem('geminiApiKey');
                 showAdminAlert('addAlert', hasKey ? '✅ படம் தயார். AI Auto Fill தொடங்குகிறது...' : '✅ படம் தயார்.', 'success');
 
-                if (hasKey) {
-                    const uploaded = res.data;
-                    setTimeout(() => {
-                        if (selectedImageFile === uploaded) autoFillDuaFromImage(false);
-                    }, 300);
-                }
+                // keep a sharper copy for the AI, then start auto fill
+                aiImageData = null;
+                prepareAIImage(file).then(d => { if (token === imageToken) aiImageData = d; }).catch(() => {}).finally(() => {
+                    if (hasKey && token === imageToken && selectedImageFile === res.data) autoFillDuaFromImage(false);
+                });
             }, () => {
                 if (token !== imageToken) return;
                 showAdminAlert('addAlert', '❌ இந்தப் படத்தைப் படிக்க முடியவில்லை. வேறு படத்தை முயற்சிக்கவும்.', 'error');
@@ -3421,12 +3090,15 @@ Category rules:
             document.getElementById('modal').classList.add('active');
             document.body.style.overflow = 'hidden';
             updateFavoriteButton();
+            shareFilePromise = buildShareFile(dua);
+            shareFilePromise.catch(() => {});
         }
 
         function closeModal() {
             document.getElementById('modal').classList.remove('active');
             document.body.style.overflow = '';
             selectedDua = null;
+            shareFilePromise = null;
             resetZoom();
         }
 
@@ -3447,23 +3119,317 @@ Category rules:
             btn.textContent = (selectedDua && isFavorite(selectedDua.id)) ? '❤️' : '🤍';
         }
 
+        // Share the poster as a real picture (not text)
+        let shareFilePromise = null;
+
+        function buildShareFile(dua) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onerror = () => reject(new Error('image'));
+                img.onload = () => {
+                    const w = img.naturalWidth || 800;
+                    const h = img.naturalHeight || 1200;
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(0, 0, w, h);
+                    ctx.drawImage(img, 0, 0, w, h);
+                    canvas.toBlob(blob => {
+                        if (!blob) return reject(new Error('blob'));
+                        resolve(new File([blob], 'mass-islamic-media-' + dua.id + '.jpg', { type: 'image/jpeg' }));
+                    }, 'image/jpeg', 0.92);
+                };
+                img.src = dua.image;
+            });
+        }
+
         async function shareDua() {
             if (!selectedDua) return;
-            const text = `${selectedDua.title}\n\n${selectedDua.description}`;
+            const dua = selectedDua;
             try {
-                if (navigator.share) {
-                    await navigator.share({ title: selectedDua.title, text, url: location.href });
-                } else if (navigator.clipboard) {
-                    await navigator.clipboard.writeText(text + '\n' + location.href);
-                    alert('✅ நகலெடுக்கப்பட்டது');
-                } else {
-                    alert(text);
+                if (!shareFilePromise) shareFilePromise = buildShareFile(dua);
+                const file = await shareFilePromise;
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file], title: dua.title });
+                    return;
                 }
+                // browser cannot share files: save the picture instead
+                const url = URL.createObjectURL(file);
+                const a = document.createElement('a');
+                a.href = url; a.download = file.name;
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 2000);
+                alert('இந்த browser-ல் நேரடி Share இல்லை. படம் download ஆனது — அதை WhatsApp-ல் அனுப்பலாம்.');
             } catch (e) {
-                if (!e || e.name !== 'AbortError') console.error('Share error:', e);
+                if (e && e.name === 'AbortError') return;
+                console.error('Share error:', e);
+                alert('படத்தை Share செய்ய முடியவில்லை. மீண்டும் முயற்சிக்கவும்.');
             }
         }
         // ============= FIXES END =============
+
+        // ============= AI AUTO FILL (more accurate) =============
+        let aiImageData = null;   // higher-quality copy used only for AI reading
+
+        function prepareAIImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onerror = () => reject(new Error('read'));
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onerror = () => reject(new Error('decode'));
+                    img.onload = () => {
+                        const maxDim = 1600;
+                        let w = img.width, h = img.height;
+                        const scale = Math.min(1, maxDim / Math.max(w, h));
+                        w = Math.round(w * scale); h = Math.round(h * scale);
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w; canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(0, 0, w, h);
+                        ctx.drawImage(img, 0, 0, w, h);
+                        let q = 0.92, data = canvas.toDataURL('image/jpeg', q);
+                        while (data.length > 4 * 1024 * 1024 && q > 0.5) { q -= 0.1; data = canvas.toDataURL('image/jpeg', q); }
+                        resolve(data);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function normalizeAITitle(value, contentType) {
+            let title = String(value || '').replace(/["'“”‘’`*#]/g, '').replace(/\s+/g, ' ').trim();
+            if (!title) return '';
+            let words = title.split(' ').filter(Boolean);
+            if (words.length > 3) words = words.slice(0, 3);
+            if (words.length === 1 && contentType === 'dua' && !/துஆ|துவா/.test(words[0])) words.push('துஆ');
+            return words.join(' ');
+        }
+
+        function parseGeminiJSON(text) {
+            let s = String(text || '').replace(/^\uFEFF/, '').replace(/^\s*```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
+            try { return JSON.parse(s); } catch (_) {}
+            const start = s.indexOf('{');
+            if (start < 0) throw new Error('AI returned invalid JSON.');
+            let depth = 0, inStr = false, esc = false, end = -1, out = '';
+            for (let i = start; i < s.length; i++) {
+                const ch = s[i];
+                if (inStr) {
+                    if (esc) { esc = false; out += ch; continue; }
+                    if (ch === '\\') { esc = true; out += ch; continue; }
+                    if (ch === '"') { inStr = false; out += ch; continue; }
+                    if (ch === '\n') { out += '\\n'; continue; }
+                    if (ch === '\r') continue;
+                    if (ch === '\t') { out += '\\t'; continue; }
+                    out += ch; continue;
+                }
+                out += ch;
+                if (ch === '"') inStr = true;
+                else if (ch === '{') depth++;
+                else if (ch === '}') { depth--; if (depth === 0) { end = i; break; } }
+            }
+            if (end < 0) throw new Error('AI returned incomplete JSON.');
+            return JSON.parse(out);
+        }
+
+        function buildAIPrompt() {
+            const cats = categories.filter(c => c.id !== 'all').map(c => ({
+                id: c.id,
+                name: c.name,
+                examples: duasData.filter(d => d.category === c.id).slice(0, 3).map(d => d.title)
+            }));
+            const styleExamples = duasData.slice(0, 3).map(d => ({ title: d.title, description: d.description }));
+            return `You are an expert Tamil editor for an Islamic media app (duas, Quran verses, hadith posters) used by Tamil-speaking Muslims in Tamil Nadu.
+
+Study the attached poster image carefully, then fill the fields IN THE ORDER given. Work from what is really written on the poster.
+
+1) visibleText: Copy every readable word on the poster exactly as written (Arabic, Tamil, English, transliteration). Do not translate here. Never guess unreadable parts; leave them out.
+2) contentType: one of "dua", "quran_verse", "hadith", "reminder", "other".
+3) occasion: in short English, WHEN or WHY this is recited/used (for example: morning, evening, before sleeping, before eating, entering home, travel, forgiveness, protection, gratitude, knowledge).
+4) title: Tamil only, 2 or 3 words, natural and short, naming the purpose the way Tamil Muslims say it (like "காலை துஆ", "உணவு உண்ணும் துஆ", "பயண துஆ"). It must agree with visibleText and occasion. No quotes, no punctuation, no English.
+5) categoryId: choose ONE id from the category list below. Decide by the poster's purpose (occasion) and by the example titles already in each category. If nothing fits reasonably, answer "none". Never invent an id.
+6) description: Tamil only, EXACTLY 2 short lines separated by ONE newline (\\n). Line 1: when/why this is used. Line 2: the key meaning or benefit, taken from the poster text (or the standard, well-known meaning of the visible Arabic dua). Each line at most 12 words. Do not invent Quran verse numbers, hadith narrators, references or claims that are not on the poster.
+7) confidence: "high" if the text was clearly readable and the match is sure, "medium" if partly sure, "low" if the image is unclear or you are guessing.
+
+Tamil style: use the usual Islamic terms (அல்லாஹ், நபி (ஸல்), துஆ, குர்ஆன், ஹதீஸ்) and simple spoken Tamil spelling. No English words in title/description.
+
+Categories:
+${JSON.stringify(cats)}
+
+Style of existing entries (match this tone and length):
+${JSON.stringify(styleExamples)}
+`;
+        }
+
+        function modelCandidates(available) {
+            const preferred = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
+            if (!available || !available.length) return preferred;
+            const bad = /(tts|image|live|audio|embed|robotics|computer|thinking|aqa)/i;
+            const ver = m => parseFloat((m.match(/gemini-(\d+(?:\.\d+)?)/i) || [0, 0])[1]);
+            const others = available.filter(m => /flash/i.test(m) && !bad.test(m) && !preferred.includes(m))
+                .sort((a, b) => (/lite/i.test(a) - /lite/i.test(b)) || (ver(b) - ver(a)));
+            const pref = preferred.filter(m => available.includes(m));
+            const head = pref.filter(m => !/lite/i.test(m));
+            const lite = pref.filter(m => /lite/i.test(m));
+            return [...head, ...others.filter(m => !/lite/i.test(m)), ...lite, ...others.filter(m => /lite/i.test(m))];
+        }
+
+        async function autoFillDuaFromImage(manualRequest = false) {
+            if (!selectedImageFile) {
+                showAdminAlert('addAlert', '❌ முதலில் ஒரு படத்தை upload செய்யவும்.', 'error');
+                return;
+            }
+            const apiKey = localStorage.getItem('geminiApiKey') || '';
+            if (!apiKey) {
+                if (manualRequest) setupGeminiAI();
+                else showAdminAlert('addAlert', 'ℹ️ AI Setup செய்ய Gemini API key தேவை.', 'success');
+                return;
+            }
+
+            const reqImage = selectedImageFile;
+            const status = document.getElementById('aiStatus');
+            const btn = document.getElementById('aiAutoFillBtn');
+            if (btn) { btn.disabled = true; btn.textContent = '⏳ AI Reading...'; }
+            if (status) status.textContent = '🤖 படத்தில் உள்ள எழுத்தைப் படித்து Title, Category, Description உருவாக்குகிறது...';
+
+            try {
+                const src = aiImageData || reqImage;
+                const comma = src.indexOf(',');
+                const base64 = comma >= 0 ? src.slice(comma + 1) : src;
+                const mimeMatch = src.match(/^data:([^;]+);base64,/i);
+                const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+                const prompt = buildAIPrompt();
+
+                let available = [];
+                try {
+                    const lr = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': apiKey } });
+                    if (lr.ok) {
+                        const ld = await lr.json();
+                        available = (ld.models || [])
+                            .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+                            .map(m => String(m.name || '').replace(/^models\//, ''))
+                            .filter(n => /^gemini-/i.test(n));
+                    }
+                } catch (_) {}
+                const models = modelCandidates(available);
+
+                const body = JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType, data: base64 } }] }],
+                    generationConfig: {
+                        temperature: 0.1,
+                        maxOutputTokens: 2048,
+                        responseMimeType: 'application/json',
+                        responseSchema: {
+                            type: 'OBJECT',
+                            properties: {
+                                visibleText: { type: 'STRING' },
+                                contentType: { type: 'STRING' },
+                                occasion: { type: 'STRING' },
+                                title: { type: 'STRING' },
+                                categoryId: { type: 'STRING' },
+                                description: { type: 'STRING' },
+                                confidence: { type: 'STRING' }
+                            },
+                            propertyOrdering: ['visibleText', 'contentType', 'occasion', 'title', 'categoryId', 'description', 'confidence'],
+                            required: ['visibleText', 'contentType', 'title', 'categoryId', 'description', 'confidence']
+                        }
+                    }
+                });
+
+                const retryable = /high demand|overloaded|capacity|temporarily unavailable|try again|not found|not supported|does not exist|invalid model|unsupported/i;
+                let data = null, lastError = null, usedModel = '';
+                for (const model of models) {
+                    try {
+                        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+                            body
+                        });
+                        const json = await response.json();
+                        if (response.ok) {
+                            const cand = json.candidates && json.candidates[0];
+                            const text = cand && cand.content && cand.content.parts && cand.content.parts.map(p => p.text || '').join('').trim();
+                            if (!text) {
+                                const why = (json.promptFeedback && json.promptFeedback.blockReason) || (cand && cand.finishReason) || 'empty';
+                                lastError = new Error('AI returned no answer (' + why + ').');
+                                continue;   // try next model
+                            }
+                            data = json; usedModel = model;
+                            break;
+                        }
+                        const msg = (json.error && json.error.message) || ('HTTP ' + response.status);
+                        lastError = new Error(msg);
+                        if (![400, 404, 429, 500, 503].includes(response.status) && !retryable.test(msg)) throw lastError;
+                        if (response.status === 400 && /api key|API_KEY/i.test(msg)) throw lastError;
+                    } catch (modelError) {
+                        lastError = modelError;
+                        if (!retryable.test(modelError.message || '') && !/Failed to fetch|NetworkError|AI returned/i.test(modelError.message || '')) throw modelError;
+                    }
+                }
+                if (!usedModel) throw lastError || new Error('All Gemini models are temporarily unavailable.');
+
+                if (selectedImageFile !== reqImage) return;   // user picked another image meanwhile
+
+                const rawText = data.candidates[0].content.parts.map(p => p.text || '').join('').trim();
+                let result;
+                try { result = parseGeminiJSON(rawText); }
+                catch (_) { throw new Error('AI JSON response could not be read. Please tap AI Auto Fill again.'); }
+                if (Array.isArray(result)) result = result[0] || {};
+
+                const get = (...names) => {
+                    for (const n of names) if (result[n] !== undefined && result[n] !== null) return String(result[n]).trim();
+                    return '';
+                };
+                const contentType = get('contentType').toLowerCase();
+                const visibleText = get('visibleText');
+                let confidence = get('confidence').toLowerCase();
+                const title = normalizeAITitle(get('title'), contentType);
+                const description = normalizeAIDescription(get('description'));
+                if (!title || !description) throw new Error('AI response did not contain a usable Title and Description. Please tap AI Auto Fill again.');
+
+                // category: exact id -> name -> loose name; never guess blindly
+                const raw = get('categoryId', 'category');
+                const selectable = categories.filter(c => c.id !== 'all');
+                const norm = s => String(s || '').toLowerCase().replace(/\s+/g, '').trim();
+                let chosen = selectable.find(c => String(c.id) === raw) ||
+                             selectable.find(c => norm(c.name) === norm(raw)) ||
+                             (raw && raw.toLowerCase() !== 'none' ? selectable.find(c => norm(c.name).includes(norm(raw)) || norm(raw).includes(norm(c.name))) : null);
+                if (chosen && !document.querySelector(`#duaCategory option[value="${CSS.escape(chosen.id)}"]`)) chosen = null;
+
+                if (!visibleText) confidence = 'low';
+
+                document.getElementById('duaTitle').value = title;
+                document.getElementById('duaDescription').value = description;
+                document.getElementById('duaCategory').value = chosen ? chosen.id : '';
+
+                const notes = [];
+                if (!chosen) notes.push('Category உறுதியாகத் தெரியவில்லை — நீங்களே தேர்வு செய்யவும்');
+                if (confidence === 'low') notes.push('படம்/எழுத்து தெளிவாக இல்லை — Title, Description-ஐ சரிபார்க்கவும்');
+                else if (confidence === 'medium') notes.push('சரிபார்த்து சேமிக்கவும்');
+
+                if (status) {
+                    const read = visibleText ? '🔎 படித்தது: ' + visibleText.replace(/\s+/g, ' ').slice(0, 90) + (visibleText.length > 90 ? '…' : '') : '';
+                    status.textContent = (notes.length ? '⚠️ ' + notes.join(' • ') : '✅ AI Auto Fill முடிந்தது. Save Dua அழுத்தி சேமிக்கலாம்.') + (read ? '\n' + read : '');
+                    status.style.whiteSpace = 'pre-line';
+                }
+                showAdminAlert('addAlert', notes.length ? '⚠️ நிரப்பப்பட்டது — ' + notes[0] : '✅ Title, Category & Description தானாக நிரப்பப்பட்டது.', notes.length ? 'info' : 'success');
+            } catch (error) {
+                console.error('Gemini AI Auto Fill error:', error);
+                if (selectedImageFile !== reqImage) return;
+                const busy = /high demand|overloaded|capacity|temporarily unavailable|try again later/i.test(error.message || '');
+                if (status) status.textContent = busy ? '⚠️ AI service சற்று busy. சில நிமிடம் கழித்து முயற்சிக்கவும்.' : '⚠️ ' + (error.message || 'Unknown error');
+                showAdminAlert('addAlert', '❌ AI Auto Fill: ' + (busy ? 'AI service temporarily busy. Please try again.' : (error.message || 'Unknown error')), 'error');
+                if (/api key|API_KEY|permission|unauthorized|forbidden|401|403/i.test(error.message || '')) {
+                    if (confirm('Gemini API key வேலை செய்யவில்லை. புதிய API key அமைக்கவா?')) setupGeminiAI();
+                }
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = '🤖 AI Auto Fill'; }
+            }
+        }
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', init);
