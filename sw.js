@@ -1,4 +1,4 @@
-const CACHE = 'mass-islamic-media-v3';
+const CACHE = 'mass-islamic-media-v4';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -37,11 +37,28 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // other files: cache first
+  // published dua list: always try the network first, keep the last copy for offline
+  if (url.pathname.endsWith('/data/duas.json')) {
+    const key = url.origin + url.pathname;
+    e.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(key, copy));
+          return res;
+        })
+        .catch(() => caches.match(key))
+    );
+    return;
+  }
+
+  // other files (posters, icons): cache first
   e.respondWith(
     caches.match(req).then((hit) => hit || fetch(req).then((res) => {
-      const copy = res.clone();
-      caches.open(CACHE).then((c) => c.put(req, copy));
+      if (res.ok) {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(req, copy));
+      }
       return res;
     }))
   );

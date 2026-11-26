@@ -1810,6 +1810,46 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
 .search-container { background: transparent; border: 0; box-shadow: none; }
 .dua-grid .dua-card-title, .dua-grid .dua-card-desc { text-align: left; }
 
+/* ---------- AI Setup dialog ---------- */
+.ai-modal {
+    position: fixed; inset: 0; z-index: 4000;
+    display: flex; align-items: flex-end; justify-content: center;
+    background: rgba(3, 12, 10, 0.78);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.ai-sheet {
+    width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto;
+    padding: 1.1rem 1.1rem calc(1.2rem + env(safe-area-inset-bottom, 0px));
+    background: var(--bg-card); color: var(--text-dark);
+    border: 1px solid var(--border-light); border-bottom: none;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -20px 60px -20px rgba(0, 0, 0, 0.6);
+}
+@media (min-width: 560px) { .ai-modal { align-items: center; } .ai-sheet { border-radius: 24px; border-bottom: 1px solid var(--border-light); } }
+.ai-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
+.ai-head h3 { font-size: 1.15rem; margin: 0; }
+.ai-x { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border-light); background: var(--bg-light); color: var(--text-dark); cursor: pointer; }
+.ai-seg { display: flex; gap: 0.3rem; padding: 0.3rem; margin-bottom: 0.8rem; background: var(--bg-light); border: 1px solid var(--border-light); border-radius: 14px; }
+.ai-seg button { flex: 1; padding: 0.6rem; border: none; border-radius: 10px; background: none; color: var(--ink-soft); font-weight: 600; cursor: pointer; }
+.ai-seg button.on { background: var(--primary-dark); color: var(--gold-2); }
+.ai-hint { font-size: 0.8rem; line-height: 1.55; color: var(--ink-soft); margin-bottom: 0.9rem; }
+.ai-field { margin-bottom: 0.9rem; }
+.ai-field label { display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 600; }
+.ai-field input, .ai-field select {
+    width: 100%; padding: 0.75rem 0.9rem; border-radius: 12px;
+    border: 1px solid var(--border-light); background: var(--bg-light); color: var(--text-dark); font-size: 0.95rem;
+}
+.ai-field input:focus, .ai-field select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184, 146, 58, 0.2); }
+.ai-status { min-height: 1.3rem; margin-bottom: 0.7rem; font-size: 0.85rem; color: var(--accent-text); }
+.ai-status.err { color: #C2412D; }
+html.dark .ai-status.err { color: #FF9C8B; }
+.ai-actions { display: flex; gap: 0.6rem; }
+.ai-actions .btn-save { flex: 2; }
+.ai-actions .btn-cancel { flex: 1; }
+
+.category-btn { min-height: 44px; }
+.dua-card:focus-visible, .daily-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
 </style>
 </head>
 <body>
@@ -1952,7 +1992,7 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
                                     <input type="file" id="duaImageInput" accept="image/*,.png,.jpg,.jpeg,.webp" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
                                 </div>
                                 <div id="selectedImageName" class="image-info" style="display:none;font-weight:600;"></div>
-                                <img id="imagePreview" class="image-preview" style="display:none;visibility:hidden;opacity:0;max-width:100%;max-height:220px;object-fit:contain;">
+                                <img id="imagePreview" alt="" class="image-preview" style="display:none;visibility:hidden;opacity:0;max-width:100%;max-height:220px;object-fit:contain;">
                                 <div class="image-info" id="imageInfo"></div>
                                 <div style="margin-top:0.9rem; display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center;">
                                     <button type="button" class="btn-small secondary" id="aiAutoFillBtn" style="display:none;">🤖 AI Auto Fill</button>
@@ -2040,7 +2080,14 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
                                     <input type="text" id="githubRepoInput" placeholder="username/repo" style="width: 100%; padding: 0.75rem; margin-bottom: 0.5rem; border: 1px solid var(--border-light); border-radius: 6px;">
                                     <input type="password" id="githubTokenInput" placeholder="GitHub Personal Token" style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 1px solid var(--border-light); border-radius: 6px;">
                                 </div>
-                                <button class="btn-small" id="syncGithubBtn">📤 Sync to GitHub</button>
+                                <button class="btn-small" id="syncGithubBtn">Sync to GitHub</button>
+                            </div>
+                            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+                                <h4 style="margin-bottom: 0.6rem;">Publish to everyone</h4>
+                                <p style="opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem;">
+                                    நீங்கள் சேர்த்த / நீக்கிய துஆக்களை GitHub-ல் வெளியிட்டால், இந்த app பயன்படுத்தும் எல்லோரின் phone-லும் தெரியும். மேலே உள்ள Repo, Token பயன்படுத்தப்படும்.
+                                </p>
+                                <button class="btn-small" id="publishBtn">Publish to everyone</button>
                             </div>
                         </div>
                     </div>
@@ -2492,47 +2539,7 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
 
 
         // ============= AI AUTO-FILL (Gemini) =============
-        function updateAIControls() {
-            const btn = document.getElementById('aiAutoFillBtn');
-            const status = document.getElementById('aiStatus');
-            if (!btn || !status) return;
 
-            const hasKey = !!localStorage.getItem('geminiApiKey');
-            btn.style.display = selectedImageFile ? 'inline-flex' : 'none';
-
-            if (hasKey) {
-                status.textContent = '🤖 AI ready — படம் upload செய்தவுடன் Title, Category & Description தானாக நிரப்பப்படும்.';
-            } else {
-                status.textContent = 'ℹ️ முதலில் “⚙️ AI Setup” மூலம் Gemini API key அமைக்கவும். அதன் பிறகு படம் upload செய்தவுடன் 3 fields தானாக நிரப்பப்படும்.';
-            }
-        }
-
-        function setupGeminiAI() {
-            const currentKey = localStorage.getItem('geminiApiKey') || '';
-            const message = currentKey
-                ? 'Enter your new Gemini API key. Leave blank to keep the current key.'
-                : 'Enter your Gemini API key. It will be stored only on this device/browser.';
-            const key = prompt(message, currentKey);
-
-            if (key === null) return;
-
-            const trimmed = key.trim();
-            if (!trimmed) {
-                if (!currentKey) {
-                    showAdminAlert('addAlert', 'ℹ️ AI key not set. AI Auto Fill is optional.', 'success');
-                }
-                updateAIControls();
-                return;
-            }
-
-            localStorage.setItem('geminiApiKey', trimmed);
-            updateAIControls();
-            showAdminAlert('addAlert', '✅ Gemini AI key saved on this device.', 'success');
-
-            if (selectedImageFile) {
-                setTimeout(() => autoFillDuaFromImage(true), 150);
-            }
-        }
 
         function getCategoryOptionsForAI() {
             return categories.map(cat => ({
@@ -2716,38 +2723,147 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
         let deletedDuaIds = [];
         let activeFilters = new Set();
 
-        function saveDuas() {
-            // built-in duas live in the code; only store user-added ones
-            const custom = duasData.filter(d => !BUILTIN_IDS.has(String(d.id)));
-            const ok1 = safeSetItem('customDuas', JSON.stringify(custom));
-            const ok2 = safeSetItem('deletedDuas', JSON.stringify(deletedDuaIds));
-            return ok1 && ok2;
+
+        // ---------- Library: built-in + published (online) + this phone ----------
+        const BUILTIN_BASE = duasData.slice();
+        let localCustomList = [];            // duas created on this phone (image kept in IndexedDB)
+        let remoteLib = null;                // duas published online (data/duas.json)
+        let publishedMap = readJSON('publishedMap', {});   // id -> image path inside the repo
+        let idbOK = false;
+
+        const IDB = {
+            db: null,
+            open() {
+                return new Promise((resolve, reject) => {
+                    if (!window.indexedDB) return reject(new Error('no indexedDB'));
+                    const req = indexedDB.open('mass-islamic-media', 1);
+                    req.onupgradeneeded = () => req.result.createObjectStore('images');
+                    req.onsuccess = () => { this.db = req.result; resolve(this.db); };
+                    req.onerror = () => reject(req.error);
+                    req.onblocked = () => reject(new Error('blocked'));
+                });
+            },
+            run(mode, fn) {
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction('images', mode);
+                    const req = fn(tx.objectStore('images'));
+                    tx.oncomplete = () => resolve(req ? req.result : undefined);
+                    tx.onerror = () => reject(tx.error);
+                    tx.onabort = () => reject(tx.error);
+                });
+            },
+            get(k) { return this.run('readonly', s => s.get(k)); },
+            put(k, v) { return this.run('readwrite', s => s.put(v, k)); },
+            del(k) { return this.run('readwrite', s => s.delete(k)); },
+            keys() { return this.run('readonly', s => s.getAllKeys()); }
+        };
+
+        async function saveDuas() {
+            try {
+                let meta;
+                if (idbOK) {
+                    for (const d of localCustomList) {
+                        if (d.image && String(d.image).startsWith('data:')) await IDB.put(String(d.id), d.image);
+                    }
+                    const keys = (await IDB.keys()).map(String);
+                    for (const k of keys) {
+                        if (!localCustomList.some(d => String(d.id) === k)) await IDB.del(k);
+                    }
+                    meta = localCustomList.map(d => ({ id: d.id, title: d.title, category: d.category, description: d.description }));
+                } else {
+                    meta = localCustomList;   // no IndexedDB: old behaviour
+                }
+                return safeSetItem('customDuas', JSON.stringify(meta)) &&
+                       safeSetItem('deletedDuas', JSON.stringify(deletedDuaIds));
+            } catch (e) {
+                console.error('saveDuas failed:', e);
+                return false;
+            }
         }
 
-        function loadCustomDuas() {
+        function mergeLibrary() {
+            const map = new Map(BUILTIN_BASE.map(d => [String(d.id), d]));
+            if (remoteLib && Array.isArray(remoteLib.duas)) {
+                (remoteLib.removedBuiltin || []).forEach(id => map.delete(String(id)));
+                remoteLib.duas.forEach(r => {
+                    if (r && r.id !== undefined && r.id !== null && r.title && r.image) {
+                        map.set(String(r.id), { id: r.id, title: r.title, category: r.category, description: r.description || '', image: r.image, remote: true });
+                        publishedMap[String(r.id)] = r.image;
+                    }
+                });
+            }
+            localCustomList.forEach(d => map.set(String(d.id), d));
+            deletedDuaIds.forEach(id => map.delete(String(id)));
+            duasData = Array.from(map.values());
+        }
+
+        function mergeRemoteCategories() {
+            if (!remoteLib || !Array.isArray(remoteLib.categories)) return;
+            remoteLib.categories.forEach(c => {
+                if (c && c.id && c.id !== 'all' && !categories.some(x => x.id === c.id)) {
+                    categories.push({ id: c.id, name: c.name || c.id, icon: c.icon || '📂', system: false });
+                }
+            });
+        }
+
+        async function loadLibrary() {
             const savedRaw = localStorage.getItem('customDuas');
-            const saved = readJSON('customDuas', []);
+            let saved = readJSON('customDuas', []);
+            if (!Array.isArray(saved)) saved = [];
             const hasDeletedKey = localStorage.getItem('deletedDuas') !== null;
             deletedDuaIds = readJSON('deletedDuas', []).map(String);
 
-            // Old versions saved the whole list (built-ins included). A built-in that is
-            // missing from such a list was deleted by the user.
-            if (!hasDeletedKey && savedRaw && Array.isArray(saved) && saved.length) {
+            // very old versions saved the whole list: a missing built-in means "deleted"
+            if (!hasDeletedKey && savedRaw && saved.length) {
                 const savedIds = new Set(saved.map(d => String(d && d.id)));
                 deletedDuaIds = [...BUILTIN_IDS].filter(id => !savedIds.has(id));
             }
 
-            const byId = new Map(duasData.map(d => [String(d.id), d]));
-            if (Array.isArray(saved)) {
-                saved.forEach(d => {
-                    if (d && d.id !== undefined && d.id !== null && d.title && d.image) {
-                        byId.set(String(d.id), d);
-                    }
-                });
+            try { await IDB.open(); idbOK = true; } catch (_) { idbOK = false; }
+
+            let migrate = false;
+            localCustomList = [];
+            for (const d of saved) {
+                if (!d || d.id === undefined || d.id === null || !d.title) continue;
+                if (BUILTIN_IDS.has(String(d.id))) { if (d.image) migrate = true; continue; }   // built-ins come from the code
+                let img = d.image;
+                if (img) migrate = true;                                      // image still inside localStorage
+                if (!img && idbOK) { try { img = await IDB.get(String(d.id)); } catch (_) {} }
+                if (!img) continue;
+                localCustomList.push({ id: d.id, title: d.title, category: d.category, description: d.description || '', image: img });
             }
-            deletedDuaIds.forEach(id => byId.delete(id));
-            duasData = Array.from(byId.values());
+
+            remoteLib = readJSON('remoteLibrary', null);
+            mergeLibrary();
+            if (migrate && idbOK) saveDuas();   // move old images out of localStorage
         }
+
+        function refreshAll() {
+            renderCategories();
+            renderCategoryFilters();
+            refreshDuaCategorySelect();
+            renderCategoryManager();
+            renderDuas();
+            renderDaily();
+            if (currentPage === 'favorites') renderFavorites();
+            if (currentPage === 'admin') { updateAdminStats(); if (document.getElementById('manageDuasContent').style.display === 'block') renderManageDuas(); }
+        }
+
+        async function fetchRemoteLibrary() {
+            try {
+                const res = await fetchT('data/duas.json?t=' + Date.now(), { cache: 'no-store' }, 10000);
+                if (!res.ok) return;
+                const json = await res.json();
+                if (!json || !Array.isArray(json.duas)) return;
+                remoteLib = json;
+                safeSetItem('remoteLibrary', JSON.stringify(json));
+                mergeLibrary();
+                mergeRemoteCategories();
+                safeSetItem('publishedMap', JSON.stringify(publishedMap));
+                refreshAll();
+            } catch (_) { /* offline or nothing published yet */ }
+        }
+
 
         function nextDuaId() {
             const all = duasData.map(d => Number(d.id))
@@ -2780,8 +2896,8 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
         let pinBuffer = '';
         let pinMode = 'verify';   // 'setup' | 'confirm' | 'verify'
         let pinFirstEntry = '';
-        let pinFailCount = 0;
-        let pinLockedUntil = 0;
+        let pinFailCount = parseInt(localStorage.getItem('pinFailCount'), 10) || 0;
+        let pinLockedUntil = parseInt(localStorage.getItem('pinLockedUntil'), 10) || 0;
 
         async function hashPIN(pin) {
             if (window.crypto && crypto.subtle) {
@@ -2812,15 +2928,24 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
                 msg.textContent = 'Admin PIN உள்ளிடவும் (4 இலக்கம்)';
                 info.textContent = '';
             }
+            const wasShown = modal.classList.contains('show');
             modal.classList.add('show');
             updatePINDisplay();
+            if (!wasShown) overlayOpen(closePINUI);
         }
 
-        function closePINModal() {
+
+        function closePINUI() {
             document.getElementById('pinModal').classList.remove('show');
             pinBuffer = '';
             pinFirstEntry = '';
             updateAdminToggle();
+        }
+
+        function closePINModal() {
+            if (!document.getElementById('pinModal').classList.contains('show')) return;
+            closePINUI();
+            overlayClosedByUI(closePINUI);
         }
 
         function pinKeypress(digit) {
@@ -2883,6 +3008,8 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
             }
             if (await pinMatches(entered)) {
                 pinFailCount = 0;
+                safeSetItem('pinFailCount', '0');
+                safeSetItem('pinLockedUntil', '0');
                 if (!adminPIN.startsWith('sha256:') && window.crypto && crypto.subtle) {
                     adminPIN = await hashPIN(entered);      // upgrade old plain PIN
                     safeSetItem('adminPIN', adminPIN);
@@ -2896,10 +3023,12 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
                 if (pinFailCount >= 5) {
                     pinLockedUntil = Date.now() + 30000;
                     pinFailCount = 0;
+                    safeSetItem('pinLockedUntil', String(pinLockedUntil));
                     error.textContent = '❌ பல முறை தவறு. 30 விநாடி காத்திருக்கவும்.';
                 } else {
                     error.textContent = '❌ தவறான PIN. மீண்டும் முயற்சிக்கவும்.';
                 }
+                safeSetItem('pinFailCount', String(pinFailCount));
             }
         }
 
@@ -2928,20 +3057,14 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
         }
 
         // ---------- Init ----------
-        function init() {
-            // an older 6-digit PIN is dropped: set a new 4-digit one
-            if (adminPIN && localStorage.getItem('pinLen') !== '4') {
-                adminPIN = null;
-                try { localStorage.removeItem('adminPIN'); } catch (_) {}
-            }
+
+        async function init() {
             initDarkMode();
             updateDarkModeButton();
             initPWA();
-            loadCustomDuas();
             loadCategories();
-
-            // drop favorites of duas that no longer exist
-            favorites = favorites.filter(isFavoriteValid);
+            await loadLibrary();
+            mergeRemoteCategories();
 
             // permission may have been revoked in browser settings
             if (notificationsEnabled && !('Notification' in window && Notification.permission === 'granted')) {
@@ -2963,11 +3086,9 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
             if (savedRepo) document.getElementById('githubRepoInput').value = savedRepo;
 
             if (notificationsEnabled) scheduleNotification();
+            fetchRemoteLibrary();   // newest published duas (in the background)
         }
 
-        function isFavoriteValid(id) {
-            return duasData.some(d => String(d.id) === String(id));
-        }
 
         // ---------- PWA ----------
         function initPWA() {
@@ -2999,6 +3120,12 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
             });
             renderCategoryFilters();
 
+            const dailyCard = document.getElementById('dailyDua');
+            dailyCard.setAttribute('role', 'button');
+            dailyCard.tabIndex = 0;
+            dailyCard.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); dailyCard.click(); } });
+            const publishBtn = document.getElementById('publishBtn');
+            if (publishBtn) publishBtn.addEventListener('click', publishToGitHub);
             document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
             document.getElementById('installBtn').addEventListener('click', handleInstall);
             document.getElementById('installBannerBtn').addEventListener('click', handleInstall);
@@ -3115,7 +3242,7 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
 
         function duaCardHTML(dua) {
             return `
-                <div class="dua-card" onclick="openModal(${jsArg(dua.id)})">
+                <div class="dua-card" role="button" tabindex="0" onclick="openModal(${jsArg(dua.id)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
                     <div class="dua-thumb">
                         <img src="${esc(dua.image)}" alt="" loading="lazy" decoding="async">
                         <span class="dua-chip">${esc(getCategoryIcon(dua.category))}</span>
@@ -3213,7 +3340,7 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
                         <div style="flex: 1;">
                             <h3 style="margin: 0 0 0.5rem 0;">${esc(dua.title)}</h3>
                             <p style="margin: 0 0 0.5rem 0; opacity: 0.7; font-size: 0.9rem;">${esc(dua.description)}</p>
-                            <p style="margin: 0; font-size: 0.85rem; opacity: 0.6;">Category: ${esc(dua.category)}</p>
+                            <p style="margin: 0; font-size: 0.85rem; opacity: 0.6;">Category: ${esc(dua.category)}${BUILTIN_IDS.has(String(dua.id)) ? '' : (publishedMap[String(dua.id)] ? ' • Online' : ' • Phone only')}</p>
                         </div>
                         <button class="btn-small" onclick="deleteDua(${jsArg(dua.id)})" style="background: #ef4444;">🗑️ Delete</button>
                     </div>
@@ -3398,7 +3525,7 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
                     `📦 ${(res.originalSize / 1024).toFixed(0)} KB → ${(res.compressedSize / 1024).toFixed(0)} KB`;
 
                 updateAIControls();
-                const hasKey = !!localStorage.getItem('geminiApiKey');
+                const hasKey = !!getAIConfig().key;
                 showAdminAlert('addAlert', hasKey ? '✅ படம் தயார். AI Auto Fill தொடங்குகிறது...' : '✅ படம் தயார்.', 'success');
 
                 // keep a sharper copy for the AI, then start auto fill
@@ -3413,7 +3540,10 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
         }
 
         // ---------- Add / delete duas ----------
-        function addNewDua() {
+
+        let addingDua = false;
+        async function addNewDua() {
+            if (addingDua) return;
             const title = document.getElementById('duaTitle').value.trim();
             const category = document.getElementById('duaCategory').value;
             const description = document.getElementById('duaDescription').value.trim();
@@ -3423,39 +3553,56 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
                 return;
             }
 
-            const newDua = { id: nextDuaId(), title, category, description, image: selectedImageFile };
-            duasData.push(newDua);
+            addingDua = true;
+            const saveBtn = document.querySelector('#addDuaForm .btn-save');
+            if (saveBtn) saveBtn.disabled = true;
+            try {
+                const newDua = { id: Date.now(), title, category, description, image: selectedImageFile };
+                localCustomList.push(newDua);
+                mergeLibrary();
 
-            if (!saveDuas()) {
-                duasData.pop();
-                showAdminAlert('addAlert', '❌ சேமிக்க முடியவில்லை — phone storage நிரம்பிவிட்டது. பழைய துஆ சிலவற்றை நீக்கி (அல்லது Backup எடுத்து) முயற்சிக்கவும்.', 'error');
-                return;
+                if (!(await saveDuas())) {
+                    localCustomList.pop();
+                    mergeLibrary();
+                    showAdminAlert('addAlert', '❌ சேமிக்க முடியவில்லை — phone storage நிரம்பியுள்ளது. பழைய துஆ சிலவற்றை நீக்கி முயற்சிக்கவும்.', 'error');
+                    return;
+                }
+
+                showAdminAlert('addAlert', '✅ துஆ சேர்க்கப்பட்டது! எல்லோருக்கும் தெரிய Backup tab-ல் Publish செய்யவும்.', 'success');
+                document.getElementById('addDuaForm').reset();
+                resetImageSelection();
+                updateAdminStats();
+                renderDuas();
+                renderDaily();
+            } finally {
+                addingDua = false;
+                if (saveBtn) saveBtn.disabled = false;
             }
-
-            showAdminAlert('addAlert', '✅ துஆ சேர்க்கப்பட்டது!', 'success');
-            document.getElementById('addDuaForm').reset();
-            resetImageSelection();
-            updateAdminStats();
-            renderDuas();
-            renderDaily();
         }
 
-        function deleteDua(id) {
+
+        async function deleteDua(id) {
             if (!confirm('இந்த துஆவை நீக்கவா?')) return;
             const key = String(id);
-            const backup = duasData.slice();
+            const backupLocal = localCustomList.slice();
             const backupDeleted = deletedDuaIds.slice();
-            duasData = duasData.filter(d => String(d.id) !== key);
-            if (BUILTIN_IDS.has(key) && !deletedDuaIds.includes(key)) deletedDuaIds.push(key);
+            const backupFavs = favorites.slice();
+
+            localCustomList = localCustomList.filter(d => String(d.id) !== key);
+            if (!deletedDuaIds.includes(key)) deletedDuaIds.push(key);
             favorites = favorites.filter(f => String(f) !== key);
-            if (!saveDuas()) {
-                duasData = backup;
+            mergeLibrary();
+
+            if (!(await saveDuas())) {
+                localCustomList = backupLocal;
                 deletedDuaIds = backupDeleted;
+                favorites = backupFavs;
+                mergeLibrary();
                 showAdminAlert('manageAlert', '❌ நீக்க முடியவில்லை (storage error)', 'error');
                 return;
             }
             safeSetItem('favorites', JSON.stringify(favorites));
-            showAdminAlert('manageAlert', '✅ துஆ நீக்கப்பட்டது', 'success');
+            showAdminAlert('manageAlert', '✅ துஆ நீக்கப்பட்டது. எல்லோருக்கும் நீங்க Publish செய்யவும்.', 'success');
             renderManageDuas();
             updateAdminStats();
             renderDuas();
@@ -3495,10 +3642,11 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
             showAdminAlert('backupAlert', '✅ Backup download ஆனது!', 'success');
         }
 
+
         function restoreData(file) {
             const reader = new FileReader();
             reader.onerror = () => showAdminAlert('backupAlert', '❌ கோப்பைப் படிக்க முடியவில்லை', 'error');
-            reader.onload = (e) => {
+            reader.onload = async (e) => {
                 try {
                     const backup = JSON.parse(e.target.result);
                     if (!backup || !Array.isArray(backup.duas)) throw new Error('invalid');
@@ -3506,12 +3654,18 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
                     const valid = backup.duas.filter(d => d && d.id !== undefined && d.id !== null && d.title && d.image);
                     if (!valid.length) throw new Error('no duas');
 
-                    const oldDuas = duasData, oldDeleted = deletedDuaIds;
-                    duasData = valid;
+                    // built-in and published duas come from elsewhere; only phone-made ones (with real image data) are restored
                     const ids = new Set(valid.map(d => String(d.id)));
-                    deletedDuaIds = [...BUILTIN_IDS].filter(id => !ids.has(id));
-                    if (!saveDuas()) {
-                        duasData = oldDuas; deletedDuaIds = oldDeleted; saveDuas();
+                    const mine = valid.filter(d => !BUILTIN_IDS.has(String(d.id)) && String(d.image).startsWith('data:'))
+                        .map(d => ({ id: d.id, title: d.title, category: d.category, description: d.description || '', image: d.image }));
+                    const remoteIds = (remoteLib && Array.isArray(remoteLib.duas)) ? remoteLib.duas.map(d => String(d.id)) : [];
+
+                    const oldLocal = localCustomList, oldDeleted = deletedDuaIds;
+                    localCustomList = mine;
+                    deletedDuaIds = [...new Set([...BUILTIN_IDS, ...remoteIds])].filter(id => !ids.has(id));
+                    mergeLibrary();
+                    if (!(await saveDuas())) {
+                        localCustomList = oldLocal; deletedDuaIds = oldDeleted; mergeLibrary(); await saveDuas();
                         showAdminAlert('backupAlert', '❌ Restore செய்ய storage இடம் போதவில்லை', 'error');
                         return;
                     }
@@ -3630,6 +3784,27 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
             }
         }
 
+
+        // ---------- Android Back button closes pop-ups instead of leaving the app ----------
+        const overlayStack = [];
+        let skipPop = 0;
+        function overlayOpen(closer) {
+            overlayStack.push(closer);
+            try { history.pushState({ mim: overlayStack.length }, ''); } catch (_) {}
+        }
+        function overlayClosedByUI(closer) {
+            const i = overlayStack.lastIndexOf(closer);
+            if (i < 0) return;
+            overlayStack.splice(i, 1);
+            skipPop++;
+            try { history.back(); } catch (_) { skipPop--; }
+        }
+        window.addEventListener('popstate', () => {
+            if (skipPop > 0) { skipPop--; return; }
+            const closer = overlayStack.pop();
+            if (closer) closer();
+        });
+
         // ---------- Modal / zoom / favorites / share ----------
         let panX = 0, panY = 0;
 
@@ -3675,9 +3850,20 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
         function showNextDua() { stepDua(1); }
         function showPreviousDua() { stepDua(-1); }
 
+
+        function closePosterUI() {
+            document.getElementById('modal').classList.remove('active');
+            document.body.style.overflow = '';
+            selectedDua = null;
+            shareFilePromise = null;
+            resetZoom();
+        }
+
         function openModal(duaId) {
             const dua = duasData.find(d => String(d.id) === String(duaId));
             if (!dua) return;
+            const modal = document.getElementById('modal');
+            const wasOpen = modal.classList.contains('active');
             selectedDua = dua;
             resetZoom();
             const img = document.getElementById('modalImage');
@@ -3686,19 +3872,19 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
             const mt = document.getElementById('modalTitle'), md = document.getElementById('modalDesc');
             if (mt) mt.textContent = dua.title;
             if (md) md.textContent = dua.description;
-            document.getElementById('modal').classList.add('active');
+            modal.classList.add('active');
             document.body.style.overflow = 'hidden';
             updateFavoriteButton();
+            if (!wasOpen) overlayOpen(closePosterUI);
             shareFilePromise = buildShareFile(dua);
             shareFilePromise.catch(() => {});
         }
 
+
         function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-            document.body.style.overflow = '';
-            selectedDua = null;
-            shareFilePromise = null;
-            resetZoom();
+            if (!document.getElementById('modal').classList.contains('active')) return;
+            closePosterUI();
+            overlayClosedByUI(closePosterUI);
         }
 
         function toggleFavorite() {
@@ -3770,6 +3956,122 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
                 alert('படத்தை Share செய்ய முடியவில்லை. மீண்டும் முயற்சிக்கவும்.');
             }
         }
+
+        // ---------- Publish: put duas on GitHub so everyone using the app sees them ----------
+        function ghHeaders(token, json) {
+            const h = { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' };
+            if (json) h['Content-Type'] = 'application/json';
+            return h;
+        }
+
+        async function ghError(res) {
+            let m = res.statusText || ('HTTP ' + res.status);
+            try { const j = await res.json(); if (j && j.message) m = j.message; } catch (_) {}
+            if (res.status === 401) return 'Token தவறு அல்லது காலாவதியாகிவிட்டது.';
+            if (res.status === 403) return 'Token-க்கு எழுத அனுமதி இல்லை (Contents: Read and write தேவை). ' + m;
+            if (res.status === 404) return 'Repo பெயர் அல்லது Token அனுமதி தவறு.';
+            return m;
+        }
+
+        async function ghGetSha(repo, token, path) {
+            const res = await fetchT(`https://api.github.com/repos/${repo}/contents/${path}`, { headers: ghHeaders(token) }, 30000);
+            if (res.status === 404) return null;
+            if (!res.ok) throw new Error(await ghError(res));
+            return (await res.json()).sha || null;
+        }
+
+        async function ghPutFile(repo, token, path, base64, message) {
+            const sha = await ghGetSha(repo, token, path);
+            const res = await fetchT(`https://api.github.com/repos/${repo}/contents/${path}`, {
+                method: 'PUT',
+                headers: ghHeaders(token, true),
+                body: JSON.stringify({ message, content: base64, ...(sha ? { sha } : {}) })
+            }, 90000);
+            if (!res.ok) throw new Error(await ghError(res));
+        }
+
+        async function ghDeleteFile(repo, token, path, message) {
+            const sha = await ghGetSha(repo, token, path);
+            if (!sha) return;
+            await fetchT(`https://api.github.com/repos/${repo}/contents/${path}`, {
+                method: 'DELETE',
+                headers: ghHeaders(token, true),
+                body: JSON.stringify({ message, sha })
+            }, 30000);
+        }
+
+        async function publishToGitHub() {
+            if (!adminAuthenticated) {
+                showAdminAlert('backupAlert', '❌ முதலில் Admin PIN உள்ளிடவும்', 'error');
+                return;
+            }
+            const repo = document.getElementById('githubRepoInput').value.trim();
+            const tokenField = document.getElementById('githubTokenInput').value.trim();
+            const token = tokenField || localStorage.getItem('githubToken') || '';
+            if (!repo || !token) {
+                showAdminAlert('backupAlert', '❌ மேலே GitHub Repo மற்றும் Token இரண்டும் தேவை', 'error');
+                return;
+            }
+            if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) {
+                showAdminAlert('backupAlert', '❌ Repo format: username/repo', 'error');
+                return;
+            }
+            safeSetItem('githubRepo', repo);
+            if (tokenField) safeSetItem('githubToken', tokenField);
+
+            const btn = document.getElementById('publishBtn');
+            btn.disabled = true;
+            try {
+                const items = duasData.filter(d => !BUILTIN_IDS.has(String(d.id)));
+                const extOf = { 'image/webp': 'webp', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/svg+xml': 'svg' };
+
+                // 1) upload pictures that are not online yet
+                const toUpload = items.filter(d => !publishedMap[String(d.id)] && String(d.image).startsWith('data:'));
+                let done = 0;
+                for (const d of toUpload) {
+                    const m = String(d.image).match(/^data:(image\/[\w+.-]+);base64,([\s\S]*)$/);
+                    if (!m) continue;
+                    const path = `data/img/${d.id}.${extOf[m[1]] || 'img'}`;
+                    showAdminAlert('backupAlert', `⏳ படம் அனுப்புகிறது (${++done}/${toUpload.length})...`, 'info');
+                    await ghPutFile(repo, token, path, m[2], 'Add dua poster');
+                    publishedMap[String(d.id)] = path;
+                    safeSetItem('publishedMap', JSON.stringify(publishedMap));
+                }
+
+                // 2) the list itself (written last, so it only mentions pictures that exist)
+                showAdminAlert('backupAlert', '⏳ துஆ பட்டியலை வெளியிடுகிறது...', 'info');
+                const lib = {
+                    version: 1,
+                    updated: new Date().toISOString(),
+                    categories: categories.filter(c => !c.system && c.id !== 'all').map(c => ({ id: c.id, name: c.name, icon: c.icon })),
+                    removedBuiltin: deletedDuaIds.filter(id => BUILTIN_IDS.has(String(id))),
+                    duas: items.filter(d => publishedMap[String(d.id)]).map(d => ({
+                        id: d.id, title: d.title, category: d.category, description: d.description, image: publishedMap[String(d.id)]
+                    }))
+                };
+                await ghPutFile(repo, token, 'data/duas.json', utf8ToBase64(JSON.stringify(lib, null, 1)), 'Publish duas');
+                remoteLib = lib;
+                safeSetItem('remoteLibrary', JSON.stringify(lib));
+
+                // 3) remove pictures of deleted duas
+                const keep = new Set(items.map(d => String(d.id)));
+                for (const id of Object.keys(publishedMap)) {
+                    if (keep.has(id)) continue;
+                    try { await ghDeleteFile(repo, token, publishedMap[id], 'Remove dua poster'); } catch (_) {}
+                    delete publishedMap[id];
+                }
+                safeSetItem('publishedMap', JSON.stringify(publishedMap));
+
+                showAdminAlert('backupAlert', `✅ வெளியிடப்பட்டது! (${lib.duas.length} துஆ). GitHub Pages புதுப்பிக்க 1-2 நிமிடம் ஆகும்; பிறகு எல்லோர் phone-லும் தெரியும்.`, 'success');
+                refreshAll();
+            } catch (error) {
+                const busy = error && error.name === 'AbortError';
+                showAdminAlert('backupAlert', '❌ Publish தோல்வி: ' + (busy ? 'இணைப்பு தாமதம். மீண்டும் முயற்சிக்கவும்.' : (error.message || 'Unknown error')), 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
         // ============= FIXES END =============
 
         // ============= AI AUTO FILL (more accurate) =============
@@ -3783,7 +4085,7 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
                     const img = new Image();
                     img.onerror = () => reject(new Error('decode'));
                     img.onload = () => {
-                        const maxDim = 1600;
+                        const maxDim = 1568;
                         let w = img.width, h = img.height;
                         const scale = Math.min(1, maxDim / Math.max(w, h));
                         w = Math.round(w * scale); h = Math.round(h * scale);
@@ -3880,110 +4182,225 @@ ${JSON.stringify(styleExamples)}
             return [...head, ...others.filter(m => !/lite/i.test(m)), ...lite, ...others.filter(m => /lite/i.test(m))];
         }
 
+        // ---------- AI provider config (Claude or Gemini) ----------
+        const AI_LABEL = { claude: 'Claude', gemini: 'Gemini' };
+        const CLAUDE_MODELS = { sonnet: 'claude-sonnet-5-5', opus: 'claude-opus-5-5', haiku: 'claude-haiku-5-5' };
+
+        function getAIConfig() {
+            const claudeKey = localStorage.getItem('claudeApiKey') || '';
+            const geminiKey = localStorage.getItem('geminiApiKey') || '';
+            // Claude option is switched off for now: Gemini only
+            const provider = geminiKey ? 'gemini' : null;
+            return { provider, key: geminiKey };
+        }
+
+        function updateAIControls() {
+            const btn = document.getElementById('aiAutoFillBtn');
+            const status = document.getElementById('aiStatus');
+            if (!btn || !status) return;
+            const cfg = getAIConfig();
+            btn.style.display = selectedImageFile ? 'inline-flex' : 'none';
+            status.style.whiteSpace = 'normal';
+            status.textContent = cfg.provider
+                ? `🤖 ${AI_LABEL[cfg.provider]} AI தயார் — படம் upload செய்தவுடன் Title, Category & Description தானாக நிரப்பப்படும்.`
+                : 'ℹ️ “⚙️ AI Setup” மூலம் Gemini API key அமைக்கவும். அதன் பிறகு படம் upload செய்தவுடன் 3 fields தானாக நிரப்பப்படும்.';
+        }
+
+        function setupGeminiAI() { openAISetup(); }
+
+        function fetchT(url, options, ms = 90000) {
+            const ctl = new AbortController();
+            const t = setTimeout(() => ctl.abort(), ms);
+            return fetch(url, { ...options, signal: ctl.signal }).finally(() => clearTimeout(t));
+        }
+
+        function apiErrMsg(json, res) {
+            return (json && json.error && (json.error.message || json.error.type)) || ('HTTP ' + (res ? res.status : '?'));
+        }
+
+        // ---------- Claude ----------
+        const DUA_TOOL = {
+            name: 'fill_dua',
+            description: 'Return the Title, Category and 2-line Description for the dua poster in the image.',
+            input_schema: {
+                type: 'object',
+                properties: {
+                    visibleText: { type: 'string', description: 'All readable text on the poster, copied exactly (Arabic/Tamil/English). Empty string if nothing is readable.' },
+                    contentType: { type: 'string', enum: ['dua', 'quran_verse', 'hadith', 'reminder', 'other'] },
+                    occasion: { type: 'string', description: 'Short English: when or why this is recited or used.' },
+                    title: { type: 'string', description: 'Tamil only, 2-3 words, names the purpose (e.g. காலை துஆ).' },
+                    categoryId: { type: 'string', description: 'Exactly one id from the category list, or "none".' },
+                    description: { type: 'string', description: 'Tamil only, EXACTLY 2 short lines separated by one newline.' },
+                    confidence: { type: 'string', enum: ['high', 'medium', 'low'] }
+                },
+                required: ['visibleText', 'contentType', 'occasion', 'title', 'categoryId', 'description', 'confidence']
+            }
+        };
+
+        async function claudeCall(key, body) {
+            const res = await fetchT('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                    'x-api-key': key,
+                    'anthropic-version': '2023-06-01',
+                    'anthropic-dangerous-direct-browser-access': 'true'
+                },
+                body: JSON.stringify(body)
+            });
+            let json = null;
+            try { json = await res.json(); } catch (_) {}
+            return { res, json };
+        }
+
+        async function requestClaudeResult(key, prompt, base64, mime) {
+            const pref = localStorage.getItem('claudeModel') || 'sonnet';
+            const order = [pref, 'sonnet', 'haiku'].filter((v, i, a) => CLAUDE_MODELS[v] && a.indexOf(v) === i);
+            let lastErr = null;
+            for (const k of order) {
+                const model = CLAUDE_MODELS[k];
+                const body = {
+                    model,
+                    max_tokens: 2048,
+                    temperature: 0,
+                    tools: [DUA_TOOL],
+                    tool_choice: { type: 'tool', name: 'fill_dua' },
+                    messages: [{
+                        role: 'user',
+                        content: [
+                            { type: 'image', source: { type: 'base64', media_type: mime, data: base64 } },
+                            { type: 'text', text: prompt }
+                        ]
+                    }]
+                };
+                let { res, json } = await claudeCall(key, body);
+                if (res.status === 400 && /temperature/i.test(apiErrMsg(json, res))) {
+                    delete body.temperature;
+                    ({ res, json } = await claudeCall(key, body));
+                }
+                if (res.ok) {
+                    const block = (json.content || []).find(b => b.type === 'tool_use');
+                    if (block && block.input && typeof block.input === 'object') return { result: block.input, model };
+                    lastErr = new Error('Claude did not return a usable answer.');
+                    continue;
+                }
+                const m = apiErrMsg(json, res);
+                lastErr = new Error(m);
+                lastErr.status = res.status;
+                if (res.status === 401 || res.status === 403) throw lastErr;
+                if (res.status === 400 && /credit balance|billing/i.test(m)) throw lastErr;
+                if ([404, 408, 409, 429, 500, 502, 503, 529].includes(res.status)) continue;
+                if (res.status === 400 && /model/i.test(m)) continue;
+                throw lastErr;
+            }
+            throw lastErr || new Error('Claude is temporarily unavailable.');
+        }
+
+        // ---------- Gemini ----------
+        async function requestGeminiResult(apiKey, prompt, base64, mimeType) {
+            let available = [];
+            try {
+                const lr = await fetchT('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': apiKey } }, 20000);
+                if (lr.ok) {
+                    const ld = await lr.json();
+                    available = (ld.models || [])
+                        .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+                        .map(m => String(m.name || '').replace(/^models\//, ''))
+                        .filter(n => /^gemini-/i.test(n));
+                }
+            } catch (_) {}
+            const models = modelCandidates(available);
+
+            const body = JSON.stringify({
+                contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType, data: base64 } }] }],
+                generationConfig: {
+                    temperature: 0.1,
+                    maxOutputTokens: 2048,
+                    responseMimeType: 'application/json',
+                    responseSchema: {
+                        type: 'OBJECT',
+                        properties: {
+                            visibleText: { type: 'STRING' }, contentType: { type: 'STRING' }, occasion: { type: 'STRING' },
+                            title: { type: 'STRING' }, categoryId: { type: 'STRING' }, description: { type: 'STRING' }, confidence: { type: 'STRING' }
+                        },
+                        propertyOrdering: ['visibleText', 'contentType', 'occasion', 'title', 'categoryId', 'description', 'confidence'],
+                        required: ['visibleText', 'contentType', 'title', 'categoryId', 'description', 'confidence']
+                    }
+                }
+            });
+
+            let lastError = null;
+            for (const model of models) {
+                try {
+                    const response = await fetchT(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+                        body
+                    });
+                    let json = null;
+                    try { json = await response.json(); } catch (_) {}
+                    if (response.ok) {
+                        const cand = json.candidates && json.candidates[0];
+                        const text = cand && cand.content && cand.content.parts && cand.content.parts.map(p => p.text || '').join('').trim();
+                        if (!text) {
+                            lastError = new Error('AI returned no answer (' + ((json.promptFeedback && json.promptFeedback.blockReason) || (cand && cand.finishReason) || 'empty') + ').');
+                            continue;
+                        }
+                        let parsed = parseGeminiJSON(text);
+                        if (Array.isArray(parsed)) parsed = parsed[0] || {};
+                        return { result: parsed, model };
+                    }
+                    lastError = new Error(apiErrMsg(json, response));
+                    lastError.status = response.status;
+                    if (response.status === 401 || response.status === 403) throw lastError;
+                    if (response.status === 400 && /api key|API_KEY/i.test(lastError.message)) throw lastError;
+                    if ([400, 404, 429, 500, 503].includes(response.status)) continue;
+                    throw lastError;
+                } catch (e) {
+                    lastError = e;
+                    if (e.status === 401 || e.status === 403 || (e.name !== 'AbortError' && !/Failed to fetch|NetworkError|AI returned|JSON/i.test(e.message || '') && e.status !== undefined && ![400, 404, 429, 500, 503].includes(e.status))) throw e;
+                }
+            }
+            throw lastError || new Error('All Gemini models are temporarily unavailable.');
+        }
+
+        // ---------- Auto fill ----------
         async function autoFillDuaFromImage(manualRequest = false) {
             if (!selectedImageFile) {
                 showAdminAlert('addAlert', '❌ முதலில் ஒரு படத்தை upload செய்யவும்.', 'error');
                 return;
             }
-            const apiKey = localStorage.getItem('geminiApiKey') || '';
-            if (!apiKey) {
-                if (manualRequest) setupGeminiAI();
-                else showAdminAlert('addAlert', 'ℹ️ AI Setup செய்ய Gemini API key தேவை.', 'success');
+            const cfg = getAIConfig();
+            if (!cfg.provider) {
+                if (manualRequest) openAISetup();
+                else showAdminAlert('addAlert', 'ℹ️ AI Setup செய்ய API key தேவை.', 'success');
                 return;
             }
 
             const reqImage = selectedImageFile;
+            const label = AI_LABEL[cfg.provider];
             const status = document.getElementById('aiStatus');
             const btn = document.getElementById('aiAutoFillBtn');
             if (btn) { btn.disabled = true; btn.textContent = '⏳ AI Reading...'; }
-            if (status) status.textContent = '🤖 படத்தில் உள்ள எழுத்தைப் படித்து Title, Category, Description உருவாக்குகிறது...';
+            if (status) { status.style.whiteSpace = 'normal'; status.textContent = `🤖 ${label} படத்தில் உள்ள எழுத்தைப் படித்து Title, Category, Description உருவாக்குகிறது...`; }
 
             try {
                 const src = aiImageData || reqImage;
                 const comma = src.indexOf(',');
                 const base64 = comma >= 0 ? src.slice(comma + 1) : src;
                 const mimeMatch = src.match(/^data:([^;]+);base64,/i);
-                const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+                const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
                 const prompt = buildAIPrompt();
 
-                let available = [];
-                try {
-                    const lr = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': apiKey } });
-                    if (lr.ok) {
-                        const ld = await lr.json();
-                        available = (ld.models || [])
-                            .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
-                            .map(m => String(m.name || '').replace(/^models\//, ''))
-                            .filter(n => /^gemini-/i.test(n));
-                    }
-                } catch (_) {}
-                const models = modelCandidates(available);
+                const out = cfg.provider === 'claude'
+                    ? await requestClaudeResult(cfg.key, prompt, base64, mime)
+                    : await requestGeminiResult(cfg.key, prompt, base64, mime);
 
-                const body = JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType, data: base64 } }] }],
-                    generationConfig: {
-                        temperature: 0.1,
-                        maxOutputTokens: 2048,
-                        responseMimeType: 'application/json',
-                        responseSchema: {
-                            type: 'OBJECT',
-                            properties: {
-                                visibleText: { type: 'STRING' },
-                                contentType: { type: 'STRING' },
-                                occasion: { type: 'STRING' },
-                                title: { type: 'STRING' },
-                                categoryId: { type: 'STRING' },
-                                description: { type: 'STRING' },
-                                confidence: { type: 'STRING' }
-                            },
-                            propertyOrdering: ['visibleText', 'contentType', 'occasion', 'title', 'categoryId', 'description', 'confidence'],
-                            required: ['visibleText', 'contentType', 'title', 'categoryId', 'description', 'confidence']
-                        }
-                    }
-                });
+                if (selectedImageFile !== reqImage) return;   // another image was chosen meanwhile
 
-                const retryable = /high demand|overloaded|capacity|temporarily unavailable|try again|not found|not supported|does not exist|invalid model|unsupported/i;
-                let data = null, lastError = null, usedModel = '';
-                for (const model of models) {
-                    try {
-                        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-                            body
-                        });
-                        const json = await response.json();
-                        if (response.ok) {
-                            const cand = json.candidates && json.candidates[0];
-                            const text = cand && cand.content && cand.content.parts && cand.content.parts.map(p => p.text || '').join('').trim();
-                            if (!text) {
-                                const why = (json.promptFeedback && json.promptFeedback.blockReason) || (cand && cand.finishReason) || 'empty';
-                                lastError = new Error('AI returned no answer (' + why + ').');
-                                continue;   // try next model
-                            }
-                            data = json; usedModel = model;
-                            break;
-                        }
-                        const msg = (json.error && json.error.message) || ('HTTP ' + response.status);
-                        lastError = new Error(msg);
-                        if (![400, 404, 429, 500, 503].includes(response.status) && !retryable.test(msg)) throw lastError;
-                        if (response.status === 400 && /api key|API_KEY/i.test(msg)) throw lastError;
-                    } catch (modelError) {
-                        lastError = modelError;
-                        if (!retryable.test(modelError.message || '') && !/Failed to fetch|NetworkError|AI returned/i.test(modelError.message || '')) throw modelError;
-                    }
-                }
-                if (!usedModel) throw lastError || new Error('All Gemini models are temporarily unavailable.');
-
-                if (selectedImageFile !== reqImage) return;   // user picked another image meanwhile
-
-                const rawText = data.candidates[0].content.parts.map(p => p.text || '').join('').trim();
-                let result;
-                try { result = parseGeminiJSON(rawText); }
-                catch (_) { throw new Error('AI JSON response could not be read. Please tap AI Auto Fill again.'); }
-                if (Array.isArray(result)) result = result[0] || {};
-
+                const result = out.result || {};
                 const get = (...names) => {
-                    for (const n of names) if (result[n] !== undefined && result[n] !== null) return String(result[n]).trim();
+                    for (const nm of names) if (result[nm] !== undefined && result[nm] !== null) return String(result[nm]).trim();
                     return '';
                 };
                 const contentType = get('contentType').toLowerCase();
@@ -3993,7 +4410,6 @@ ${JSON.stringify(styleExamples)}
                 const description = normalizeAIDescription(get('description'));
                 if (!title || !description) throw new Error('AI response did not contain a usable Title and Description. Please tap AI Auto Fill again.');
 
-                // category: exact id -> name -> loose name; never guess blindly
                 const raw = get('categoryId', 'category');
                 const selectable = categories.filter(c => c.id !== 'all');
                 const norm = s => String(s || '').toLowerCase().replace(/\s+/g, '').trim();
@@ -4001,7 +4417,6 @@ ${JSON.stringify(styleExamples)}
                              selectable.find(c => norm(c.name) === norm(raw)) ||
                              (raw && raw.toLowerCase() !== 'none' ? selectable.find(c => norm(c.name).includes(norm(raw)) || norm(raw).includes(norm(c.name))) : null);
                 if (chosen && !document.querySelector(`#duaCategory option[value="${CSS.escape(chosen.id)}"]`)) chosen = null;
-
                 if (!visibleText) confidence = 'low';
 
                 document.getElementById('duaTitle').value = title;
@@ -4015,22 +4430,141 @@ ${JSON.stringify(styleExamples)}
 
                 if (status) {
                     const read = visibleText ? '🔎 படித்தது: ' + visibleText.replace(/\s+/g, ' ').slice(0, 90) + (visibleText.length > 90 ? '…' : '') : '';
-                    status.textContent = (notes.length ? '⚠️ ' + notes.join(' • ') : '✅ AI Auto Fill முடிந்தது. Save Dua அழுத்தி சேமிக்கலாம்.') + (read ? '\n' + read : '');
+                    status.textContent = (notes.length ? '⚠️ ' + notes.join(' • ') : `✅ ${label} AI Auto Fill முடிந்தது. Save Dua அழுத்தி சேமிக்கலாம்.`) + (read ? '\n' + read : '');
                     status.style.whiteSpace = 'pre-line';
                 }
                 showAdminAlert('addAlert', notes.length ? '⚠️ நிரப்பப்பட்டது — ' + notes[0] : '✅ Title, Category & Description தானாக நிரப்பப்பட்டது.', notes.length ? 'info' : 'success');
             } catch (error) {
-                console.error('Gemini AI Auto Fill error:', error);
+                console.error('AI Auto Fill error:', error);
                 if (selectedImageFile !== reqImage) return;
-                const busy = /high demand|overloaded|capacity|temporarily unavailable|try again later/i.test(error.message || '');
-                if (status) status.textContent = busy ? '⚠️ AI service சற்று busy. சில நிமிடம் கழித்து முயற்சிக்கவும்.' : '⚠️ ' + (error.message || 'Unknown error');
-                showAdminAlert('addAlert', '❌ AI Auto Fill: ' + (busy ? 'AI service temporarily busy. Please try again.' : (error.message || 'Unknown error')), 'error');
-                if (/api key|API_KEY|permission|unauthorized|forbidden|401|403/i.test(error.message || '')) {
-                    if (confirm('Gemini API key வேலை செய்யவில்லை. புதிய API key அமைக்கவா?')) setupGeminiAI();
-                }
+                const m = error && error.message ? error.message : 'Unknown error';
+                let friendly = m;
+                if (error && error.name === 'AbortError') friendly = 'AI பதில் தாமதமாகிறது. மீண்டும் முயற்சிக்கவும்.';
+                else if (/credit balance|billing/i.test(m)) friendly = 'Claude API-ல் credit இல்லை. console.anthropic.com → Billing-ல் credit சேர்க்கவும்.';
+                else if (/overloaded|high demand|capacity|temporarily unavailable|rate/i.test(m)) friendly = 'AI service சற்று busy. சில நிமிடம் கழித்து முயற்சிக்கவும்.';
+                else if (/Failed to fetch|NetworkError/i.test(m)) friendly = 'Internet இணைப்பைச் சரிபார்க்கவும்.';
+                if (status) { status.style.whiteSpace = 'normal'; status.textContent = '⚠️ ' + friendly; }
+                showAdminAlert('addAlert', '❌ AI Auto Fill: ' + friendly, 'error');
+                const authFail = error && (error.status === 401 || error.status === 403 || /invalid x-api-key|api key|authentication|permission|unauthorized|forbidden/i.test(m));
+                if (authFail && confirm(label + ' API key வேலை செய்யவில்லை. AI Setup-ஐத் திறக்கவா?')) openAISetup();
             } finally {
                 if (btn) { btn.disabled = false; btn.textContent = '🤖 AI Auto Fill'; }
             }
+        }
+
+        // ---------- AI Setup dialog ----------
+        async function testAIKey(provider, key) {
+            if (provider === 'claude') {
+                for (const model of [CLAUDE_MODELS.haiku, CLAUDE_MODELS.sonnet]) {
+                    const { res, json } = await claudeCall(key, { model, max_tokens: 8, messages: [{ role: 'user', content: 'Reply with OK' }] });
+                    if (res.ok) return { ok: true };
+                    const m = apiErrMsg(json, res);
+                    if (res.status === 401 || res.status === 403) return { ok: false, msg: 'API key தவறு அல்லது அனுமதி இல்லை.' };
+                    if (res.status === 400 && /credit balance|billing/i.test(m)) return { ok: false, msg: 'Key சரி, ஆனால் credit இல்லை. console.anthropic.com → Billing-ல் credit சேர்க்கவும்.' };
+                    if (res.status === 404) continue;
+                    return { ok: false, msg: m };
+                }
+                return { ok: false, msg: 'Claude model கிடைக்கவில்லை.' };
+            }
+            const res = await fetchT('https://generativelanguage.googleapis.com/v1beta/models?pageSize=5', { headers: { 'x-goog-api-key': key } }, 20000);
+            if (res.ok) return { ok: true };
+            let json = null; try { json = await res.json(); } catch (_) {}
+            return { ok: false, msg: res.status === 400 || res.status === 403 ? 'API key தவறு.' : apiErrMsg(json, res) };
+        }
+
+        function openAISetup() {
+            const old = document.getElementById('aiSetupModal');
+            if (old) old.remove();
+            const cfg = getAIConfig();
+            let provider = 'gemini';
+
+            const el = document.createElement('div');
+            el.id = 'aiSetupModal';
+            el.className = 'ai-modal';
+            el.innerHTML = `
+                <div class="ai-sheet" role="dialog" aria-modal="true" aria-label="AI Setup">
+                    <div class="ai-head"><h3>AI Setup</h3><button type="button" class="ai-x" id="aiClose" aria-label="Close">✕</button></div>
+                    <p class="ai-hint" id="aiHint"></p>
+                    <div class="ai-field">
+                        <label for="aiKeyInput" id="aiKeyLabel">API key</label>
+                        <input id="aiKeyInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
+                    </div>
+                    <div class="ai-field" id="aiModelField">
+                        <label for="aiModelSelect">Claude model</label>
+                        <select id="aiModelSelect">
+                            <option value="sonnet">Sonnet — துல்லியம் + வேகம் (பரிந்துரை)</option>
+                            <option value="opus">Opus — மிகவும் துல்லியம் (செலவு அதிகம்)</option>
+                            <option value="haiku">Haiku — வேகம், குறைந்த செலவு</option>
+                        </select>
+                    </div>
+                    <div class="ai-status" id="aiSetupStatus"></div>
+                    <div class="ai-actions">
+                        <button type="button" class="btn-save" id="aiSaveBtn">சோதித்து சேமி</button>
+                        <button type="button" class="btn-cancel" id="aiRemoveBtn">Key நீக்கு</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(el);
+
+            const $ = id => el.querySelector('#' + id);
+            const keyInput = $('aiKeyInput'), statusEl = $('aiSetupStatus');
+            $('aiModelSelect').value = localStorage.getItem('claudeModel') || 'sonnet';
+
+            const hints = {
+                claude: 'console.anthropic.com → API Keys-ல் key உருவாக்கவும் (sk-ant-… என்று தொடங்கும்). Claude.ai சந்தா வேறு; API-க்கு தனியாக credit தேவை. Key இந்த phone-ல் மட்டுமே சேமிக்கப்படும்.',
+                gemini: 'Google AI Studio-ல் key உருவாக்கவும். Key இந்த phone-ல் மட்டுமே சேமிக்கப்படும்.'
+            };
+            function render() {
+                el.querySelectorAll('.ai-seg button').forEach(b => b.classList.toggle('on', b.dataset.p === provider));
+                $('aiHint').textContent = hints[provider];
+                $('aiKeyLabel').textContent = AI_LABEL[provider] + ' API key';
+                $('aiModelField').style.display = provider === 'claude' ? '' : 'none';
+                const saved = localStorage.getItem(provider + 'ApiKey');
+                keyInput.value = '';
+                keyInput.placeholder = saved ? '••••••••  (சேமிக்கப்பட்டுள்ளது — மாற்ற புதிய key இடவும்)' : (provider === 'claude' ? 'sk-ant-...' : 'AIza...');
+                $('aiRemoveBtn').style.display = saved ? '' : 'none';
+                statusEl.textContent = (cfg.provider === provider && saved) ? '✅ தற்போது இது செயலில் உள்ளது.' : '';
+                statusEl.className = 'ai-status';
+            }
+            el.querySelectorAll('.ai-seg button').forEach(b => b.addEventListener('click', () => { provider = b.dataset.p; render(); }));
+            render();
+
+            const close = () => el.remove();
+            $('aiClose').addEventListener('click', close);
+            el.addEventListener('click', e => { if (e.target === el) close(); });
+
+            $('aiRemoveBtn').addEventListener('click', () => {
+                localStorage.removeItem(provider + 'ApiKey');
+                if (localStorage.getItem('aiProvider') === provider) localStorage.removeItem('aiProvider');
+                updateAIControls();
+                render();
+                statusEl.textContent = 'Key நீக்கப்பட்டது.';
+            });
+
+            $('aiSaveBtn').addEventListener('click', async () => {
+                const typed = keyInput.value.trim();
+                const key = typed || localStorage.getItem(provider + 'ApiKey') || '';
+                if (!key) { statusEl.className = 'ai-status err'; statusEl.textContent = 'API key இடவும்.'; return; }
+                const saveBtn = $('aiSaveBtn');
+                saveBtn.disabled = true;
+                statusEl.className = 'ai-status';
+                statusEl.textContent = '⏳ இணைப்பைச் சோதிக்கிறது...';
+                try {
+                    const t = await testAIKey(provider, key);
+                    if (!t.ok) { statusEl.className = 'ai-status err'; statusEl.textContent = '❌ ' + t.msg; saveBtn.disabled = false; return; }
+                } catch (e) {
+                    statusEl.className = 'ai-status err';
+                    statusEl.textContent = '❌ ' + (e && e.name === 'AbortError' ? 'பதில் வரவில்லை. மீண்டும் முயற்சிக்கவும்.' : 'இணைக்க முடியவில்லை. Internet-ஐச் சரிபார்க்கவும்.');
+                    saveBtn.disabled = false;
+                    return;
+                }
+                safeSetItem(provider + 'ApiKey', key);
+                safeSetItem('aiProvider', provider);
+                if (provider === 'claude') safeSetItem('claudeModel', $('aiModelSelect').value);
+                updateAIControls();
+                close();
+                showAdminAlert('addAlert', `✅ ${AI_LABEL[provider]} AI இணைக்கப்பட்டது.`, 'success');
+                if (selectedImageFile) setTimeout(() => autoFillDuaFromImage(true), 150);
+            });
         }
 
         // Initialize on load
