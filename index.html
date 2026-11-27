@@ -1872,6 +1872,16 @@ html.dark .ai-status.err { color: #FF9C8B; }
 /* the install banner belongs to Home only (Settings has its own Install row) */
 .header.has-back + .install-banner { display: none; }
 
+/* ---------- show every poster in full (no cropping) ---------- */
+.dua-grid { display: block; column-count: 2; column-gap: 0.85rem; padding: 0.6rem 1rem 1.2rem; }
+@media (min-width: 640px) { .dua-grid { column-count: 3; } }
+@media (min-width: 960px) { .dua-grid { column-count: 4; } }
+.dua-grid .dua-card { display: flex; break-inside: avoid; -webkit-column-break-inside: avoid; page-break-inside: avoid; margin-bottom: 0.85rem; }
+.dua-grid .empty-state { column-span: all; }
+.dua-thumb { aspect-ratio: auto; min-height: 160px; background: #0B2A25; }
+.dua-thumb img { height: auto; object-fit: contain; }
+.daily-thumb { aspect-ratio: auto; height: auto; max-height: 170px; object-fit: contain; }
+
 </style>
 </head>
 <body>
