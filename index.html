@@ -1914,6 +1914,22 @@ html.dark .ai-status.err { color: #FF9C8B; }
 
 .btn-install.done { background: transparent; color: var(--accent-text); border: 1px solid var(--accent-text); }
 
+/* small cards: long Tamil titles must wrap, never be cut off at the edge */
+.dua-grid.compact .dua-card { min-width: 0; }
+.dua-grid.compact .dua-card-body { padding: 0.35rem 0.4rem 0.45rem; min-width: 0; }
+.dua-grid.compact .dua-card-title {
+    font-size: 0.72rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.dua-grid .dua-card-title { overflow-wrap: anywhere; }
+.dua-grid .dua-card-body { min-height: 0; }
+
 </style>
 </head>
 <body>
