@@ -1912,6 +1912,8 @@ html.dark .ai-status.err { color: #FF9C8B; }
 .install-banner-text p { font-size: 0.76rem; margin: 0; line-height: 1.4; }
 .install-banner .btn-install { padding: 0.45rem 0.9rem; font-size: 0.85rem; }
 
+.btn-install.done { background: transparent; color: var(--accent-text); border: 1px solid var(--accent-text); }
+
 </style>
 </head>
 <body>
@@ -2201,7 +2203,8 @@ html.dark .ai-status.err { color: #FF9C8B; }
                             <button class="btn-install" id="settingsInstallBtn" type="button">நிறுவு</button>
                         </div>
                         <div class="settings-item" id="installedRow" style="display:none;">
-                            <span>✓ இந்த phone-ல் நிறுவப்பட்டுள்ளது</span>
+                            <span>இந்த phone-ல் நிறுவப்பட்டுள்ளது</span>
+                            <button class="btn-install done" id="settingsInstalledBtn" type="button">✓ Installed</button>
                         </div>
                         <div class="settings-item">
                             <span>App-ஐ மற்றவர்களுக்குப் பகிர்</span>
@@ -3268,7 +3271,10 @@ html.dark .ai-status.err { color: #FF9C8B; }
             let title = 'App-ஐ phone-ல் நிறுவ';
             let note = '';
             let steps;
-            if (inApp) {
+            if (isStandalone()) {
+                title = 'App நிறுவப்பட்டுள்ளது ✓';
+                steps = ['இந்த app உங்கள் phone-ல் ஏற்கனவே நிறுவப்பட்டுள்ளது.', 'வேறொருவருக்கு அனுப்ப கீழே “Link-ஐ copy செய்” அல்லது Settings-ல் “பகிர்” அழுத்தவும். அவர்கள் அந்த link-ஐ Chrome-ல் திறந்து Install செய்யலாம்.'];
+            } else if (inApp) {
                 title = 'முதலில் browser-ல் திறக்கவும்';
                 note = 'நீங்கள் WhatsApp / Facebook போன்ற app-க்குள் திறந்திருக்கிறீர்கள்; அங்கே நிறுவ முடியாது.';
                 steps = ios
@@ -3376,6 +3382,8 @@ html.dark .ai-status.err { color: #FF9C8B; }
                 safeSetItem('installBannerDismissed', String(Date.now()));
                 updateInstallUI();
             });
+            const settingsInstalled = document.getElementById('settingsInstalledBtn');
+            if (settingsInstalled) settingsInstalled.addEventListener('click', openInstallHelp);
             const settingsInstall = document.getElementById('settingsInstallBtn');
             if (settingsInstall) settingsInstall.addEventListener('click', handleInstall);
             const shareBtn = document.getElementById('shareAppBtn');
