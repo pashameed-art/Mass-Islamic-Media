@@ -1,4 +1,4 @@
-const CACHE = 'mass-islamic-media-v4';
+const CACHE = 'mass-islamic-media-v5';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -26,7 +26,7 @@ self.addEventListener('fetch', (e) => {
   // page: network first (so updates arrive), cache as offline fallback
   if (req.mode === 'navigate') {
     e.respondWith(
-      fetch(req)
+      fetch(req.url, { cache: 'no-cache' })   // always ask the server, never a stale 10-minute browser copy
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put('./index.html', copy));

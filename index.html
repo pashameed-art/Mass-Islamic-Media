@@ -16,6 +16,7 @@
     
     <title>Mass Islamic Media</title>
     
+    <script>try{var _t=localStorage.getItem("theme");if(_t&&_t!=="emerald")document.documentElement.setAttribute("data-theme",_t);if(localStorage.getItem("darkMode")==="true")document.documentElement.classList.add("dark");}catch(e){}</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;500;600&family=Noto+Serif+Tamil:wght@500;700&family=Cormorant+Garamond:wght@600;700&display=swap" media="print" onload="this.media='all'">
@@ -1198,38 +1199,16 @@
 @media (max-width: 640px) { .dua-image { max-height: 88vh; } }
 .install-banner.hidden { display: none; }
 .modal-zoom-controls { top: 1rem; right: 1rem; transform: none; flex-direction: row; }
-
-/* ===================================================================
-   PREMIUM THEME — Zamrud & Ponn (emerald & antique gold)
-   =================================================================== */
-:root {
-    --primary-color: #0B5D4F;
-    --primary-dark: #062B25;
-    --accent-text: #0B5D4F;
-    --text-dark: #10231F;
-    --bg-light: #F1F4F1;
-    --bg-card: #FFFFFF;
-    --border-light: rgba(16, 35, 31, 0.10);
-    --ink-soft: #5C6F69;
-    --gold: #B8923A;
-    --gold-2: #E4CB8B;
-    --shadow: 0 1px 2px rgba(6, 43, 37, 0.06), 0 10px 26px -14px rgba(6, 43, 37, 0.28);
-    --font-head: 'Noto Serif Tamil', 'Cormorant Garamond', Georgia, serif;
-    --font-body: 'Noto Sans Tamil', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cg fill='none' stroke='%23E4CB8B' stroke-opacity='.14' stroke-width='1'%3E%3Crect x='10' y='10' width='24' height='24'/%3E%3Crect x='10' y='10' width='24' height='24' transform='rotate(45 22 22)'/%3E%3C/g%3E%3C/svg%3E");
-}
-
-html.dark {
-    --primary-color: #14705F;
-    --primary-dark: #062B25;
-    --accent-text: #8FDCC6;
-    --text-dark: #E9F1ED;
-    --bg-light: #07110F;
-    --bg-card: #0E1F1B;
-    --border-light: rgba(228, 203, 139, 0.15);
-    --ink-soft: #93A8A1;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 12px 30px -16px rgba(0, 0, 0, 0.8);
-}
+/* ===== PREMIUM THEME (colours come from variables so the Theme setting can change them) ===== */
+:root { --gold:#B8923A; --gold-2:#E4CB8B; --font-head:'Noto Serif Tamil', 'Cormorant Garamond', Georgia, serif; --font-body:'Noto Sans Tamil', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cg fill='none' stroke='%23E4CB8B' stroke-opacity='.14' stroke-width='1'%3E%3Crect x='10' y='10' width='24' height='24'/%3E%3Crect x='10' y='10' width='24' height='24' transform='rotate(45 22 22)'/%3E%3C/g%3E%3C/svg%3E"); }
+:root { --deep:#062B25; --mid:#0B5D4F; --bright:#137F6B; --mid2:#0B4A3E; --mid3:#0E6B5B; --mid4:#11806D; --mid5:#07352D; --mid6:#0B3F35; --chip:#12392F; --night:#04100D; --thumb:#0B2A25; --deep-rgb:6 43 37; --night-rgb:3 12 10; --ink-rgb:16 35 31; --nav-rgb:14 31 27; --primary-color:#0B5D4F; --primary-dark:#062B25; --accent-text:#0B5D4F; --text-dark:#10231F; --bg-light:#F1F4F1; --bg-card:#FFFFFF; --ink-soft:#5C6F69; --border-light:rgb(16 35 31 / 0.10); --shadow:0 1px 2px rgb(6 43 37 / 0.06), 0 10px 26px -14px rgb(6 43 37 / 0.28); }
+html.dark { --primary-color:#14705F; --accent-text:#8FDCC6; --text-dark:#E9F1ED; --bg-light:#07110F; --bg-card:#0E1F1B; --ink-soft:#93A8A1; --nav-rgb:14 31 27; --border-light:rgb(228 203 139 / 0.15); --shadow:0 1px 2px rgb(0 0 0 / 0.45), 0 12px 30px -16px rgb(0 0 0 / 0.8); }
+html[data-theme="royal"] { --deep:#081B3A; --mid:#1C4E94; --bright:#2A6BC0; --mid2:#153E78; --mid3:#1B5AAA; --mid4:#2563B5; --mid5:#0B2A55; --mid6:#12356A; --chip:#152F5E; --night:#040C1E; --thumb:#0A1E40; --deep-rgb:8 27 58; --night-rgb:4 12 30; --ink-rgb:15 27 51; --nav-rgb:14 26 48; --primary-color:#1C4E94; --primary-dark:#081B3A; --accent-text:#1C4E94; --text-dark:#0F1B33; --bg-light:#F0F3F8; --bg-card:#FFFFFF; --ink-soft:#5A6A85; --border-light:rgb(15 27 51 / 0.10); --shadow:0 1px 2px rgb(8 27 58 / 0.06), 0 10px 26px -14px rgb(8 27 58 / 0.28); }
+html.dark[data-theme="royal"] { --primary-color:#1F5AA8; --accent-text:#9CC4FF; --text-dark:#E8EEF8; --bg-light:#060D1A; --bg-card:#0E1A30; --ink-soft:#94A5C0; --nav-rgb:14 26 48; --border-light:rgb(228 203 139 / 0.15); --shadow:0 1px 2px rgb(0 0 0 / 0.45), 0 12px 30px -16px rgb(0 0 0 / 0.8); }
+html[data-theme="maroon"] { --deep:#3A0D1F; --mid:#7A1F3D; --bright:#A12E52; --mid2:#5E1630; --mid3:#8C2646; --mid4:#A63358; --mid5:#4A1026; --mid6:#581530; --chip:#4A1830; --night:#1A0610; --thumb:#2E0A18; --deep-rgb:58 13 31; --night-rgb:26 6 16; --ink-rgb:42 16 24; --nav-rgb:36 16 23; --primary-color:#7A1F3D; --primary-dark:#3A0D1F; --accent-text:#7A1F3D; --text-dark:#2A1018; --bg-light:#F7F1F3; --bg-card:#FFFFFF; --ink-soft:#7A5A64; --border-light:rgb(42 16 24 / 0.10); --shadow:0 1px 2px rgb(58 13 31 / 0.06), 0 10px 26px -14px rgb(58 13 31 / 0.28); }
+html.dark[data-theme="maroon"] { --primary-color:#8C2646; --accent-text:#F2B8C8; --text-dark:#F6E9ED; --bg-light:#12060B; --bg-card:#241017; --ink-soft:#B89AA4; --nav-rgb:36 16 23; --border-light:rgb(228 203 139 / 0.15); --shadow:0 1px 2px rgb(0 0 0 / 0.45), 0 12px 30px -16px rgb(0 0 0 / 0.8); }
+html[data-theme="charcoal"] { --deep:#15181C; --mid:#2A3038; --bright:#3A424D; --mid2:#20262D; --mid3:#2F3640; --mid4:#3B4350; --mid5:#181C21; --mid6:#1C2127; --chip:#262C34; --night:#0A0C0F; --thumb:#14181C; --deep-rgb:21 24 28; --night-rgb:10 12 15; --ink-rgb:26 29 33; --nav-rgb:21 24 29; --primary-color:#2A3038; --primary-dark:#15181C; --accent-text:#2A3038; --text-dark:#1A1D21; --bg-light:#F3F3F2; --bg-card:#FFFFFF; --ink-soft:#666B72; --border-light:rgb(26 29 33 / 0.10); --shadow:0 1px 2px rgb(21 24 28 / 0.06), 0 10px 26px -14px rgb(21 24 28 / 0.28); }
+html.dark[data-theme="charcoal"] { --primary-color:#3A424D; --accent-text:#E4CB8B; --text-dark:#ECEDEE; --bg-light:#0B0D10; --bg-card:#15181D; --ink-soft:#9AA0A8; --nav-rgb:21 24 29; --border-light:rgb(228 203 139 / 0.15); --shadow:0 1px 2px rgb(0 0 0 / 0.45), 0 12px 30px -16px rgb(0 0 0 / 0.8); }
 
 html { -webkit-text-size-adjust: 100%; }
 
@@ -1260,9 +1239,9 @@ button, input, select, textarea { font-family: inherit; }
     column-gap: 0.75rem;
     text-align: left;
     padding: calc(0.8rem + env(safe-area-inset-top, 0px)) 1rem 0.8rem;
-    background: var(--pattern) 0 0 / 44px 44px, linear-gradient(160deg, #0B5D4F 0%, #062B25 72%);
+    background: var(--pattern) 0 0 / 44px 44px, linear-gradient(160deg, var(--mid) 0%, var(--deep) 72%);
     border-bottom: 1px solid rgba(228, 203, 139, 0.4);
-    box-shadow: 0 10px 24px -16px rgba(6, 43, 37, 0.7);
+    box-shadow: 0 10px 24px -16px rgb(var(--deep-rgb) / 0.7);
 }
 
 .header h1 {
@@ -1285,7 +1264,7 @@ button, input, select, textarea { font-family: inherit; }
     place-items: center;
     border-radius: 50%;
     border: 1px solid rgba(228, 203, 139, 0.6);
-    background: rgba(6, 43, 37, 0.55);
+    background: rgb(var(--deep-rgb) / 0.55);
     font-size: 0;
 }
 
@@ -1369,8 +1348,8 @@ button, input, select, textarea { font-family: inherit; }
     border: none;
     border-radius: 22px;
     color: #FBF3DA;
-    background: var(--pattern) 0 0 / 44px 44px, radial-gradient(120% 140% at 0% 0%, #137F6B 0%, #0B5D4F 38%, #062B25 100%);
-    box-shadow: 0 18px 36px -18px rgba(6, 43, 37, 0.75), inset 0 0 0 1px rgba(228, 203, 139, 0.5);
+    background: var(--pattern) 0 0 / 44px 44px, radial-gradient(120% 140% at 0% 0%, var(--bright) 0%, var(--mid) 38%, var(--deep) 100%);
+    box-shadow: 0 18px 36px -18px rgb(var(--deep-rgb) / 0.75), inset 0 0 0 1px rgba(228, 203, 139, 0.5);
     transition: transform 0.15s;
 }
 .daily-card::before {
@@ -1381,7 +1360,7 @@ button, input, select, textarea { font-family: inherit; }
     border-radius: 16px;
     pointer-events: none;
 }
-.daily-card:hover { transform: none; box-shadow: 0 18px 36px -18px rgba(6, 43, 37, 0.75), inset 0 0 0 1px rgba(228, 203, 139, 0.5); }
+.daily-card:hover { transform: none; box-shadow: 0 18px 36px -18px rgb(var(--deep-rgb) / 0.75), inset 0 0 0 1px rgba(228, 203, 139, 0.5); }
 .daily-card:active { transform: scale(0.99); }
 .daily-card > * { grid-column: 1; }
 .daily-card > .daily-thumb { grid-column: 2; grid-row: 1 / span 3; }
@@ -1419,7 +1398,7 @@ button, input, select, textarea { font-family: inherit; }
     border-radius: 12px;
     border: 1px solid var(--gold-2);
     box-shadow: 0 10px 22px -8px rgba(0, 0, 0, 0.6);
-    background: #0B2A25;
+    background: var(--thumb);
 }
 .daily-thumb[hidden] { display: none; }
 
@@ -1473,7 +1452,7 @@ button, input, select, textarea { font-family: inherit; }
     border-color: var(--gold);
     color: var(--gold-2);
 }
-html.dark .category-btn.active { background: #12392F; }
+html.dark .category-btn.active { background: var(--chip); }
 
 /* ---------- Dua poster cards ---------- */
 .dua-grid {
@@ -1499,10 +1478,10 @@ html.dark .category-btn.active { background: #12392F; }
     position: relative;
     aspect-ratio: 4 / 5;
     overflow: hidden;
-    background: #0B2A25;
+    background: var(--thumb);
 }
 .dua-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.dua-thumb::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 -36px 36px -28px rgba(6, 43, 37, 0.6); pointer-events: none; }
+.dua-thumb::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 -36px 36px -28px rgb(var(--deep-rgb) / 0.6); pointer-events: none; }
 .dua-chip {
     position: absolute;
     top: 0.5rem;
@@ -1514,7 +1493,7 @@ html.dark .category-btn.active { background: #12392F; }
     display: grid;
     place-items: center;
     border-radius: 999px;
-    background: rgba(6, 43, 37, 0.66);
+    background: rgb(var(--deep-rgb) / 0.66);
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
     border: 1px solid rgba(228, 203, 139, 0.5);
@@ -1560,9 +1539,9 @@ html.dark .category-btn.active { background: #12392F; }
     -webkit-backdrop-filter: blur(18px) saturate(1.4);
     backdrop-filter: blur(18px) saturate(1.4);
     border: 1px solid var(--border-light);
-    box-shadow: 0 16px 34px -14px rgba(6, 43, 37, 0.5);
+    box-shadow: 0 16px 34px -14px rgb(var(--deep-rgb) / 0.5);
 }
-html.dark .nav-bottom { background: rgba(14, 31, 27, 0.86); border-color: rgba(228, 203, 139, 0.2); }
+html.dark .nav-bottom { background: rgb(var(--nav-rgb) / 0.86); border-color: rgba(228, 203, 139, 0.2); }
 .nav-btn {
     position: relative;
     flex: 1;
@@ -1587,30 +1566,30 @@ html.dark .nav-bottom { background: rgba(14, 31, 27, 0.86); border-color: rgba(2
 
 /* ---------- Poster viewer ---------- */
 .modal {
-    background: rgba(3, 12, 10, 0.9);
+    background: rgb(var(--night-rgb) / 0.9);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     padding: 0.75rem;
 }
 .modal-content {
     border-radius: 22px;
-    background: #04100D;
+    background: var(--night);
     box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(228, 203, 139, 0.4);
     max-height: 92vh;
     max-height: 92dvh;
 }
-.modal-controls { padding: 0.85rem; background: linear-gradient(to bottom, rgba(3, 12, 10, 0.7), transparent); }
+.modal-controls { padding: 0.85rem; background: linear-gradient(to bottom, rgb(var(--night-rgb) / 0.7), transparent); }
 .icon-btn, .zoom-btn, .swipe-arrow {
     display: grid;
     place-items: center;
-    background: rgba(6, 43, 37, 0.58);
+    background: rgb(var(--deep-rgb) / 0.58);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(228, 203, 139, 0.42);
     color: var(--gold-2);
     font-size: 0;
 }
-.icon-btn:hover, .zoom-btn:hover, .swipe-arrow:hover { background: rgba(6, 43, 37, 0.8); transform: none; }
+.icon-btn:hover, .zoom-btn:hover, .swipe-arrow:hover { background: rgb(var(--deep-rgb) / 0.8); transform: none; }
 .icon-btn svg, .zoom-btn svg, .swipe-arrow svg { width: 20px; height: 20px; }
 .zoom-btn, .swipe-arrow { width: 40px; height: 40px; }
 .swipe-arrows { padding: 0 0.6rem; }
@@ -1621,7 +1600,7 @@ html.dark .nav-bottom { background: rgba(14, 31, 27, 0.86); border-color: rgba(2
     align-items: flex-end;
     gap: 0.8rem;
     padding: 3.2rem 1rem 1rem;
-    background: linear-gradient(to top, rgba(3, 12, 10, 0.94) 28%, transparent);
+    background: linear-gradient(to top, rgb(var(--night-rgb) / 0.94) 28%, transparent);
 }
 .modal-meta { flex: 1; min-width: 0; }
 .modal-meta .m-title { font-family: var(--font-head); font-size: 1.08rem; font-weight: 700; line-height: 1.4; color: #FFF7DF; }
@@ -1636,7 +1615,7 @@ html.dark .nav-bottom { background: rgba(14, 31, 27, 0.86); border-color: rgba(2
     overflow: hidden;
 }
 .modal-actions { display: flex; gap: 0.5rem; flex: none; }
-#favoriteBtn.on { background: linear-gradient(180deg, #E4CB8B, #B8923A); color: #062B25; border-color: transparent; }
+#favoriteBtn.on { background: linear-gradient(180deg, #E4CB8B, #B8923A); color: var(--deep); border-color: transparent; }
 
 /* ---------- Settings ---------- */
 .settings-container { padding: 1.25rem 1rem; }
@@ -1662,7 +1641,7 @@ html.dark .nav-bottom { background: rgba(14, 31, 27, 0.86); border-color: rgba(2
     border-radius: 0;
 }
 .settings-item:last-child { border-bottom: none; }
-.toggle-switch { width: 52px; height: 30px; border-radius: 999px; background: rgba(16, 35, 31, 0.2); flex: none; }
+.toggle-switch { width: 52px; height: 30px; border-radius: 999px; background: rgb(var(--ink-rgb) / 0.2); flex: none; }
 html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
 .toggle-switch::after { top: 3px; left: 3px; width: 24px; height: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }
 .toggle-switch.active { background: var(--primary-color); }
@@ -1730,12 +1709,12 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
 .btn-save {
     border: 1px solid rgba(228, 203, 139, 0.6);
     border-radius: 14px;
-    background: linear-gradient(180deg, #0E6B5B, #062B25);
+    background: linear-gradient(180deg, var(--mid3), var(--deep));
     color: #FBF3DA;
     font-weight: 600;
     padding: 0.85rem 1rem;
 }
-.btn-save:hover { background: linear-gradient(180deg, #11806D, #07352D); transform: none; box-shadow: none; }
+.btn-save:hover { background: linear-gradient(180deg, var(--mid4), var(--mid5)); transform: none; box-shadow: none; }
 .btn-cancel { border-radius: 14px; background: transparent; color: var(--text-dark); border: 1px solid var(--border-light); }
 .btn-cancel:hover { background: var(--bg-light); }
 .btn-small {
@@ -1744,19 +1723,19 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
     color: var(--gold-2);
     border: 1px solid rgba(228, 203, 139, 0.45);
 }
-.btn-small:hover { background: #0B3F35; transform: none; }
+.btn-small:hover { background: var(--mid6); transform: none; }
 .btn-small.secondary { background: transparent; color: var(--text-dark); border: 1px solid var(--border-light); }
 .btn-small.secondary:hover { background: var(--bg-light); }
 .backup-item { border-radius: 14px; background: var(--bg-light); border: 1px solid var(--border-light); }
 .alert { border-radius: 14px; }
 
 /* ---------- PIN ---------- */
-.pin-modal { background: rgba(3, 12, 10, 0.84); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.pin-modal { background: rgb(var(--night-rgb) / 0.84); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .pin-container {
     padding: 1.5rem 1.25rem 1.1rem;
     border-radius: 26px;
     color: #FBF3DA;
-    background: linear-gradient(170deg, #0B4A3E, #062B25);
+    background: linear-gradient(170deg, var(--mid2), var(--deep));
     border: 1px solid rgba(228, 203, 139, 0.45);
     box-shadow: 0 30px 80px -20px #000;
 }
@@ -1787,7 +1766,7 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
 }
 .pin-key:hover { background: rgba(255, 255, 255, 0.13); }
 .pin-key.delete { background: rgba(255, 255, 255, 0.03); color: rgba(251, 243, 218, 0.7); }
-.pin-key.submit { background: linear-gradient(180deg, #E4CB8B, #B8923A); color: #062B25; border-color: transparent; }
+.pin-key.submit { background: linear-gradient(180deg, #E4CB8B, #B8923A); color: var(--deep); border-color: transparent; }
 #pinCancelBtn {
     margin-top: 0.7rem !important;
     padding: 0.55rem !important;
@@ -1814,7 +1793,7 @@ html.dark .toggle-switch { background: rgba(255, 255, 255, 0.18); }
 .ai-modal {
     position: fixed; inset: 0; z-index: 4000;
     display: flex; align-items: flex-end; justify-content: center;
-    background: rgba(3, 12, 10, 0.78);
+    background: rgb(var(--night-rgb) / 0.78);
     -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
 }
 .ai-sheet {
@@ -1878,9 +1857,60 @@ html.dark .ai-status.err { color: #FF9C8B; }
 @media (min-width: 960px) { .dua-grid { column-count: 4; } }
 .dua-grid .dua-card { display: flex; break-inside: avoid; -webkit-column-break-inside: avoid; page-break-inside: avoid; margin-bottom: 0.85rem; }
 .dua-grid .empty-state { column-span: all; }
-.dua-thumb { aspect-ratio: auto; min-height: 160px; background: #0B2A25; }
+.dua-thumb { aspect-ratio: auto; min-height: 160px; background: var(--thumb); }
 .dua-thumb img { height: auto; object-fit: contain; }
 .daily-thumb { aspect-ratio: auto; height: auto; max-height: 170px; object-fit: contain; }
+
+/* ---------- compact header ---------- */
+.header { padding: calc(0.55rem + env(safe-area-inset-top, 0px)) 1rem 0.55rem; }
+.header h1 { font-size: 1.1rem; gap: 0.6rem; }
+.header-icon, .header-back { width: 34px; height: 34px; }
+.header-icon svg { width: 18px; height: 18px; }
+.tagline { font-size: 0.66rem; margin-left: calc(34px + 0.6rem); }
+.btn-header { width: 38px; height: 38px; }
+.btn-header svg { width: 18px; height: 18px; }
+.header-actions { gap: 0.4rem; }
+
+/* ---------- card sizes ---------- */
+.dua-grid .dua-card-title { font-size: 0.92rem; }
+.dua-grid .dua-card-desc { font-size: 0.75rem; }
+.dua-grid .dua-card-body { padding: 0.6rem 0.7rem 0.75rem; }
+
+.dua-grid.compact { column-count: 3; column-gap: 0.6rem; padding: 0.5rem 0.75rem 1rem; }
+@media (min-width: 640px) { .dua-grid.compact { column-count: 4; } }
+@media (min-width: 960px) { .dua-grid.compact { column-count: 6; } }
+.dua-grid.compact .dua-card { margin-bottom: 0.6rem; border-radius: 14px; }
+.dua-grid.compact .dua-card-desc { display: none; }
+.dua-grid.compact .dua-card-title { font-size: 0.76rem; margin: 0; line-height: 1.35; }
+.dua-grid.compact .dua-card-body { padding: 0.4rem 0.5rem 0.5rem; }
+.dua-grid.compact .dua-chip { min-width: 22px; height: 22px; padding: 0 0.3rem; font-size: 0.7rem; top: 0.35rem; left: 0.35rem; }
+.dua-grid.compact .dua-thumb { min-height: 100px; }
+
+#viewToggleBtn {
+    width: 40px; height: 40px; flex: none;
+    display: grid; place-items: center;
+    padding: 0; border: none; border-radius: 12px; background: none; color: var(--ink-soft); cursor: pointer;
+}
+#viewToggleBtn svg { width: 20px; height: 20px; }
+
+/* ---------- theme swatches ---------- */
+.theme-swatches { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+.theme-swatch { display: grid; justify-items: center; gap: 0.3rem; padding: 0; background: none; border: none; color: var(--text-dark); font-size: 0.72rem; cursor: pointer; }
+.theme-swatch i {
+    width: 46px; height: 46px; border-radius: 50%; display: block;
+    background: linear-gradient(135deg, var(--a), var(--b));
+    border: 2px solid var(--border-light); box-shadow: inset 0 0 0 2px rgba(228, 203, 139, 0.5);
+}
+.theme-swatch.on i { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184, 146, 58, 0.35), inset 0 0 0 2px rgba(228, 203, 139, 0.7); }
+.theme-swatch.on span { font-weight: 600; color: var(--accent-text); }
+
+/* ---------- search row fit + slimmer install banner ---------- */
+.search-box input { flex: 1; min-width: 0; }
+.search-box #viewToggleBtn, .search-box #advancedSearchBtn { flex: none; }
+.install-banner { margin: 0.7rem 1rem 0; padding: 0.6rem 0.7rem 0.6rem 1rem; border-radius: 14px; }
+.install-banner-text h3 { font-size: 0.9rem; margin: 0; }
+.install-banner-text p { font-size: 0.76rem; margin: 0; line-height: 1.4; }
+.install-banner .btn-install { padding: 0.45rem 0.9rem; font-size: 0.85rem; }
 
 </style>
 </head>
@@ -1894,6 +1924,7 @@ html.dark .ai-status.err { color: #FF9C8B; }
             </h1>
             <p class="tagline">Knowledge • Dawah • Duas</p>
             <div class="header-actions">
+                <button class="btn-header" id="shareAppBtn" type="button" aria-label="Share app" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4"/><path d="M7.5 8.2L12 3.8l4.5 4.4"/><path d="M5 13v5.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V13"/></svg></button>
                 <button class="btn-header" id="installBtn" type="button" aria-label="Install app">
                     <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11l4.5 4.5 4.5-4.5"/><path d="M5 19.5h14"/></svg></span>
                     <span>Install App</span>
@@ -1908,8 +1939,8 @@ html.dark .ai-status.err { color: #FF9C8B; }
         <!-- Install Banner -->
         <div class="install-banner hidden" id="installBanner">
             <div class="install-banner-text">
-                <h3>App-ஐ phone-ல் நிறுவுங்கள்</h3>
-                <p>Home Screen-ல் சேர்த்தால் தனி app போல விரைவாகத் திறக்கும்</p>
+                <h3>App-ஐ நிறுவுங்கள்</h3>
+                <p>தனி app போல விரைவாகத் திறக்கும்</p>
             </div>
             <button class="btn-install" id="installBannerBtn" type="button">நிறுவு</button>
             <button class="banner-close" id="installBannerClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -1935,7 +1966,8 @@ html.dark .ai-status.err { color: #FF9C8B; }
                     <div class="search-box">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
                         <input type="text" id="searchInput" placeholder="துஆவைத் தேடுக...">
-                        <button id="advancedSearchBtn" type="button" aria-label="Filter" style="background: none; border: none; cursor: pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button>
+                        <button id="viewToggleBtn" type="button" aria-label="Card size"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></button>
+                    <button id="advancedSearchBtn" type="button" aria-label="Filter" style="background: none; border: none; cursor: pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button>
                     </div>
                     
                     <!-- Advanced Search -->
@@ -2155,14 +2187,25 @@ html.dark .ai-status.err { color: #FF9C8B; }
                             <span>Dark Mode</span>
                             <div class="toggle-switch" id="darkModeToggle"></div>
                         </div>
+                        <div class="settings-item" style="flex-direction: column; align-items: flex-start; gap: 0.7rem;">
+                            <span>Theme (நிறம்)</span>
+                            <div class="theme-swatches" id="themeSwatches"><button type="button" class="theme-swatch" data-theme="emerald" aria-label="மரகதம்"><i style="--a:#137F6B;--b:#062B25"></i><span>மரகதம்</span></button><button type="button" class="theme-swatch" data-theme="royal" aria-label="நீலம்"><i style="--a:#2A6BC0;--b:#081B3A"></i><span>நீலம்</span></button><button type="button" class="theme-swatch" data-theme="maroon" aria-label="மெரூன்"><i style="--a:#A12E52;--b:#3A0D1F"></i><span>மெரூன்</span></button><button type="button" class="theme-swatch" data-theme="charcoal" aria-label="கருப்பு"><i style="--a:#3A424D;--b:#15181C"></i><span>கருப்பு</span></button></div>
+                        </div>
                     </div>
 
                     <!-- Admin -->
                     <div class="settings-group" id="installSettingsGroup">
                         <h3>App</h3>
-                        <div class="settings-item">
+                        <div class="settings-item" id="installRow">
                             <span>Phone-ல் install செய்</span>
                             <button class="btn-install" id="settingsInstallBtn" type="button">நிறுவு</button>
+                        </div>
+                        <div class="settings-item" id="installedRow" style="display:none;">
+                            <span>✓ இந்த phone-ல் நிறுவப்பட்டுள்ளது</span>
+                        </div>
+                        <div class="settings-item">
+                            <span>App-ஐ மற்றவர்களுக்குப் பகிர்</span>
+                            <button class="btn-install" id="settingsShareBtn" type="button">பகிர்</button>
                         </div>
                     </div>
 
@@ -2183,7 +2226,7 @@ html.dark .ai-status.err { color: #FF9C8B; }
                         <div class="settings-item">
                             <div>
                                 <p style="font-weight: 600;">Mass Islamic Media</p>
-                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 20.15</p>
+                                <p style="font-size: 0.85rem; opacity: 0.7;">Version 21.1 • 27 Nov 2026</p>
                             </div>
                         </div>
                     </div>
@@ -2717,6 +2760,42 @@ html.dark .ai-status.err { color: #FF9C8B; }
             if (btn) btn.setAttribute('aria-label', darkMode ? 'Light mode' : 'Dark mode');
         }
 
+
+        // ---------- Theme (colour) and card size ----------
+        const THEME_COLORS = { emerald: '#062B25', royal: '#081B3A', maroon: '#3A0D1F', charcoal: '#15181C' };
+
+        function applyTheme(name, save) {
+            if (!THEME_COLORS[name]) name = 'emerald';
+            if (name === 'emerald') document.documentElement.removeAttribute('data-theme');
+            else document.documentElement.setAttribute('data-theme', name);
+            if (save) safeSetItem('theme', name);
+            const meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', THEME_COLORS[name]);
+            document.querySelectorAll('.theme-swatch').forEach(b => b.classList.toggle('on', b.dataset.theme === name));
+        }
+
+        const GRID_ICONS = {
+            large: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>',
+            compact: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="4.5" height="4.5" rx="1"/><rect x="9.75" y="3.5" width="4.5" height="4.5" rx="1"/><rect x="16" y="3.5" width="4.5" height="4.5" rx="1"/><rect x="3.5" y="9.75" width="4.5" height="4.5" rx="1"/><rect x="9.75" y="9.75" width="4.5" height="4.5" rx="1"/><rect x="16" y="9.75" width="4.5" height="4.5" rx="1"/><rect x="3.5" y="16" width="4.5" height="4.5" rx="1"/><rect x="9.75" y="16" width="4.5" height="4.5" rx="1"/><rect x="16" y="16" width="4.5" height="4.5" rx="1"/></svg>'
+        };
+        let gridMode = localStorage.getItem('gridMode') === 'compact' ? 'compact' : 'large';
+
+        function applyGridMode() {
+            document.querySelectorAll('.dua-grid').forEach(g => g.classList.toggle('compact', gridMode === 'compact'));
+            const btn = document.getElementById('viewToggleBtn');
+            if (btn) {
+                // the icon shows the size you will switch to
+                btn.innerHTML = gridMode === 'compact' ? GRID_ICONS.large : GRID_ICONS.compact;
+                btn.setAttribute('aria-label', gridMode === 'compact' ? 'பெரிய cards' : 'சிறிய cards');
+            }
+        }
+
+        function toggleGridMode() {
+            gridMode = gridMode === 'compact' ? 'large' : 'compact';
+            safeSetItem('gridMode', gridMode);
+            applyGridMode();
+        }
+
         // ---------- Helpers ----------
         function esc(s) {
             return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
@@ -3109,6 +3188,8 @@ html.dark .ai-status.err { color: #FF9C8B; }
             renderDuas();
             renderDaily();
             attachEventListeners();
+            applyTheme(localStorage.getItem('theme') || 'emerald', false);
+            applyGridMode();
             initAdminPanel();
             updateAdminToggle();
 
@@ -3133,16 +3214,38 @@ html.dark .ai-status.err { color: #FF9C8B; }
                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         }
 
+
         function updateInstallUI() {
             const installed = isStandalone();
             const btn = document.getElementById('installBtn');
             if (btn) btn.style.display = installed ? 'none' : '';
+            const share = document.getElementById('shareAppBtn');
+            if (share) share.style.display = installed ? '' : 'none';
             const last = parseInt(localStorage.getItem('installBannerDismissed'), 10) || 0;
             const dismissed = Date.now() - last < 7 * 24 * 3600 * 1000;
             const banner = document.getElementById('installBanner');
             if (banner) banner.classList.toggle('hidden', installed || dismissed);
-            const group = document.getElementById('installSettingsGroup');
-            if (group) group.style.display = installed ? 'none' : '';
+            const row = document.getElementById('installRow');
+            if (row) row.style.display = installed ? 'none' : '';
+            const done = document.getElementById('installedRow');
+            if (done) done.style.display = installed ? '' : 'none';
+        }
+
+        async function shareApp() {
+            const url = new URL('./', location.href).href;
+            const text = 'Mass Islamic Media — தினமும் ஒரு துஆ. இந்த link-ஐ Chrome-ல் திறந்து “Install” செய்யுங்கள்.';
+            try {
+                if (navigator.share) {
+                    await navigator.share({ title: 'Mass Islamic Media', text, url });
+                } else if (navigator.clipboard) {
+                    await navigator.clipboard.writeText(text + '\n' + url);
+                    alert('✅ Link copy ஆனது');
+                } else {
+                    window.prompt('இந்த link-ஐ copy செய்யவும்:', url);
+                }
+            } catch (e) {
+                if (!e || e.name !== 'AbortError') window.prompt('இந்த link-ஐ copy செய்யவும்:', url);
+            }
         }
 
         function closeInstallHelpUI() {
@@ -3275,6 +3378,13 @@ html.dark .ai-status.err { color: #FF9C8B; }
             });
             const settingsInstall = document.getElementById('settingsInstallBtn');
             if (settingsInstall) settingsInstall.addEventListener('click', handleInstall);
+            const shareBtn = document.getElementById('shareAppBtn');
+            if (shareBtn) shareBtn.addEventListener('click', shareApp);
+            const settingsShare = document.getElementById('settingsShareBtn');
+            if (settingsShare) settingsShare.addEventListener('click', shareApp);
+            const viewBtn = document.getElementById('viewToggleBtn');
+            if (viewBtn) viewBtn.addEventListener('click', toggleGridMode);
+            document.querySelectorAll('.theme-swatch').forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.theme, true)));
             const backBtn = document.getElementById('backBtn');
             if (backBtn) backBtn.addEventListener('click', goBack);
 
