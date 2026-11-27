@@ -1850,6 +1850,28 @@ html.dark .ai-status.err { color: #FF9C8B; }
 .category-btn { min-height: 44px; }
 .dua-card:focus-visible, .daily-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
+/* ---------- in-app back button + install ---------- */
+.header-back { display: none; width: 36px; height: 36px; flex: none; }
+.header.has-back .header-back { display: grid; }
+.header.has-back .header-icon { display: none; }
+.header-back svg { width: 20px; height: 20px; }
+
+.install-banner { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
+.install-banner.hidden { display: none; }
+.install-banner-text { flex: 1; min-width: 0; }
+.banner-close {
+    flex: none; width: 32px; height: 32px; display: grid; place-items: center;
+    background: none; border: none; border-radius: 50%; color: var(--ink-soft); cursor: pointer;
+}
+.banner-close svg { width: 18px; height: 18px; }
+.btn-install { flex: none; cursor: pointer; }
+.install-steps { margin: 0 0 1rem; padding-left: 1.3rem; line-height: 1.7; font-size: 0.95rem; }
+.install-steps li { margin-bottom: 0.55rem; }
+.settings-item .btn-install { padding: 0.45rem 1rem; }
+
+/* the install banner belongs to Home only (Settings has its own Install row) */
+.header.has-back + .install-banner { display: none; }
+
 </style>
 </head>
 <body>
@@ -1857,12 +1879,12 @@ html.dark .ai-status.err { color: #FF9C8B; }
         <!-- Header -->
         <div class="header">
             <h1>
-                <span class="header-icon"><svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true"><path d="M19.5 4.5a11.5 11.5 0 1 0 8 19.6 9.6 9.6 0 0 1-8-19.6z" fill="#E4CB8B"/><path d="M24.5 7.5l.9 2 2.1.3-1.6 1.5.4 2.1-1.8-1-1.9 1 .4-2.1-1.6-1.5 2.1-.3z" fill="#E4CB8B"/></svg></span>
+                <button type="button" class="btn-header header-back" id="backBtn" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><span class="header-icon"><svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true"><path d="M19.5 4.5a11.5 11.5 0 1 0 8 19.6 9.6 9.6 0 0 1-8-19.6z" fill="#E4CB8B"/><path d="M24.5 7.5l.9 2 2.1.3-1.6 1.5.4 2.1-1.8-1-1.9 1 .4-2.1-1.6-1.5 2.1-.3z" fill="#E4CB8B"/></svg></span>
                 <span>Mass Islamic Media</span>
             </h1>
             <p class="tagline">Knowledge • Dawah • Duas</p>
             <div class="header-actions">
-                <button class="btn-header" id="installBtn" style="display:none;">
+                <button class="btn-header" id="installBtn" type="button" aria-label="Install app">
                     <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11l4.5 4.5 4.5-4.5"/><path d="M5 19.5h14"/></svg></span>
                     <span>Install App</span>
                 </button>
@@ -1876,10 +1898,11 @@ html.dark .ai-status.err { color: #FF9C8B; }
         <!-- Install Banner -->
         <div class="install-banner hidden" id="installBanner">
             <div class="install-banner-text">
-                <h3>📱 ஆப்பை நிறுவுங்கள்</h3>
-                <p>Home Screen இல் add செய்யவும் - offline-ல்கூட வேலை செய்யும்</p>
+                <h3>App-ஐ phone-ல் நிறுவுங்கள்</h3>
+                <p>Home Screen-ல் சேர்த்தால் தனி app போல விரைவாகத் திறக்கும்</p>
             </div>
-            <button class="btn-install" id="installBannerBtn">நிறுவு</button>
+            <button class="btn-install" id="installBannerBtn" type="button">நிறுவு</button>
+            <button class="banner-close" id="installBannerClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </div>
 
         <!-- Main Content -->
@@ -2125,6 +2148,14 @@ html.dark .ai-status.err { color: #FF9C8B; }
                     </div>
 
                     <!-- Admin -->
+                    <div class="settings-group" id="installSettingsGroup">
+                        <h3>App</h3>
+                        <div class="settings-item">
+                            <span>Phone-ல் install செய்</span>
+                            <button class="btn-install" id="settingsInstallBtn" type="button">நிறுவு</button>
+                        </div>
+                    </div>
+
                     <div class="settings-group">
                         <h3>Admin Mode</h3>
                         <div class="settings-item">
@@ -2657,18 +2688,6 @@ html.dark .ai-status.err { color: #FF9C8B; }
             }
         }
 
-        function handleInstall() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        document.getElementById('installBanner').classList.add('hidden');
-                        document.getElementById('installBtn').style.display = 'none';
-                    }
-                    deferredPrompt = null;
-                });
-            }
-        }
 
         // ============= FIXES START =============
 
@@ -3059,6 +3078,7 @@ html.dark .ai-status.err { color: #FF9C8B; }
         // ---------- Init ----------
 
         async function init() {
+            try { if (history.state) history.replaceState(null, ''); } catch (_) {}
             initDarkMode();
             updateDarkModeButton();
             initPWA();
@@ -3091,6 +3111,110 @@ html.dark .ai-status.err { color: #FF9C8B; }
 
 
         // ---------- PWA ----------
+
+        function isStandalone() {
+            return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+                   window.navigator.standalone === true ||
+                   (document.referrer || '').startsWith('android-app://');
+        }
+
+        function isIOS() {
+            return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        }
+
+        function updateInstallUI() {
+            const installed = isStandalone();
+            const btn = document.getElementById('installBtn');
+            if (btn) btn.style.display = installed ? 'none' : '';
+            const last = parseInt(localStorage.getItem('installBannerDismissed'), 10) || 0;
+            const dismissed = Date.now() - last < 7 * 24 * 3600 * 1000;
+            const banner = document.getElementById('installBanner');
+            if (banner) banner.classList.toggle('hidden', installed || dismissed);
+            const group = document.getElementById('installSettingsGroup');
+            if (group) group.style.display = installed ? 'none' : '';
+        }
+
+        function closeInstallHelpUI() {
+            const el = document.getElementById('installHelpModal');
+            if (el) el.remove();
+        }
+
+        function closeInstallHelp() {
+            if (!document.getElementById('installHelpModal')) return;
+            closeInstallHelpUI();
+            overlayClosedByUI(closeInstallHelpUI);
+        }
+
+        function openInstallHelp() {
+            closeInstallHelpUI();
+            const ua = navigator.userAgent;
+            const ios = isIOS();
+            const inApp = /FBAN|FBAV|Instagram|WhatsApp|Line\/|Telegram|Snapchat|MicroMessenger|; wv\)/i.test(ua);
+            const iosSafari = ios && /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|FBAN|FBAV|Instagram/i.test(ua);
+            let title = 'App-ஐ phone-ல் நிறுவ';
+            let note = '';
+            let steps;
+            if (inApp) {
+                title = 'முதலில் browser-ல் திறக்கவும்';
+                note = 'நீங்கள் WhatsApp / Facebook போன்ற app-க்குள் திறந்திருக்கிறீர்கள்; அங்கே நிறுவ முடியாது.';
+                steps = ios
+                    ? ['Share பொத்தானை அழுத்தி “Open in Safari” தேர்வு செய்யவும்.', 'Safari-ல் மீண்டும் Install பொத்தானை அழுத்தவும்.']
+                    : ['மேலே வலது மூலையில் ⋮ பொத்தானை அழுத்தி “Open in Chrome” (அல்லது “Browser-ல் திற”) தேர்வு செய்யவும்.', 'Chrome-ல் மீண்டும் Install பொத்தானை அழுத்தவும்.'];
+            } else if (ios && !iosSafari) {
+                note = 'iPhone-ல் Safari மூலம் மட்டுமே நிறுவ முடியும். இந்த link-ஐ Safari-ல் திறக்கவும் (கீழே “Link-ஐ copy செய்” பயன்படுத்தலாம்).';
+                steps = ['Safari-ல் இந்தப் பக்கத்தைத் திறக்கவும்.', 'கீழே Share (பகிர்) பொத்தானை அழுத்தவும்.', '“Add to Home Screen” தேர்வு செய்து, மேலே “Add” அழுத்தவும்.'];
+            } else if (ios) {
+                steps = ['Safari-ல் கீழே உள்ள Share (பகிர்) பொத்தானை அழுத்தவும்.', 'கீழே நகர்ந்து “Add to Home Screen” தேர்வு செய்யவும்.', 'மேலே வலது மூலையில் “Add” அழுத்தவும்.'];
+            } else {
+                steps = ['Chrome-ல் மேலே வலது மூலையில் ⋮ பொத்தானை அழுத்தவும்.', '“Install app” அல்லது “Add to Home screen” தேர்வு செய்யவும்.', '“Install” அழுத்தினால் முடிந்தது.'];
+                note = 'Menu-வில் அந்த வார்த்தை இல்லையென்றால், app ஏற்கனவே நிறுவப்பட்டிருக்கலாம்; Home Screen-ஐப் பாருங்கள்.';
+            }
+
+            const el = document.createElement('div');
+            el.id = 'installHelpModal';
+            el.className = 'ai-modal';
+            el.innerHTML = `
+                <div class="ai-sheet" role="dialog" aria-modal="true" aria-label="Install">
+                    <div class="ai-head"><h3>${esc(title)}</h3><button type="button" class="ai-x" id="installHelpClose" aria-label="Close">✕</button></div>
+                    ${note ? `<p class="ai-hint">${esc(note)}</p>` : ''}
+                    <ol class="install-steps">${steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
+                    <div class="ai-actions">
+                        <button type="button" class="btn-save" id="installHelpCopy">Link-ஐ copy செய்</button>
+                        <button type="button" class="btn-cancel" id="installHelpOk">சரி</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(el);
+            overlayOpen(closeInstallHelpUI);
+
+            el.addEventListener('click', (e) => { if (e.target === el) closeInstallHelp(); });
+            el.querySelector('#installHelpClose').addEventListener('click', closeInstallHelp);
+            el.querySelector('#installHelpOk').addEventListener('click', closeInstallHelp);
+            el.querySelector('#installHelpCopy').addEventListener('click', async () => {
+                const btn = el.querySelector('#installHelpCopy');
+                try {
+                    await navigator.clipboard.writeText(location.href.split('#')[0]);
+                    btn.textContent = '✓ Copy ஆனது';
+                } catch (_) {
+                    window.prompt('இந்த link-ஐ copy செய்யவும்:', location.href.split('#')[0]);
+                }
+            });
+        }
+
+        async function handleInstall() {
+            if (deferredPrompt) {
+                const promptEvent = deferredPrompt;
+                deferredPrompt = null;
+                try {
+                    promptEvent.prompt();
+                    const choice = await promptEvent.userChoice;
+                    if (choice && choice.outcome === 'accepted') updateInstallUI();
+                } catch (_) { openInstallHelp(); }
+                return;
+            }
+            openInstallHelp();
+        }
+
         function initPWA() {
             if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
                 navigator.serviceWorker.register('sw.js').catch(() => {});
@@ -3098,14 +3222,19 @@ html.dark .ai-status.err { color: #FF9C8B; }
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
-                document.getElementById('installBtn').style.display = 'flex';
-                document.getElementById('installBanner').classList.remove('hidden');
             });
             window.addEventListener('appinstalled', () => {
                 deferredPrompt = null;
                 document.getElementById('installBtn').style.display = 'none';
                 document.getElementById('installBanner').classList.add('hidden');
+                const group = document.getElementById('installSettingsGroup');
+                if (group) group.style.display = 'none';
             });
+            if (window.matchMedia) {
+                const mq = window.matchMedia('(display-mode: standalone)');
+                if (mq.addEventListener) mq.addEventListener('change', updateInstallUI);
+            }
+            updateInstallUI();
         }
 
         // ---------- Events ----------
@@ -3129,6 +3258,15 @@ html.dark .ai-status.err { color: #FF9C8B; }
             document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
             document.getElementById('installBtn').addEventListener('click', handleInstall);
             document.getElementById('installBannerBtn').addEventListener('click', handleInstall);
+            const bannerClose = document.getElementById('installBannerClose');
+            if (bannerClose) bannerClose.addEventListener('click', () => {
+                safeSetItem('installBannerDismissed', String(Date.now()));
+                updateInstallUI();
+            });
+            const settingsInstall = document.getElementById('settingsInstallBtn');
+            if (settingsInstall) settingsInstall.addEventListener('click', handleInstall);
+            const backBtn = document.getElementById('backBtn');
+            if (backBtn) backBtn.addEventListener('click', goBack);
 
             document.getElementById('homeNav').addEventListener('click', () => goToPage('home'));
             document.getElementById('favoritesNav').addEventListener('click', () => goToPage('favorites'));
@@ -3350,11 +3488,12 @@ html.dark .ai-status.err { color: #FF9C8B; }
         }
 
         // ---------- Pages ----------
-        function goToPage(page) {
-            if (page === 'admin' && !adminAuthenticated) {
-                showPINModal(adminPIN ? 'verify' : 'setup');
-                return;
-            }
+
+        // Pages other than Home sit on the browser history, so the phone's Back key
+        // and the in-app Back button both return to Home instead of leaving the app.
+        let pageOverlayCloser = null;
+
+        function showPageUI(page) {
             currentPage = page;
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -3375,7 +3514,37 @@ html.dark .ai-status.err { color: #FF9C8B; }
                 document.getElementById('adminNav').classList.add('active');
                 updateAdminStats();
             }
+            const header = document.querySelector('.header');
+            if (header) header.classList.toggle('has-back', page !== 'home');
             window.scrollTo(0, 0);
+        }
+
+        function goToPage(page) {
+            if (page === 'admin' && !adminAuthenticated) {
+                showPINModal(adminPIN ? 'verify' : 'setup');
+                return;
+            }
+            if (page === 'home') {
+                if (pageOverlayCloser) {
+                    const closer = pageOverlayCloser;
+                    pageOverlayCloser = null;
+                    showPageUI('home');
+                    overlayClosedByUI(closer);
+                } else {
+                    showPageUI('home');
+                }
+                return;
+            }
+            if (!pageOverlayCloser) {
+                pageOverlayCloser = () => { pageOverlayCloser = null; showPageUI('home'); };
+                overlayOpen(pageOverlayCloser);
+            }
+            showPageUI(page);
+        }
+
+        function goBack() {
+            if (overlayStack.length) history.back();
+            else goToPage('home');
         }
 
         // ---------- Notifications ----------
@@ -3789,6 +3958,7 @@ html.dark .ai-status.err { color: #FF9C8B; }
         const overlayStack = [];
         let skipPop = 0;
         function overlayOpen(closer) {
+            if (skipPop > 0) { setTimeout(() => overlayOpen(closer), 60); return; }
             overlayStack.push(closer);
             try { history.pushState({ mim: overlayStack.length }, ''); } catch (_) {}
         }
