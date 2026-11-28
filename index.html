@@ -1930,6 +1930,10 @@ html.dark .ai-status.err { color: #FF9C8B; }
 .dua-grid .dua-card-title { overflow-wrap: anywhere; }
 .dua-grid .dua-card-body { min-height: 0; }
 
+/* category icon sits beside the title, never on top of the poster */
+.dua-ico { margin-right: 0.3em; font-size: 0.95em; }
+.dua-chip { display: none; }
+
 </style>
 </head>
 <body>
@@ -3527,10 +3531,9 @@ html.dark .ai-status.err { color: #FF9C8B; }
                 <div class="dua-card" role="button" tabindex="0" onclick="openModal(${jsArg(dua.id)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
                     <div class="dua-thumb">
                         <img src="${esc(dua.image)}" alt="" loading="lazy" decoding="async">
-                        <span class="dua-chip">${esc(getCategoryIcon(dua.category))}</span>
                     </div>
                     <div class="dua-card-body">
-                        <div class="dua-card-title">${esc(dua.title)}</div>
+                        <div class="dua-card-title"><span class="dua-ico" aria-hidden="true">${esc(getCategoryIcon(dua.category))}</span>${esc(dua.title)}</div>
                         <div class="dua-card-desc">${esc(dua.description)}</div>
                     </div>
                 </div>`;
