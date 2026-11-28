@@ -3821,6 +3821,7 @@ html.dark .ai-status.err { color: #FF9C8B; }
                 return;
             }
             const token = ++imageToken;
+            lastAIFill = null;
             showAdminAlert('addAlert', '⏳ படம் தயாராகிறது...', 'info');
 
             compressImage(file, (res) => {
@@ -3884,6 +3885,7 @@ html.dark .ai-status.err { color: #FF9C8B; }
                     return;
                 }
 
+                recordAICorrection({ title, category, description });
                 showAdminAlert('addAlert', '✅ துஆ சேர்க்கப்பட்டது! எல்லோருக்கும் தெரிய Backup tab-ல் Publish செய்யவும்.', 'success');
                 document.getElementById('addDuaForm').reset();
                 resetImageSelection();
@@ -4457,33 +4459,114 @@ html.dark .ai-status.err { color: #FF9C8B; }
             return JSON.parse(out);
         }
 
+
+        // ---- what the editor corrected after earlier AI fills (the AI learns from these) ----
+        let aiCorrections = readJSON('aiCorrections', []);
+        let lastAIFill = null;
+
+        function recordAICorrection(final) {
+            const ai = lastAIFill;
+            lastAIFill = null;
+            if (!ai) return;
+            const diff = {};
+            const clean = s => String(s || '').replace(/\s+/g, ' ').trim();
+            if (clean(final.title) !== clean(ai.title)) diff.title = [ai.title, final.title];
+            if (String(final.category) !== String(ai.categoryId)) diff.category = [ai.categoryId || '(none)', final.category];
+            if (clean(final.description) !== clean(ai.description)) diff.description = [ai.description, final.description];
+            if (!Object.keys(diff).length) return;
+            aiCorrections.push(diff);
+            aiCorrections = aiCorrections.slice(-10);
+            safeSetItem('aiCorrections', JSON.stringify(aiCorrections));
+        }
+
         function buildAIPrompt() {
-            const cats = categories.filter(c => c.id !== 'all').map(c => ({
-                id: c.id,
-                name: c.name,
-                examples: duasData.filter(d => d.category === c.id).slice(0, 3).map(d => d.title)
-            }));
-            const styleExamples = duasData.slice(0, 3).map(d => ({ title: d.title, description: d.description }));
+            const own = duasData.filter(d => !BUILTIN_IDS.has(String(d.id)));                 // the editor's real posters
+            const pick = (cat) => {
+                const mine = own.filter(d => d.category === cat).slice(-4);
+                const base = duasData.filter(d => d.category === cat && BUILTIN_IDS.has(String(d.id))).slice(0, Math.max(0, 3 - mine.length));
+                return mine.concat(base).map(d => d.title);
+            };
+            const cats = categories.filter(c => c.id !== 'all').map(c => ({ id: c.id, name: c.name, exampleTitles: pick(c.id) }));
+            const exSource = own.length >= 3 ? own.slice(-6) : own.concat(duasData.filter(d => BUILTIN_IDS.has(String(d.id)))).slice(0, 6);
+            const examples = exSource.map(d => ({ title: d.title, categoryId: d.category, description: d.description }));
+            const titles = duasData.map(d => d.title).slice(-60);
+            const fixes = aiCorrections.slice(-6).map(c => {
+                const parts = [];
+                if (c.title) parts.push(`title "${c.title[0]}" -> "${c.title[1]}"`);
+                if (c.category) parts.push(`category ${c.category[0]} -> ${c.category[1]}`);
+                if (c.description) parts.push(`description "${String(c.description[0]).replace(/\n/g, ' / ')}" -> "${String(c.description[1]).replace(/\n/g, ' / ')}"`);
+                return '- ' + parts.join('; ');
+            });
+
             return `You are an expert Tamil editor for an Islamic media app (duas, Quran verses, hadith posters) used by Tamil-speaking Muslims in Tamil Nadu.
 
-Study the attached poster image carefully, then fill the fields IN THE ORDER given. Work from what is really written on the poster.
+Study the attached poster image carefully, then fill the fields IN THE ORDER given. Work only from what is really written on the poster. If the poster has Arabic plus a Tamil text, treat the Tamil text as the main source of meaning.
 
 1) visibleText: Copy every readable word on the poster exactly as written (Arabic, Tamil, English, transliteration). Do not translate here. Never guess unreadable parts; leave them out.
 2) contentType: one of "dua", "quran_verse", "hadith", "reminder", "other".
-3) occasion: in short English, WHEN or WHY this is recited/used (for example: morning, evening, before sleeping, before eating, entering home, travel, forgiveness, protection, gratitude, knowledge).
-4) title: Tamil only, 2 or 3 words, natural and short, naming the purpose the way Tamil Muslims say it (like "காலை துஆ", "உணவு உண்ணும் துஆ", "பயண துஆ"). It must agree with visibleText and occasion. No quotes, no punctuation, no English.
-5) categoryId: choose ONE id from the category list below. Decide by the poster's purpose (occasion) and by the example titles already in each category. If nothing fits reasonably, answer "none". Never invent an id.
-6) description: Tamil only, EXACTLY 2 short lines separated by ONE newline (\\n). Line 1: when/why this is used. Line 2: the key meaning or benefit, taken from the poster text (or the standard, well-known meaning of the visible Arabic dua). Each line at most 12 words. Do not invent Quran verse numbers, hadith narrators, references or claims that are not on the poster.
-7) confidence: "high" if the text was clearly readable and the match is sure, "medium" if partly sure, "low" if the image is unclear or you are guessing.
+3) occasion: in short English, WHEN or WHY this is recited or used (for example: morning, evening, before sleeping, before eating, entering home, travel, forgiveness, protection, gratitude, knowledge, health, rizq, parents).
+4) title: Tamil only, 2 or 3 words, short and natural, naming the PURPOSE the way Tamil Muslims say it (like "காலை துஆ", "உணவு உண்ணும் துஆ", "பயண துஆ"). It must agree with visibleText and occasion. No quotes, no punctuation, no English letters or digits. If the existing titles below already contain the same words for a DIFFERENT poster, make the title more specific with the key purpose word, but never copy a title for a different poster.
+5) categoryId: choose ONE id from the category list. Decide by the poster's purpose and by the example titles already inside each category (they show how this editor files things). Copy the id exactly. If nothing fits, answer "none". Never invent an id.
+6) description: Tamil only, EXACTLY 2 short lines separated by ONE newline character. Line 1: when or why this is used. Line 2: the key meaning or benefit taken from the poster's own words (simplified). Each line at most 12 words, no English letters. Do not add Quran verse numbers, hadith narrators, references, advice or claims that are not on the poster.
+7) confidence: "high" if the text was clearly readable and you are sure of title and category, "medium" if partly sure, "low" if the image is unclear or you are guessing.
 
-Tamil style: use the usual Islamic terms (அல்லாஹ், நபி (ஸல்), துஆ, குர்ஆன், ஹதீஸ்) and simple spoken Tamil spelling. No English words in title/description.
+Tamil style: use the usual Islamic terms (அல்லாஹ், நபி (ஸல்), துஆ, குர்ஆன், ஹதீஸ்) and simple spoken Tamil spelling.
 
-Categories:
+Categories (id, name, titles already filed there):
 ${JSON.stringify(cats)}
 
-Style of existing entries (match this tone and length):
-${JSON.stringify(styleExamples)}
-`;
+How the editor writes entries (match this tone, length and filing):
+${JSON.stringify(examples)}
+
+Existing titles (avoid exact repeats for different posters):
+${JSON.stringify(titles)}
+${fixes.length ? `
+The editor corrected earlier AI suggestions like this. Learn their preferences and apply them:
+${fixes.join('\n')}
+` : ''}`;
+        }
+
+        function aiProblems(res, retryable) {
+            const p = [];
+            const title = String(res.title || '').trim();
+            const words = title.split(/\s+/).filter(Boolean);
+            if (!words.length) p.push('title is empty');
+            if (words.length > 3) p.push('title has more than 3 words (use 2 or 3)');
+            if (/[A-Za-z0-9]/.test(title)) p.push('title contains English letters or digits (Tamil only)');
+            const lines = String(res.description || '').split(/\n+/).map(s => s.trim()).filter(Boolean);
+            if (lines.length !== 2) p.push('description must be exactly 2 lines separated by one newline (it has ' + lines.length + ')');
+            lines.forEach((l, i) => { if (l.split(/\s+/).length > 13) p.push('description line ' + (i + 1) + ' is longer than 12 words'); });
+            if (/[A-Za-z]/.test(String(res.description || ''))) p.push('description contains English letters (Tamil only)');
+            const cid = String(res.categoryId || res.category || '').trim();
+            const okCat = cid.toLowerCase() === 'none' ||
+                categories.some(c => c.id !== 'all' && (String(c.id) === cid || String(c.name).replace(/\s+/g, '') === cid.replace(/\s+/g, '')));
+            if (!okCat) p.push('categoryId must be exactly one id from the category list, or "none"');
+            return p;
+        }
+
+        async function requestAIWithChecks(cfg, prompt, base64, mime) {
+            const call = (pr) => cfg.provider === 'claude'
+                ? requestClaudeResult(cfg.key, pr, base64, mime)
+                : requestGeminiResult(cfg.key, pr, base64, mime);
+            const first = await call(prompt);
+            const problems = aiProblems(first.result || {});
+            if (!problems.length) return first;
+            try {
+                const again = await call(prompt + `
+
+Your previous answer was:
+${JSON.stringify(first.result)}
+
+It has these problems:
+${problems.map(x => '- ' + x).join('\n')}
+
+Look at the poster again and return the corrected JSON. Keep whatever was already correct.`);
+                const second = aiProblems(again.result || {});
+                if (second.length <= problems.length) return again;
+            } catch (e) {
+                if (e && (e.status === 401 || e.status === 403)) throw e;
+            }
+            return first;
         }
 
         function modelCandidates(available) {
@@ -4709,9 +4792,7 @@ ${JSON.stringify(styleExamples)}
                 const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
                 const prompt = buildAIPrompt();
 
-                const out = cfg.provider === 'claude'
-                    ? await requestClaudeResult(cfg.key, prompt, base64, mime)
-                    : await requestGeminiResult(cfg.key, prompt, base64, mime);
+                const out = await requestAIWithChecks(cfg, prompt, base64, mime);
 
                 if (selectedImageFile !== reqImage) return;   // another image was chosen meanwhile
 
@@ -4739,6 +4820,7 @@ ${JSON.stringify(styleExamples)}
                 document.getElementById('duaTitle').value = title;
                 document.getElementById('duaDescription').value = description;
                 document.getElementById('duaCategory').value = chosen ? chosen.id : '';
+                lastAIFill = { title, categoryId: chosen ? chosen.id : '', description };
 
                 const notes = [];
                 if (!chosen) notes.push('Category உறுதியாகத் தெரியவில்லை — நீங்களே தேர்வு செய்யவும்');
