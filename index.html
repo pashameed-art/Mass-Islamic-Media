@@ -1934,6 +1934,13 @@ html.dark .ai-status.err { color: #FF9C8B; }
 .dua-ico { margin-right: 0.3em; font-size: 0.95em; }
 .dua-chip { display: none; }
 
+.publish-status { display: none; margin-top: 0.9rem; padding: 0.8rem 1rem; border-radius: 14px; font-size: 0.9rem; line-height: 1.6; border: 1px solid var(--border-light); background: var(--bg-light); color: var(--text-dark); }
+.publish-status.info, .publish-status.ok, .publish-status.error, .publish-status.warn, .publish-status.success { display: block; }
+.publish-status.ok, .publish-status.success { border-color: #1a8f5a; background: rgba(26, 143, 90, 0.12); }
+.publish-status.error { border-color: #c0392b; background: rgba(192, 57, 43, 0.12); }
+.publish-status.warn { border-color: var(--gold); background: rgba(184, 146, 58, 0.14); }
+.publish-status { scroll-margin-bottom: 130px; }
+
 </style>
 </head>
 <body>
@@ -2164,7 +2171,7 @@ html.dark .ai-status.err { color: #FF9C8B; }
                                     உங்கள் GitHub repository-ல் direct upload செய்யவும்
                                 </p>
                                 <div class="form-group">
-                                    <input type="text" id="githubRepoInput" placeholder="username/repo" style="width: 100%; padding: 0.75rem; margin-bottom: 0.5rem; border: 1px solid var(--border-light); border-radius: 6px;">
+                                    <input type="text" id="githubRepoInput" placeholder="பயனர்பெயர்/repo-பெயர் (எ.கா. pashameed-art/உங்கள்-repo)" style="width: 100%; padding: 0.75rem; margin-bottom: 0.5rem; border: 1px solid var(--border-light); border-radius: 6px;">
                                     <input type="password" id="githubTokenInput" placeholder="GitHub Personal Token" style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 1px solid var(--border-light); border-radius: 6px;">
                                 </div>
                                 <button class="btn-small" id="syncGithubBtn">Sync to GitHub</button>
@@ -2175,6 +2182,7 @@ html.dark .ai-status.err { color: #FF9C8B; }
                                     நீங்கள் சேர்த்த / நீக்கிய துஆக்களை GitHub-ல் வெளியிட்டால், இந்த app பயன்படுத்தும் எல்லோரின் phone-லும் தெரியும். மேலே உள்ள Repo, Token பயன்படுத்தப்படும்.
                                 </p>
                                 <button class="btn-small" id="publishBtn">Publish to everyone</button>
+                                <div id="publishStatus" class="publish-status" role="status" aria-live="polite"></div>
                             </div>
                         </div>
                     </div>
@@ -2251,6 +2259,10 @@ html.dark .ai-status.err { color: #FF9C8B; }
                                 <p style="font-weight: 600;">Mass Islamic Media</p>
                                 <p style="font-size: 0.85rem; opacity: 0.7;">Version 21.1 • 27 Nov 2026</p>
                             </div>
+                        </div>
+                        <div class="settings-item" style="align-items: flex-start;">
+                            <p id="onlineStatus" style="font-size: 0.85rem; line-height: 1.6; flex: 1;">Online பட்டியல் சோதிக்கப்படுகிறது...</p>
+                            <button class="btn-small secondary" id="onlineRefreshBtn" type="button">மீண்டும் சோதி</button>
                         </div>
                     </div>
                 </div>
@@ -2980,19 +2992,35 @@ html.dark .ai-status.err { color: #FF9C8B; }
             if (currentPage === 'admin') { updateAdminStats(); if (document.getElementById('manageDuasContent').style.display === 'block') renderManageDuas(); }
         }
 
+        function setOnlineStatus(kind, extra) {
+            const el = document.getElementById('onlineStatus');
+            if (!el) return;
+            const when = (iso) => { try { return new Date(iso).toLocaleString('ta-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch (_) { return ''; } };
+            let text;
+            if (kind === 'ok') text = `✅ Online பட்டியல் கிடைத்தது: ${extra.count} துஆ (${when(extra.updated)})`;
+            else if (kind === 'none') text = '⚠️ Online பட்டியல் இல்லை. Admin இன்னும் Publish செய்யவில்லை (அல்லது GitHub Pages புதுப்பிக்கவில்லை). இப்போது மாதிரித் துஆக்கள் மட்டுமே தெரியும்.';
+            else if (kind === 'offline') text = '⚠️ Internet இணைப்பு இல்லை; கடைசியாகப் பெற்ற பட்டியல் காட்டப்படுகிறது.';
+            else text = 'Online பட்டியல் சோதிக்கப்படுகிறது...';
+            el.textContent = text;
+        }
+
         async function fetchRemoteLibrary() {
+            setOnlineStatus('checking');
             try {
                 const res = await fetchT('data/duas.json?t=' + Date.now(), { cache: 'no-store' }, 10000);
-                if (!res.ok) return;
+                if (!res.ok) { setOnlineStatus(remoteLib ? 'ok' : 'none', remoteLib ? { count: remoteLib.duas.length, updated: remoteLib.updated } : null); return; }
                 const json = await res.json();
-                if (!json || !Array.isArray(json.duas)) return;
+                if (!json || !Array.isArray(json.duas)) { setOnlineStatus('none'); return; }
                 remoteLib = json;
                 safeSetItem('remoteLibrary', JSON.stringify(json));
                 mergeLibrary();
                 mergeRemoteCategories();
                 safeSetItem('publishedMap', JSON.stringify(publishedMap));
                 refreshAll();
-            } catch (_) { /* offline or nothing published yet */ }
+                setOnlineStatus('ok', { count: json.duas.length, updated: json.updated });
+            } catch (_) {
+                setOnlineStatus(remoteLib ? 'ok' : 'offline', remoteLib ? { count: remoteLib.duas.length, updated: remoteLib.updated } : null);
+            }
         }
 
 
@@ -3217,7 +3245,11 @@ html.dark .ai-status.err { color: #FF9C8B; }
             updateAdminToggle();
 
             const savedRepo = localStorage.getItem('githubRepo');
-            if (savedRepo) document.getElementById('githubRepoInput').value = savedRepo;
+            const repoBox = document.getElementById('githubRepoInput');
+            const guess = guessRepoFromPage();
+            if (savedRepo && savedRepo.includes('/')) repoBox.value = savedRepo;
+            else if (guess) repoBox.value = guess;          // filled in automatically on GitHub Pages
+            else if (savedRepo) repoBox.value = savedRepo;
 
             if (notificationsEnabled) scheduleNotification();
             fetchRemoteLibrary();   // newest published duas (in the background)
@@ -3392,6 +3424,8 @@ html.dark .ai-status.err { color: #FF9C8B; }
             dailyCard.setAttribute('role', 'button');
             dailyCard.tabIndex = 0;
             dailyCard.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); dailyCard.click(); } });
+            const onlineRefresh = document.getElementById('onlineRefreshBtn');
+            if (onlineRefresh) onlineRefresh.addEventListener('click', fetchRemoteLibrary);
             const publishBtn = document.getElementById('publishBtn');
             if (publishBtn) publishBtn.addEventListener('click', publishToGitHub);
             document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
@@ -4040,16 +4074,17 @@ html.dark .ai-status.err { color: #FF9C8B; }
                 showAdminAlert('backupAlert', '❌ முதலில் Admin PIN உள்ளிடவும்', 'error');
                 return;
             }
-            const repo = document.getElementById('githubRepoInput').value.trim();
+            const repoRaw = document.getElementById('githubRepoInput').value.trim();
+            const repo = normalizeRepo(repoRaw);
             const tokenField = document.getElementById('githubTokenInput').value.trim();
             const token = tokenField || localStorage.getItem('githubToken') || '';
 
-            if (!repo || !token) {
+            if (!repoRaw || !token) {
                 showAdminAlert('backupAlert', '❌ Repo மற்றும் Token இரண்டும் தேவை', 'error');
                 return;
             }
-            if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) {
-                showAdminAlert('backupAlert', '❌ Repo format: username/repo', 'error');
+            if (!repo) {
+                showAdminAlert('backupAlert', '❌ Repo பெயர் "பயனர்பெயர்/repo-பெயர்" வடிவில் வேண்டும் (எ.கா. pashameed-art/உங்கள்-repo). உங்கள் Pages முகவரி https://பயனர்.github.io/REPO/ -ல் REPO என்பதே repo பெயர்.', 'error');
                 return;
             }
 
@@ -4276,6 +4311,67 @@ html.dark .ai-status.err { color: #FF9C8B; }
             }
         }
 
+
+        // ---------- GitHub repo name helpers ----------
+        function guessRepoFromPage() {
+            const m = location.hostname.match(/^([\w-]+)\.github\.io$/i);
+            if (!m) return null;
+            const seg = location.pathname.split('/').filter(Boolean)[0];
+            if (!seg || /\.html?$/i.test(seg)) return m[1] + '/' + m[1] + '.github.io';
+            return m[1] + '/' + seg;
+        }
+
+        // accepts: user/repo, github.com/user/repo(.git), user.github.io/repo, or just the user name
+        function normalizeRepo(value) {
+            let s = String(value || '').trim();
+            if (!s) return null;
+            const pages = s.match(/^(?:https?:\/\/)?([\w-]+)\.github\.io\/([\w.-]+)/i);
+            if (pages) return pages[1] + '/' + pages[2];
+            s = s.replace(/^(?:https?:\/\/)?(?:www\.)?github\.com\//i, '').replace(/\.git$/i, '').replace(/^\/+|\/+$/g, '');
+            if (/^[\w.-]+\/[\w.-]+$/.test(s)) return s;
+            if (/^[\w.-]+$/.test(s)) {            // only the user name: take the repo from the address this app runs on
+                const g = guessRepoFromPage();
+                if (g && g.toLowerCase().startsWith(s.toLowerCase() + '/')) return g;
+            }
+            return null;
+        }
+
+
+        // ---------- visible feedback for Publish (the old message sat two screens above the button) ----------
+        function setPublishStatus(text, type) {
+            const el = document.getElementById('publishStatus');
+            if (!el) return;
+            el.textContent = text;
+            el.className = 'publish-status ' + (type || 'info');
+            try { el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (_) {}
+        }
+
+        function pubMsg(text, type) {
+            setPublishStatus(text, type);
+        }
+
+        let verifyRun = 0;
+        async function verifyPublished(lib) {
+            const run = ++verifyRun;
+            const started = Date.now();
+            for (let i = 0; i < 16; i++) {                       // up to about 2.5 minutes
+                await new Promise(r => setTimeout(r, i === 0 ? 4000 : 9000));
+                if (run !== verifyRun) return;                   // a newer Publish started
+                try {
+                    const res = await fetchT('data/duas.json?t=' + Date.now(), { cache: 'no-store' }, 10000);
+                    if (res.ok) {
+                        const live = await res.json();
+                        if (live && live.updated === lib.updated) {
+                            pubMsg(`✅ வெளியிடப்பட்டது! Online-ல் ${live.duas.length} துஆ உறுதியானது. மற்ற phone-ல் Settings → About → "மீண்டும் சோதி" அழுத்தினால் தெரியும்.`, 'ok');
+                            return;
+                        }
+                    }
+                } catch (_) {}
+                pubMsg(`⏳ GitHub Pages புதுப்பிக்கிறது... (${Math.round((Date.now() - started) / 1000)} விநாடி). இந்தப் பக்கத்தை மூடாதீர்கள்.`, 'info');
+            }
+            pubMsg('⚠️ GitHub-ல் கோப்பு சேமிக்கப்பட்டது, ஆனால் Pages இன்னும் புதுப்பிக்கவில்லை. 5 நிமிடம் கழித்து மற்ற phone-ல் "மீண்டும் சோதி" அழுத்துங்கள். அப்போதும் வரவில்லை என்றால் GitHub → உங்கள் repo → Actions-ல் "pages build" முடிந்ததா என்று பாருங்கள்.', 'warn');
+        }
+
         // ---------- Publish: put duas on GitHub so everyone using the app sees them ----------
         function ghHeaders(token, json) {
             const h = { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' };
@@ -4321,18 +4417,19 @@ html.dark .ai-status.err { color: #FF9C8B; }
 
         async function publishToGitHub() {
             if (!adminAuthenticated) {
-                showAdminAlert('backupAlert', '❌ முதலில் Admin PIN உள்ளிடவும்', 'error');
+                pubMsg('❌ முதலில் Admin PIN உள்ளிடவும்', 'error');
                 return;
             }
-            const repo = document.getElementById('githubRepoInput').value.trim();
+            const repoRaw = document.getElementById('githubRepoInput').value.trim();
+            const repo = normalizeRepo(repoRaw);
             const tokenField = document.getElementById('githubTokenInput').value.trim();
             const token = tokenField || localStorage.getItem('githubToken') || '';
-            if (!repo || !token) {
-                showAdminAlert('backupAlert', '❌ மேலே GitHub Repo மற்றும் Token இரண்டும் தேவை', 'error');
+            if (!repoRaw || !token) {
+                pubMsg('❌ மேலே GitHub Repo மற்றும் Token இரண்டும் தேவை', 'error');
                 return;
             }
-            if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) {
-                showAdminAlert('backupAlert', '❌ Repo format: username/repo', 'error');
+            if (!repo) {
+                pubMsg('❌ Repo பெயர் "பயனர்பெயர்/repo-பெயர்" வடிவில் வேண்டும் (எ.கா. pashameed-art/உங்கள்-repo). உங்கள் Pages முகவரி https://பயனர்.github.io/REPO/ -ல் REPO என்பதே repo பெயர்.', 'error');
                 return;
             }
             safeSetItem('githubRepo', repo);
@@ -4340,6 +4437,8 @@ html.dark .ai-status.err { color: #FF9C8B; }
 
             const btn = document.getElementById('publishBtn');
             btn.disabled = true;
+            const btnLabel = btn.textContent;
+            btn.textContent = '⏳ வெளியிடுகிறது...';
             try {
                 const items = duasData.filter(d => !BUILTIN_IDS.has(String(d.id)));
                 const extOf = { 'image/webp': 'webp', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/svg+xml': 'svg' };
@@ -4351,14 +4450,14 @@ html.dark .ai-status.err { color: #FF9C8B; }
                     const m = String(d.image).match(/^data:(image\/[\w+.-]+);base64,([\s\S]*)$/);
                     if (!m) continue;
                     const path = `data/img/${d.id}.${extOf[m[1]] || 'img'}`;
-                    showAdminAlert('backupAlert', `⏳ படம் அனுப்புகிறது (${++done}/${toUpload.length})...`, 'info');
+                    pubMsg(`⏳ படம் அனுப்புகிறது (${++done}/${toUpload.length})...`, 'info');
                     await ghPutFile(repo, token, path, m[2], 'Add dua poster');
                     publishedMap[String(d.id)] = path;
                     safeSetItem('publishedMap', JSON.stringify(publishedMap));
                 }
 
                 // 2) the list itself (written last, so it only mentions pictures that exist)
-                showAdminAlert('backupAlert', '⏳ துஆ பட்டியலை வெளியிடுகிறது...', 'info');
+                pubMsg('⏳ துஆ பட்டியலை வெளியிடுகிறது...', 'info');
                 const lib = {
                     version: 1,
                     updated: new Date().toISOString(),
@@ -4381,13 +4480,15 @@ html.dark .ai-status.err { color: #FF9C8B; }
                 }
                 safeSetItem('publishedMap', JSON.stringify(publishedMap));
 
-                showAdminAlert('backupAlert', `✅ வெளியிடப்பட்டது! (${lib.duas.length} துஆ). GitHub Pages புதுப்பிக்க 1-2 நிமிடம் ஆகும்; பிறகு எல்லோர் phone-லும் தெரியும்.`, 'success');
+                pubMsg(`✅ GitHub-ல் சேமிக்கப்பட்டது (${lib.duas.length} துஆ). GitHub Pages புதுப்பிப்பதை சோதிக்கிறது...`, 'info');
+                verifyPublished(lib);
                 refreshAll();
             } catch (error) {
                 const busy = error && error.name === 'AbortError';
-                showAdminAlert('backupAlert', '❌ Publish தோல்வி: ' + (busy ? 'இணைப்பு தாமதம். மீண்டும் முயற்சிக்கவும்.' : (error.message || 'Unknown error')), 'error');
+                pubMsg('❌ Publish தோல்வி: ' + (busy ? 'இணைப்பு தாமதம். மீண்டும் முயற்சிக்கவும்.' : (error.message || 'Unknown error')), 'error');
             } finally {
                 btn.disabled = false;
+                btn.textContent = btnLabel;
             }
         }
 
